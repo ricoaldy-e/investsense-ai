@@ -12,6 +12,10 @@
   --color-success: #22c55e;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   @apply bg-bg-dark text-text-main antialiased;
   font-family: 'Inter', sans-serif;

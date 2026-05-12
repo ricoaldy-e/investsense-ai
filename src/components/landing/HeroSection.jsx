@@ -9,11 +9,7 @@ const HeroSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
-          <div className="text-left z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 text-xs font-bold text-brand-blue bg-brand-blue/10 border border-brand-blue/20 rounded-full tracking-widest uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-blue"></span>
-              AI-Powered Decision Support
-            </div>
+          <div className="max-w-2xl">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6 tracking-normal">
               Invest smarter,<br />
               stop the <span className="text-brand-blue">FOMO.</span>
@@ -23,7 +19,7 @@ const HeroSection = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-start">
               <Link 
-                to="/dashboard"
+                to="/login"
                 className="px-8 py-3.5 text-sm md:text-base font-medium bg-brand-blue text-white rounded-md hover:bg-cyan-700 transition-colors shadow-sm text-center border border-transparent hover:border-brand-blue/30"
               >
                 Start Analyzing

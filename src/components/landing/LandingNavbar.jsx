@@ -59,12 +59,18 @@ const LandingNavbar = () => {
               </a>
             </div>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link 
+              to="/login" 
+              className="px-3 py-2 text-sm font-medium text-text-main hover:text-cyan-400 transition-colors hidden sm:block"
+            >
+              Log in
+            </Link>
             <Link 
               to="/dashboard" 
               className="px-5 py-2 text-sm font-medium bg-brand-blue text-white rounded-md hover:bg-cyan-700 transition-colors shadow-sm"
             >
-              Login
+              Register
             </Link>
           </div>
         </div>

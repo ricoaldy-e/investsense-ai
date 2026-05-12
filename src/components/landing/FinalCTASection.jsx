@@ -15,7 +15,7 @@ const FinalCTASection = () => {
             Join 25,000+ rational investors using InvestSense AI to protect their capital from impulsive decisions.
           </p>
           <Link 
-            to="/dashboard"
+            to="/login"
             className="inline-block px-8 py-3.5 text-base font-medium bg-brand-blue text-white rounded-md hover:bg-cyan-700 transition-colors shadow-sm border border-transparent hover:border-brand-blue/30"
           >
             Start Analyzing Now

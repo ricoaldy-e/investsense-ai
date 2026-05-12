@@ -2,7 +2,7 @@ import { TriangleAlert } from 'lucide-react';
 
 const WarningBanner = () => {
   return (
-    <div className="bg-danger-bg border border-danger/20 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+    <div className="bg-danger-bg border border-danger/20 rounded-md p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
       <div className="flex items-start gap-4 flex-1">
         <div className="flex-shrink-0 mt-0.5">
           <TriangleAlert className="w-5 h-5 text-danger" />

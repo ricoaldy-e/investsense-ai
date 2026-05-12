@@ -42,7 +42,7 @@ const LandingNavbar = () => {
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="text-xl font-bold text-white tracking-wide group flex items-center transition-transform hover:scale-[1.02]"
             >
-              InvestSense <span className="text-brand-blue ml-1 group-hover:text-blue-400 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.5)] transition-all">AI</span>
+              InvestSense <span className="text-brand-blue ml-1 group-hover:text-cyan-400 transition-colors">AI</span>
             </button>
             <div className="hidden md:flex items-center gap-6">
               <a href="#features" className={`relative text-sm font-medium transition-colors pb-1 ${activeSection === 'features' ? 'text-white' : 'text-text-muted hover:text-white'}`}>
@@ -62,7 +62,7 @@ const LandingNavbar = () => {
           <div className="flex items-center">
             <Link 
               to="/dashboard" 
-              className="px-5 py-2 text-sm font-medium bg-brand-blue text-white rounded-md hover:bg-blue-600 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.4)]"
+              className="px-5 py-2 text-sm font-medium bg-brand-blue text-white rounded-md hover:bg-cyan-700 transition-colors shadow-sm"
             >
               Login
             </Link>

@@ -76,7 +76,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         <div>
           {/* Beginner Mode info card */}
           <div className="px-4">
-            <div className="bg-card-dark border border-card-border rounded-xl p-4 flex gap-3 text-sm">
+            <div className="bg-card-dark border border-card-border rounded-md p-4 flex gap-3 text-sm">
               <Info className="w-5 h-5 text-brand-blue flex-shrink-0 mt-0.5" />
               <p className="text-text-muted leading-relaxed">
                 You are currently in <span className="text-brand-blue font-semibold">Beginner Mode</span>. 

@@ -24,10 +24,10 @@ const MarketNewsCard = () => {
   ];
 
   return (
-    <div className="bg-card-dark border border-card-border rounded-xl sm:rounded-2xl p-4 sm:p-6 h-full flex flex-col">
+    <div className="bg-card-dark border border-card-border rounded-lg p-4 sm:p-6 h-full flex flex-col">
       <div className="flex justify-between items-center mb-4 sm:mb-6">
         <h3 className="text-lg font-bold text-white">Market News</h3>
-        <button className="text-xs font-semibold text-brand-blue hover:text-blue-400 transition-colors">
+        <button className="text-xs font-semibold text-brand-blue hover:text-white transition-colors">
           See All
         </button>
       </div>

@@ -15,11 +15,11 @@ const StockChartCard = () => {
   const ranges = ['1H', '1D', '1W', '1M'];
 
   return (
-    <div className="bg-card-dark border border-card-border rounded-xl sm:rounded-2xl p-4 sm:p-6 flex flex-col h-full overflow-hidden">
+    <div className="bg-card-dark border border-card-border rounded-lg p-4 sm:p-6 flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4 sm:mb-6">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-[#2a2a2a] rounded-xl flex items-center justify-center border border-gray-700 shrink-0">
+          <div className="w-12 h-12 bg-[#2a2a2a] rounded-md flex items-center justify-center border border-gray-700 shrink-0">
             {/* Placeholder for Apple Logo */}
             <span className="text-white font-bold text-lg"></span>
           </div>
@@ -79,16 +79,16 @@ const StockChartCard = () => {
         <div>
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-medium text-gray-300">RSI Intensity</span>
+              <span className="text-sm font-medium text-gray-300">RSI Indicator</span>
               <Info className="w-4 h-4 text-text-muted" />
             </div>
-            <span className="text-sm font-semibold text-[#f87171]">78.4 (Hot)</span>
+            <span className="text-sm font-semibold text-[#f87171]">78.4 (Overbought)</span>
           </div>
           <div className="h-2 w-full bg-card-border rounded-full overflow-hidden flex mb-2">
             <div className="h-full bg-brand-blue w-3/4 opacity-50 rounded-l-full"></div>
             <div className="h-full bg-[#f87171] w-1/4 rounded-r-full"></div>
           </div>
-          <p className="text-xs text-text-muted italic">A "Hot" signal suggests waiting for a lower price.</p>
+          <p className="text-xs text-text-muted mt-2">Elevated RSI suggests potential overvaluation in the short term.</p>
         </div>
 
         {/* Price Trend */}
@@ -101,9 +101,9 @@ const StockChartCard = () => {
             <span className="text-sm font-semibold text-brand-blue">Steady Growth</span>
           </div>
           <div className="h-2 w-full bg-card-border rounded-full overflow-hidden mb-2">
-            <div className="h-full bg-brand-blue w-[85%] rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)]"></div>
+            <div className="h-full bg-brand-blue w-[85%] rounded-full"></div>
           </div>
-          <p className="text-xs text-text-muted italic">The stock is generally moving upwards over time.</p>
+          <p className="text-xs text-text-muted mt-2">Consistent upward channel established over the current period.</p>
         </div>
       </div>
     </div>

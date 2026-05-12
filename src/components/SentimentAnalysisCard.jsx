@@ -2,7 +2,7 @@ import { BarChart3 } from 'lucide-react';
 
 const SentimentAnalysisCard = () => {
   return (
-    <div className="bg-card-dark border border-card-border rounded-xl sm:rounded-2xl p-4 sm:p-6 h-full flex flex-col">
+    <div className="bg-card-dark border border-card-border rounded-lg p-4 sm:p-6 h-full flex flex-col">
       <div className="flex items-center gap-2 mb-4 sm:mb-6">
         <BarChart3 className="w-5 h-5 text-brand-blue" />
         <h3 className="text-lg font-bold text-white">Sentiment Analysis</h3>
@@ -21,7 +21,7 @@ const SentimentAnalysisCard = () => {
         <div className="flex items-center justify-between gap-4">
           <span className="text-sm font-medium text-white w-16">Neutral</span>
           <div className="flex-1 h-2 bg-[#2a2a2a] rounded-full overflow-hidden">
-            <div className="h-full bg-brand-blue w-[65%] rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
+            <div className="h-full bg-brand-blue w-[65%] rounded-full"></div>
           </div>
         </div>
 

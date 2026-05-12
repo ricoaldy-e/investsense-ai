@@ -37,17 +37,17 @@ const FeaturesSection = () => {
           {features.map((feature, index) => (
             <div 
               key={index}
-              className="relative bg-card-dark border border-card-border rounded-xl sm:rounded-2xl p-4 sm:p-6 group transition-all duration-300 hover:border-brand-blue/30 hover:bg-[#12141a] overflow-hidden"
+              className="relative bg-card-dark border border-card-border rounded-lg p-4 sm:p-6 group transition-all duration-300 hover:border-brand-blue/30 overflow-hidden"
             >
               {/* Subtle hover gradient inside the card */}
-              <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
               
               <div className="relative z-10 flex justify-between items-start mb-8">
-                <div className="w-14 h-14 rounded-2xl bg-bg-dark border border-gray-800 flex items-center justify-center group-hover:scale-110 group-hover:border-brand-blue/30 transition-all duration-300 shadow-lg">
+                <div className="w-12 h-12 rounded-md bg-card-border/50 border border-card-border flex items-center justify-center text-brand-blue group-hover:bg-brand-blue/10 group-hover:border-brand-blue/20 transition-all duration-300">
                   {feature.icon}
                 </div>
                 {feature.badge && (
-                  <span className="px-3 py-1.5 text-[10px] font-bold text-brand-blue bg-brand-blue/10 border border-brand-blue/20 rounded-md uppercase tracking-widest shadow-[0_0_10px_rgba(59,130,246,0.1)]">
+                  <span className="px-2.5 py-1 text-[10px] font-bold text-brand-blue bg-brand-blue/10 border border-brand-blue/20 rounded uppercase tracking-widest">
                     {feature.badge}
                   </span>
                 )}

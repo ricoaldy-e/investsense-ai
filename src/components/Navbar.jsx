@@ -16,7 +16,7 @@ const Navbar = ({ onMenuClick }) => {
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-2 bg-card-dark border border-card-border rounded-lg text-sm text-text-main placeholder-text-muted focus:outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue transition-all"
+            className="block w-full pl-10 pr-3 py-2 bg-card-dark border border-card-border rounded-md text-sm text-text-main placeholder-text-muted focus:outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue transition-all"
             placeholder="Search markets (e.g., Apple, Bitcoin)..."
           />
         </div>
@@ -25,7 +25,7 @@ const Navbar = ({ onMenuClick }) => {
       {/* Right Actions */}
       <div className="flex items-center space-x-4 md:space-x-6">
         {/* Mode Toggle */}
-        <div className="hidden sm:flex items-center bg-card-dark p-1 rounded-lg border border-card-border">
+        <div className="hidden sm:flex items-center bg-card-dark p-1 rounded-md border border-card-border">
           <button className="px-4 py-1.5 text-sm font-medium rounded-md bg-brand-blue text-white shadow-sm transition-colors">
             Beginner
           </button>

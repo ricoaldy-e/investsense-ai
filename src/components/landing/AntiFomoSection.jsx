@@ -44,11 +44,10 @@ const AntiFomoSection = () => {
 
           {/* Right Card Mockup */}
           <div className="relative mt-12 lg:mt-0">
-             <div className="absolute inset-0 bg-danger/5 blur-[80px] rounded-full pointer-events-none"></div>
-             
+             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-danger/5 via-transparent to-transparent pointer-events-none"></div>
              {/* The Card */}
-             <div className="relative bg-card-dark border border-card-border rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-2xl group transition-all duration-500 hover:border-brand-blue/30">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent rounded-2xl pointer-events-none"></div>
+             <div className="relative bg-card-dark border border-card-border rounded-lg p-4 sm:p-6 shadow-2xl group transition-all duration-500 hover:border-brand-blue/30">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent rounded-lg pointer-events-none"></div>
                 
                 <h3 className="text-sm font-bold text-brand-blue mb-6 relative z-10">Risk Analysis</h3>
 
@@ -76,9 +75,6 @@ const AntiFomoSection = () => {
                     Market sentiment is currently detached from fundamentals. <strong className="text-white">Wait for price correction</strong> before establishing new positions.
                   </p>
                 </div>
-                
-                {/* Decorative glow inside card */}
-                <div className="absolute bottom-0 right-0 w-32 h-32 bg-danger/10 blur-[40px] rounded-full pointer-events-none group-hover:bg-danger/20 transition-colors"></div>
              </div>
           </div>
 

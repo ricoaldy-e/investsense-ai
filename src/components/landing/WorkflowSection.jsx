@@ -21,7 +21,7 @@ const WorkflowSection = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-4 relative z-10">
             {steps.map((step, index) => (
               <div key={index} className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 rounded-full bg-card-dark border-2 border-brand-blue flex items-center justify-center text-brand-blue font-bold text-sm mb-6 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                <div className="w-12 h-12 rounded-full bg-card-dark border border-brand-blue/50 flex items-center justify-center text-brand-blue font-bold text-sm mb-6 shadow-sm">
                   {step.num}
                 </div>
                 <h3 className="text-white font-bold mb-2">{step.title}</h3>

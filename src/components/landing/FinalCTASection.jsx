@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 const FinalCTASection = () => {
   return (
     <section className="py-24 bg-bg-dark border-t border-card-border/50 relative overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-brand-blue/10 blur-[100px] rounded-full pointer-events-none"></div>
+      {/* Subtle Background Accent */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-brand-blue/5 via-transparent to-transparent pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-        <div className="bg-card-dark border border-card-border rounded-3xl p-10 md:p-16 shadow-2xl">
+        <div className="bg-card-dark border border-card-border rounded-lg p-10 md:p-16 shadow-2xl">
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
             Master your investment psychology.
           </h2>
@@ -16,7 +16,7 @@ const FinalCTASection = () => {
           </p>
           <Link 
             to="/dashboard"
-            className="inline-block px-8 py-4 text-base font-bold bg-brand-blue text-white rounded-lg hover:bg-blue-600 hover:scale-105 transition-all shadow-[0_0_20px_rgba(59,130,246,0.4)]"
+            className="inline-block px-8 py-3.5 text-base font-medium bg-brand-blue text-white rounded-md hover:bg-cyan-700 transition-colors shadow-sm border border-transparent hover:border-brand-blue/30"
           >
             Start Analyzing Now
           </Link>

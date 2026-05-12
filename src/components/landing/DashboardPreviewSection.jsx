@@ -8,12 +8,12 @@ const DashboardPreviewSection = () => {
         </div>
 
         <div className="relative mx-auto max-w-6xl perspective-1000">
-          {/* Background Glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-brand-blue/15 blur-[120px] rounded-full pointer-events-none"></div>
+          {/* Subtle Accent Glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-blue/5 via-transparent to-transparent pointer-events-none"></div>
 
           {/* Outer Glass Frame */}
-          <div className="relative rounded-3xl bg-gradient-to-b from-[#2a303c] to-[#12141a] p-[1px] shadow-[0_0_50px_rgba(59,130,246,0.15)] transform transition-transform duration-700 hover:scale-[1.02]">
-            <div className="rounded-[23px] bg-card-dark p-2 sm:p-4 overflow-hidden">
+          <div className="relative rounded-lg bg-gradient-to-b from-[#2a303c] to-[#12141a] p-[1px] shadow-2xl border border-card-border/50 transform transition-transform duration-700 hover:scale-[1.02]">
+            <div className="rounded-[7px] bg-card-dark p-2 sm:p-4 overflow-hidden">
               <div className="bg-[#0f1115] rounded-xl aspect-[16/9] md:aspect-[21/9] border border-gray-800 flex items-center justify-center overflow-hidden relative shadow-inner">
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImEiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMGg0MHY0MEgwem0yMCAyMGgyMHYyMEgyMHoiIGZpbGw9IiMxYTFkMjQiIGZpbGwtb3BhY2l0eT0iMC40Ii8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2EpIi8+PC9zdmc+')] opacity-10"></div>
                 {/* UI Mockup Details */}

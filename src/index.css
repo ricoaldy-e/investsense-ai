@@ -1,10 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-blue: #3b82f6;
-  --color-bg-dark: #0a0a0a;
-  --color-card-dark: #121212;
-  --color-card-border: #1f1f1f;
+  --color-brand-blue: #0891b2; /* Cyan/Teal - Elegant Blue-Green */
+  --color-brand-blue-glow: rgba(8, 145, 178, 0.15);
+  --color-bg-dark: #09090b;
+  --color-card-dark: #121214;
+  --color-card-border: #222225;
   --color-text-main: #f3f4f6;
   --color-text-muted: #9ca3af;
   --color-danger: #ef4444;

@@ -1,6 +1,6 @@
 const RiskAnalysisCard = () => {
   return (
-    <div className="bg-card-dark border border-card-border rounded-xl sm:rounded-2xl p-4 sm:p-6 h-full flex flex-col">
+    <div className="bg-card-dark border border-card-border rounded-lg p-4 sm:p-6 h-full flex flex-col">
       <h3 className="text-sm font-bold text-brand-blue mb-4 sm:mb-6">Risk Analysis</h3>
 
       <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">

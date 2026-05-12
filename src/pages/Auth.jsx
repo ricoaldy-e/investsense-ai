@@ -12,45 +12,45 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen relative w-full overflow-hidden bg-[#111111] text-text-main font-sans selection:bg-[#00e5ff]/30 selection:text-white flex flex-col lg:block">
-      
-      {/* MOBILE ONLY: Minimal Branding Header */}
-      <div className="lg:hidden w-full bg-[#050505] p-6 border-b border-gray-800/50 flex flex-col items-center justify-center relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[200px] bg-[#00e5ff]/5 blur-[80px] rounded-full pointer-events-none"></div>
-        <Link to="/" className="relative z-10 text-xl font-bold text-white tracking-wide group flex items-center transition-transform hover:scale-[1.02] mb-2">
-          InvestSense <span className="text-[#00e5ff] ml-1 group-hover:text-[#00cce6] transition-colors">AI</span>
-        </Link>
-        <p className="relative z-10 text-xs text-gray-400">Professional AI-powered stock analysis</p>
-      </div>
 
       {/* MOBILE ONLY: Forms with AnimatePresence */}
-      <div className="lg:hidden flex-1 flex flex-col justify-center p-6 relative">
-        <AnimatePresence mode="wait">
-          {isRegister ? (
-            <motion.div
-              key="register"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-              className="flex justify-center"
-            >
-              <RegisterForm />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="login"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.3 }}
-              className="flex justify-center"
-            >
-              <LoginForm />
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <div className="lg:hidden flex-1 flex flex-col min-h-0 overflow-y-auto">
+        <div className="flex-1 flex flex-col items-center justify-center p-5 py-8 relative">
+          {/* Logo above card — centered with subtitle */}
+          <div className="w-full max-w-[420px] mb-6 flex flex-col items-center text-center">
+            <Link to="/" className="text-xl font-bold text-white tracking-wide group flex items-center transition-transform hover:scale-[1.02]">
+              InvestSense <span className="text-[#00e5ff] ml-1 group-hover:text-[#00cce6] transition-colors">AI</span>
+            </Link>
+            <p className="text-xs text-gray-500 mt-1.5">Professional AI-powered stock analysis</p>
+          </div>
+          <AnimatePresence mode="wait">
+            {isRegister ? (
+              <motion.div
+                key="register"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="w-full flex justify-center"
+              >
+                <RegisterForm />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="login"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.3 }}
+                className="w-full flex justify-center"
+              >
+                <LoginForm />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-        <div className="mt-auto pt-8 flex justify-center">
+        <div className="py-4 px-5 flex justify-center border-t border-gray-800/50">
           <p className="text-[10px] font-bold text-gray-600 uppercase tracking-wider text-center">
             © {currentYear} InvestSense AI. Precision Clinical Intelligence.
           </p>

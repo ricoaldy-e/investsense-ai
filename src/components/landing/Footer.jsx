@@ -18,14 +18,14 @@ const Footer = () => {
           }
         }
       }
-      
+
       if (window.scrollY < 100) current = '';
-      
+
       // Also highlight 'about' if we are at the very bottom of the page
       if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
         current = 'about';
       }
-      
+
       setActiveSection(current);
     };
 
@@ -70,7 +70,6 @@ const Footer = () => {
                   <span className={`absolute left-0 bottom-0 w-full h-[1px] bg-white transition-transform duration-300 origin-left ${activeSection === 'about' ? 'scale-x-100' : 'scale-x-0'}`}></span>
                 </a>
               </li>
-              <li className="pt-2"><Link to="/dashboard" className="text-sm text-text-muted hover:text-white transition-colors">Login</Link></li>
             </ul>
           </div>
         </div>

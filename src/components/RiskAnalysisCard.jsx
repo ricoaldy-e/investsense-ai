@@ -1,35 +1,35 @@
 const RiskAnalysisCard = () => {
   return (
-    <div className="bg-card-dark border border-card-border rounded-lg p-4 sm:p-6 h-full flex flex-col">
-      <h3 className="text-sm font-bold text-brand-blue mb-4 sm:mb-6">Risk Analysis</h3>
+    <div className="bg-card-dark border border-card-border p-4 sm:p-6 h-full flex flex-col">
+      <p className="font-mono text-[11px] tracking-[2px] uppercase text-accent mb-4 sm:mb-6">Risk Analysis</p>
 
-      <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-text-muted">Current Risk Level</span>
-          <span className="px-2 py-0.5 text-[10px] font-bold text-brand-blue bg-brand-blue/10 border border-brand-blue/20 rounded tracking-wider">
+      <div className="space-y-0 divide-y divide-hairline mb-6 sm:mb-8">
+        <div className="flex justify-between items-center py-3">
+          <span className="font-mono text-[12px] tracking-[1px] uppercase text-text-muted">Risk Level</span>
+          <span className="font-mono text-[11px] tracking-[2px] uppercase text-accent">
             MODERATE
           </span>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-text-muted">Volatility</span>
-          <span className="text-sm font-medium text-white">Low</span>
+        <div className="flex justify-between items-center py-3">
+          <span className="font-mono text-[12px] tracking-[1px] uppercase text-text-muted">Volatility</span>
+          <span className="font-mono text-[13px] text-text-main">Low</span>
         </div>
       </div>
 
       <div className="mb-6 flex-1">
-        <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">
+        <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted mb-3">
           Market Condition Summary
-        </h4>
-        <p className="text-sm text-gray-200 leading-relaxed">
+        </p>
+        <p className="font-body text-[14px] text-text-secondary leading-relaxed">
           Overall stable environment with moderate buying pressure. No immediate signals for extreme price shifts detected.
         </p>
       </div>
 
-      <div className="bg-[#0f1115] border border-card-border border-l-2 border-l-brand-blue rounded-lg p-4">
-        <h4 className="text-[10px] font-bold text-brand-blue uppercase tracking-wider mb-2">
+      <div className="border-l-2 border-accent pl-4 py-3">
+        <p className="font-mono text-[10px] tracking-[2px] uppercase text-accent mb-2">
           Anti-FOMO Reminder
-        </h4>
-        <p className="text-sm text-gray-300 italic leading-relaxed">
+        </p>
+        <p className="font-body text-[14px] text-text-secondary italic leading-relaxed">
           "Avoid entering during high-volatility peaks. Stick to your research."
         </p>
       </div>

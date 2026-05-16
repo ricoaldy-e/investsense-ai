@@ -2,29 +2,29 @@ import { Bot } from 'lucide-react';
 
 const AIInsightCard = () => {
   return (
-    <div className="bg-card-dark border border-card-border rounded-lg p-4 sm:p-6 h-full flex flex-col">
-      <div className="flex items-center gap-2 mb-4 sm:mb-6">
-        <Bot className="w-5 h-5 text-brand-blue" />
-        <h3 className="text-lg font-bold text-white">AI Advice</h3>
+    <div className="bg-card-dark border border-card-border p-4 sm:p-6 h-full flex flex-col">
+      <div className="flex items-center gap-2.5 mb-4 sm:mb-6">
+        <Bot className="w-4 h-4 text-accent" />
+        <h3 className="font-mono text-[11px] tracking-[2px] uppercase text-accent">AI Advice</h3>
       </div>
 
-      <div className="space-y-4 flex-1">
+      <div className="space-y-5 flex-1">
         {/* Observation */}
-        <div className="border-l-2 border-[#fca5a5] pl-4 py-1">
-          <h4 className="text-[10px] font-bold text-[#fca5a5] uppercase tracking-wider mb-2">
+        <div className="border-l-2 border-danger pl-4 py-1">
+          <p className="font-mono text-[10px] tracking-[2px] uppercase text-danger mb-2">
             Observation
-          </h4>
-          <p className="text-sm text-gray-200 leading-relaxed">
+          </p>
+          <p className="font-body text-[14px] text-text-secondary leading-relaxed">
             The stock has risen very fast recently. It is likely to take a small break or dip soon.
           </p>
         </div>
 
         {/* Suggested Plan */}
-        <div className="bg-brand-blue/5 border-l-2 border-brand-blue rounded-r-lg p-4 mt-2">
-          <h4 className="text-[10px] font-bold text-brand-blue uppercase tracking-wider mb-2">
+        <div className="border-l-2 border-accent pl-4 py-1">
+          <p className="font-mono text-[10px] tracking-[2px] uppercase text-accent mb-2">
             Suggested Plan
-          </h4>
-          <p className="text-sm text-gray-200 leading-relaxed">
+          </p>
+          <p className="font-body text-[14px] text-text-secondary leading-relaxed">
             Do not buy right now. Wait for the price to settle before considering an entry.
           </p>
         </div>

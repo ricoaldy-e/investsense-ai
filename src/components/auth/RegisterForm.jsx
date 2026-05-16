@@ -12,76 +12,83 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="w-full max-w-[420px] bg-[#18181b] border border-[#27272a] rounded-xl p-8 sm:p-10 shadow-2xl relative z-10">
-      <h2 className="text-[24px] font-bold text-white mb-2 tracking-tight">Create Account</h2>
-      <p className="text-sm text-gray-400 mb-8 leading-relaxed">
+    <div className="w-full max-w-[420px] bg-card-dark border border-card-border p-8 sm:p-10 relative z-10">
+      <h2 className="font-display text-[24px] font-light text-text-main tracking-[1px] uppercase mb-2">Create Account</h2>
+      <p className="font-body text-[14px] text-text-secondary mb-8 leading-relaxed">
         Start your rational investing journey today.
       </p>
 
-      <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
-        <div className="grid grid-cols-2 gap-4">
+      <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+        {/* Name row */}
+        <div className="grid grid-cols-2 gap-6">
           <div>
-            <label className="block text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-2">First Name</label>
+            <label className="block font-mono text-[10px] text-text-muted uppercase tracking-[2px] mb-3">First Name</label>
             <input 
               type="text" 
               placeholder="John" 
-              className="w-full bg-[#111113] border border-[#27272a] text-sm text-white px-4 py-3 rounded-md focus:outline-none focus:border-[#00e5ff] focus:ring-1 focus:ring-[#00e5ff] transition-all placeholder:text-gray-600" 
+              className="w-full bg-transparent border-b border-card-border text-[15px] font-body text-text-main px-0 py-3 focus:outline-none focus:border-accent transition-colors placeholder:text-text-muted/50" 
             />
           </div>
           <div>
-            <label className="block text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-2">Last Name</label>
+            <label className="block font-mono text-[10px] text-text-muted uppercase tracking-[2px] mb-3">Last Name</label>
             <input 
               type="text" 
               placeholder="Doe" 
-              className="w-full bg-[#111113] border border-[#27272a] text-sm text-white px-4 py-3 rounded-md focus:outline-none focus:border-[#00e5ff] focus:ring-1 focus:ring-[#00e5ff] transition-all placeholder:text-gray-600" 
+              className="w-full bg-transparent border-b border-card-border text-[15px] font-body text-text-main px-0 py-3 focus:outline-none focus:border-accent transition-colors placeholder:text-text-muted/50" 
             />
           </div>
         </div>
 
+        {/* Email */}
         <div>
-          <label className="block text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-2">Email Address</label>
+          <label className="block font-mono text-[10px] text-text-muted uppercase tracking-[2px] mb-3">Email Address</label>
           <input 
             type="email" 
             placeholder="name@company.com" 
-            className="w-full bg-[#111113] border border-[#27272a] text-sm text-white px-4 py-3 rounded-md focus:outline-none focus:border-[#00e5ff] focus:ring-1 focus:ring-[#00e5ff] transition-all placeholder:text-gray-600" 
+            className="w-full bg-transparent border-b border-card-border text-[15px] font-body text-text-main px-0 py-3 focus:outline-none focus:border-accent transition-colors placeholder:text-text-muted/50" 
           />
         </div>
 
+        {/* Password */}
         <div>
-          <label className="block text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-2">Password</label>
+          <label className="block font-mono text-[10px] text-text-muted uppercase tracking-[2px] mb-3">Password</label>
           <div className="relative">
             <input 
               type={showPassword ? "text" : "password"} 
               placeholder="••••••••" 
-              className="w-full bg-[#111113] border border-[#27272a] text-sm text-white px-4 py-3 pr-10 rounded-md focus:outline-none focus:border-[#00e5ff] focus:ring-1 focus:ring-[#00e5ff] transition-all placeholder:text-gray-600" 
+              className="w-full bg-transparent border-b border-card-border text-[15px] font-body text-text-main px-0 py-3 pr-10 focus:outline-none focus:border-accent transition-colors placeholder:text-text-muted/50" 
             />
             <button 
               type="button" 
               onClick={() => setShowPassword(!showPassword)} 
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors focus:outline-none"
+              className="absolute right-0 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary transition-colors focus:outline-none"
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
         </div>
 
-        <div className="pt-4">
+        {/* Submit */}
+        <div className="pt-3">
           <Link to="/dashboard" className="w-full block">
-            <button type="button" className="w-full bg-[#00e5ff] hover:bg-[#00cce6] hover:scale-[1.02] text-black font-semibold text-sm py-3 rounded-md transition-all shadow-sm">
-              Create Account
+            <button type="button" className="w-full font-mono text-[12px] tracking-[2.5px] uppercase text-accent border border-accent/40 rounded-full py-3.5 hover:bg-accent hover:text-bg-dark transition-all duration-300">
+              CREATE ACCOUNT
             </button>
           </Link>
         </div>
       </form>
 
       <div className="mt-8 text-center">
-        <p className="text-sm text-gray-400">
-          Already have an account? <a href="/login" onClick={handleModeSwitch} className="text-[#00e5ff] font-medium hover:underline transition-colors cursor-pointer ml-1">Log in here</a>
+        <p className="font-body text-[14px] text-text-secondary">
+          Already have an account?{' '}
+          <a href="/login" onClick={handleModeSwitch} className="text-accent hover:text-accent-hover transition-colors cursor-pointer">
+            Log in here
+          </a>
         </p>
       </div>
 
-      <div className="mt-8 flex justify-center items-center text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-        <Link to="/" className="flex items-center gap-2 hover:text-gray-300 transition-colors">
+      <div className="mt-8 flex justify-center items-center">
+        <Link to="/" className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted hover:text-text-secondary transition-colors flex items-center gap-2">
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
         </Link>
       </div>

@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, useInView } from 'framer-motion';
 
 const Footer = () => {
+  const footerRef = useRef(null);
+  const isInView = useInView(footerRef, { once: true, margin: '-40px' });
   const [activeSection, setActiveSection] = useState('');
 
   useEffect(() => {
@@ -34,56 +37,70 @@ const Footer = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const navLinks = [
+    { id: 'features', label: 'FEATURES' },
+    { id: 'workflow', label: 'HOW IT WORKS' },
+    { id: 'about', label: 'ABOUT' },
+  ];
+
   return (
-    <footer className="bg-bg-dark border-t border-card-border py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-between items-start mb-12">
+    <motion.footer
+      ref={footerRef}
+      initial={{ opacity: 0 }}
+      animate={isInView ? { opacity: 1 } : {}}
+      transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+      className="border-t border-card-border py-16 lg:py-20"
+    >
+      <div className="max-w-6xl mx-auto px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
           {/* Brand */}
-          <div className="max-w-xs">
-            <Link to="/" className="text-xl font-bold text-white tracking-wide block mb-4">
-              InvestSense <span className="text-brand-blue">AI</span>
+          <div className="max-w-sm">
+            <Link 
+              to="/" 
+              className="font-mono text-[13px] text-text-main tracking-[3px] uppercase block mb-5"
+            >
+              INVESTSENSE AI
             </Link>
-            <p className="text-sm text-text-muted">
+            <p className="font-body text-[14px] text-text-secondary leading-relaxed">
               AI-powered stock decision support platform designed to help beginner investors make rational investment decisions.
             </p>
           </div>
 
           {/* Navigation */}
           <div className="md:text-right">
-            <h4 className="text-white font-bold mb-4">Navigation</h4>
+            <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted mb-5">
+              NAVIGATION
+            </p>
             <ul className="space-y-3">
-              <li>
-                <a href="#features" className={`relative inline-block text-sm transition-colors pb-0.5 ${activeSection === 'features' ? 'text-white font-medium' : 'text-text-muted hover:text-white'}`}>
-                  Features
-                  <span className={`absolute left-0 bottom-0 w-full h-[1px] bg-white transition-transform duration-300 origin-left ${activeSection === 'features' ? 'scale-x-100' : 'scale-x-0'}`}></span>
-                </a>
-              </li>
-              <li>
-                <a href="#workflow" className={`relative inline-block text-sm transition-colors pb-0.5 ${activeSection === 'workflow' ? 'text-white font-medium' : 'text-text-muted hover:text-white'}`}>
-                  How It Works
-                  <span className={`absolute left-0 bottom-0 w-full h-[1px] bg-white transition-transform duration-300 origin-left ${activeSection === 'workflow' ? 'scale-x-100' : 'scale-x-0'}`}></span>
-                </a>
-              </li>
-              <li>
-                <a href="#about" className={`relative inline-block text-sm transition-colors pb-0.5 ${activeSection === 'about' ? 'text-white font-medium' : 'text-text-muted hover:text-white'}`}>
-                  About
-                  <span className={`absolute left-0 bottom-0 w-full h-[1px] bg-white transition-transform duration-300 origin-left ${activeSection === 'about' ? 'scale-x-100' : 'scale-x-0'}`}></span>
-                </a>
-              </li>
+              {navLinks.map(({ id, label }) => (
+                <li key={id}>
+                  <a 
+                    href={`#${id}`} 
+                    className={`font-mono text-[12px] tracking-[1.5px] uppercase transition-colors duration-300 ${
+                      activeSection === id 
+                        ? 'text-text-main' 
+                        : 'text-text-secondary hover:text-text-main'
+                    }`}
+                  >
+                    {label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
+        {/* Bottom */}
         <div className="pt-8 border-t border-card-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-text-muted">
+          <p className="font-mono text-[10px] tracking-[1.5px] text-text-muted uppercase">
             © {new Date().getFullYear()} InvestSense AI. All rights reserved.
           </p>
-          <p className="text-xs text-text-muted">
+          <p className="font-body text-[12px] text-text-muted italic">
             For educational purposes only. Not financial advice.
           </p>
         </div>
       </div>
-    </footer>
+    </motion.footer>
   );
 };
 

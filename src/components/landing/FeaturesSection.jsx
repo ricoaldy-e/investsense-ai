@@ -1,62 +1,81 @@
 import { Sparkles, BarChart3, TriangleAlert, BotMessageSquare } from 'lucide-react';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
 
 const FeaturesSection = () => {
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: true, margin: '-80px' });
+
   const features = [
     {
-      icon: <Sparkles className="w-6 h-6 text-brand-blue" />,
+      icon: <Sparkles className="w-5 h-5" />,
       title: "AI Insights",
-      description: "AI-generated explanations that simplify stock analysis for beginner investors.",
-      badge: "AI POWERED"
+      description: "AI-generated explanations that simplify stock analysis, making complex financial data accessible for beginner investors.",
     },
     {
-      icon: <BarChart3 className="w-6 h-6 text-brand-blue" />,
+      icon: <BarChart3 className="w-5 h-5" />,
       title: "Sentiment Analysis",
-      description: "Analyze financial news sentiment and classify signals into positive, neutral, or negative sentiment."
+      description: "Aggregate financial news sentiment and classify market signals into clear positive, neutral, or negative indicators.",
     },
     {
-      icon: <TriangleAlert className="w-6 h-6 text-danger" />,
+      icon: <TriangleAlert className="w-5 h-5" />,
       title: "Behavioral Risk Analysis",
-      description: "Help users avoid emotional investing and recognize risky market conditions."
+      description: "Identify emotional investing patterns and recognize high-risk market conditions before they impact your portfolio.",
     },
     {
-      icon: <BotMessageSquare className="w-6 h-6 text-brand-blue" />,
+      icon: <BotMessageSquare className="w-5 h-5" />,
       title: "AI Chatbot",
-      description: "Interactive AI assistant for stock-related explanations and analysis guidance."
+      description: "Interactive AI assistant for real-time stock explanations, analysis guidance, and investment education.",
     }
   ];
 
   return (
-    <section id="features" className="py-20 bg-bg-dark border-t border-card-border/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-16">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 tracking-tight">Advanced Analysis Core</h2>
-          <p className="text-text-muted text-lg">Engineered for sophisticated data interpretation.</p>
-        </div>
+    <section id="features" className="py-32 lg:py-40" ref={sectionRef}>
+      <div className="max-w-6xl mx-auto px-6 lg:px-8">
+        {/* Section header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+          className="mb-20"
+        >
+          <p className="font-mono text-[11px] tracking-[3px] uppercase text-text-muted mb-4">
+            CORE CAPABILITIES
+          </p>
+          <h2 className="font-display text-[32px] md:text-[40px] font-light text-text-main tracking-[1.5px] uppercase leading-tight">
+            Analysis Engine
+          </h2>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        {/* Feature grid — staggered reveal */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-card-border">
           {features.map((feature, index) => (
-            <div 
+            <motion.div
               key={index}
-              className="relative bg-card-dark border border-card-border rounded-lg p-4 sm:p-6 group transition-all duration-300 hover:border-brand-blue/30 overflow-hidden"
+              initial={{ opacity: 0, y: 25 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{
+                duration: 0.6,
+                delay: 0.15 + index * 0.1,
+                ease: [0.25, 0.1, 0.25, 1],
+              }}
+              className="bg-bg-dark p-8 md:p-10 lg:p-12 group"
             >
-              {/* Subtle hover gradient inside the card */}
-              <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-              
-              <div className="relative z-10 flex justify-between items-start mb-8">
-                <div className="w-12 h-12 rounded-md bg-card-border/50 border border-card-border flex items-center justify-center text-brand-blue group-hover:bg-brand-blue/10 group-hover:border-brand-blue/20 transition-all duration-300">
-                  {feature.icon}
-                </div>
-                {feature.badge && (
-                  <span className="px-2.5 py-1 text-[10px] font-bold text-brand-blue bg-brand-blue/10 border border-brand-blue/20 rounded uppercase tracking-widest">
-                    {feature.badge}
-                  </span>
-                )}
+              {/* Icon — direct, no container */}
+              <div className="text-accent mb-6">
+                {feature.icon}
               </div>
-              <h3 className="relative z-10 text-xl font-bold text-white mb-3 tracking-tight">{feature.title}</h3>
-              <p className="relative z-10 text-text-muted leading-relaxed text-sm md:text-base">
+
+              {/* Title — Outfit medium */}
+              <h3 className="font-display text-[20px] font-medium text-text-main tracking-[0.5px] mb-4">
+                {feature.title}
+              </h3>
+
+              {/* Body — Source Serif 4 */}
+              <p className="font-body text-[15px] text-text-secondary leading-relaxed">
                 {feature.description}
               </p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

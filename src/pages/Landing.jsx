@@ -9,7 +9,7 @@ import Footer from '../components/landing/Footer';
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-bg-dark text-text-main font-sans selection:bg-brand-blue/30 selection:text-white">
+    <div className="min-h-screen bg-bg-dark text-text-main">
       <LandingNavbar />
       <main>
         <HeroSection />

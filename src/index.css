@@ -1,17 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-blue: #0891b2;
-  /* Cyan/Teal - Elegant Blue-Green */
-  --color-brand-blue-glow: rgba(8, 145, 178, 0.15);
+  /* ─── Cold Surgical Palette ─── */
+  --color-accent: #a8b5c8;
+  --color-accent-soft: rgba(168, 181, 200, 0.12);
+  --color-accent-hover: #c2cdd9;
   --color-bg-dark: #09090b;
-  --color-card-dark: #121214;
-  --color-card-border: #222225;
-  --color-text-main: #f3f4f6;
-  --color-text-muted: #9ca3af;
-  --color-danger: #ef4444;
-  --color-danger-bg: rgba(239, 68, 68, 0.1);
-  --color-success: #22c55e;
+  --color-surface: #111113;
+  --color-card-dark: #18181b;
+  --color-card-border: #27272a;
+  --color-hairline: #1f1f1f;
+  --color-text-main: #fafafa;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #52525b;
+  --color-danger: #e85d5d;
+  --color-danger-soft: rgba(232, 93, 93, 0.10);
+  --color-success: #5fa657;
+  --color-success-soft: rgba(95, 166, 87, 0.10);
+  --color-chart-line: #7b8fa8;
+  --color-chart-fill: rgba(123, 143, 168, 0.15);
+
+  /* ─── Font Families ─── */
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'Source Serif 4', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 html {
@@ -20,13 +32,21 @@ html {
 
 body {
   @apply bg-bg-dark text-text-main antialiased;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
 }
 
-/* Custom scrollbar */
+/* ─── Typography utility classes ─── */
+
+/* Display headings — Outfit, light/regular, tracked */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 300;
+}
+
+/* ─── Custom scrollbar ─── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -34,10 +54,16 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
+  background: #27272a;
+  border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #3f3f46;
+}
+
+/* ─── Selection ─── */
+::selection {
+  background: rgba(168, 181, 200, 0.25);
+  color: #fafafa;
 }

@@ -1,26 +1,42 @@
 import { Link } from 'react-router-dom';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
 
 const FinalCTASection = () => {
-  return (
-    <section className="py-24 bg-bg-dark border-t border-card-border/50 relative overflow-hidden">
-      {/* Subtle Background Accent */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-brand-blue/5 via-transparent to-transparent pointer-events-none"></div>
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: true, margin: '-80px' });
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-        <div className="bg-card-dark border border-card-border rounded-lg p-10 md:p-16 shadow-2xl">
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-            Master your investment psychology.
-          </h2>
-          <p className="text-text-muted mb-10 max-w-2xl mx-auto">
-            Join 25,000+ rational investors using InvestSense AI to protect their capital from impulsive decisions.
-          </p>
+  return (
+    <section className="py-32 lg:py-40" ref={sectionRef}>
+      <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
+        <motion.h2
+          initial={{ opacity: 0, y: 25 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+          className="font-display text-[32px] md:text-[42px] lg:text-[48px] font-light text-text-main tracking-[1.5px] uppercase leading-tight mb-6"
+        >
+          Master Your Investment<br />Psychology.
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
+          className="font-body text-[16px] md:text-[18px] text-text-secondary max-w-xl mx-auto leading-relaxed mb-12"
+        >
+          Join rational investors using InvestSense AI to protect their capital from impulsive decisions and market hysteria.
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+        >
           <Link 
-            to="/login"
-            className="inline-block px-8 py-3.5 text-base font-medium bg-brand-blue text-white rounded-md hover:bg-cyan-700 transition-colors shadow-sm border border-transparent hover:border-brand-blue/30"
+            to="/register"
+            className="inline-block font-mono text-[12px] tracking-[2.5px] uppercase text-accent border border-accent/40 rounded-full px-10 py-4 hover:bg-accent hover:text-bg-dark transition-all duration-300"
           >
-            Start Analyzing Now
+            START ANALYZING NOW
           </Link>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

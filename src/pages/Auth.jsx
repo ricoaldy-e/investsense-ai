@@ -11,17 +11,17 @@ const Auth = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <div className="min-h-screen relative w-full overflow-hidden bg-[#111111] text-text-main font-sans selection:bg-[#00e5ff]/30 selection:text-white flex flex-col lg:block">
+    <div className="min-h-screen relative w-full overflow-hidden bg-bg-dark text-text-main flex flex-col lg:block">
 
       {/* MOBILE ONLY: Forms with AnimatePresence */}
       <div className="lg:hidden flex-1 flex flex-col min-h-0 overflow-y-auto">
         <div className="flex-1 flex flex-col items-center justify-center p-5 py-8 relative">
-          {/* Logo above card — centered with subtitle */}
-          <div className="w-full max-w-[420px] mb-6 flex flex-col items-center text-center">
-            <Link to="/" className="text-xl font-bold text-white tracking-wide group flex items-center transition-transform hover:scale-[1.02]">
-              InvestSense <span className="text-[#00e5ff] ml-1 group-hover:text-[#00cce6] transition-colors">AI</span>
+          {/* Logo above card */}
+          <div className="w-full max-w-[420px] mb-8 flex flex-col items-center text-center">
+            <Link to="/" className="font-mono text-[13px] text-text-main tracking-[3px] uppercase hover:text-accent transition-colors duration-300">
+              INVESTSENSE AI
             </Link>
-            <p className="text-xs text-gray-500 mt-1.5">Professional AI-powered stock analysis</p>
+            <p className="font-body text-[12px] text-text-muted mt-2">Professional AI-powered stock analysis</p>
           </div>
           <AnimatePresence mode="wait">
             {isRegister ? (
@@ -50,8 +50,8 @@ const Auth = () => {
           </AnimatePresence>
         </div>
 
-        <div className="py-4 px-5 flex justify-center border-t border-gray-800/50">
-          <p className="text-[10px] font-bold text-gray-600 uppercase tracking-wider text-center">
+        <div className="py-4 px-5 flex justify-center border-t border-card-border">
+          <p className="font-mono text-[10px] text-text-muted uppercase tracking-[1.5px] text-center">
             © {currentYear} InvestSense AI. Precision Clinical Intelligence.
           </p>
         </div>
@@ -72,7 +72,7 @@ const Auth = () => {
 
         {/* THE SLIDING BRANDING OVERLAY */}
         <motion.div 
-          className="absolute top-0 w-1/2 h-full shadow-[0_0_50px_rgba(0,0,0,0.5)] z-20 border-gray-800/50"
+          className="absolute top-0 w-1/2 h-full z-20 border-card-border"
           initial={false}
           animate={{ x: isRegister ? "0%" : "100%" }}
           transition={{ 

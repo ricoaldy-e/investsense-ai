@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, MessageSquare, Settings, User, ChevronLeft } from 'lucide-react';
+import { Plus, MessageSquare, User, X } from 'lucide-react';
 
 const ChatSidebar = ({ isOpen, onClose }) => {
   const [activeChat, setActiveChat] = useState(0);
@@ -30,31 +30,33 @@ const ChatSidebar = ({ isOpen, onClose }) => {
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Header */}
-        <div className="p-5 border-b border-hairline">
-          <div className="flex items-center justify-between mb-5">
-            <Link
-              to="/dashboard"
-              className="font-mono text-[11px] tracking-[3px] uppercase text-text-main hover:text-accent transition-colors"
-            >
-              INVESTSENSE AI
-            </Link>
-            <button
-              onClick={onClose}
-              className="lg:hidden text-text-muted hover:text-text-secondary transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* New conversation */}
-          <button className="w-full flex items-center justify-center gap-2 font-mono text-[11px] tracking-[2px] uppercase text-accent border border-accent/40 rounded-full py-2.5 hover:bg-accent hover:text-bg-dark transition-all duration-300">
-            <Plus className="w-3.5 h-3.5" />
-            NEW ANALYSIS
+        <div className="h-16 flex flex-shrink-0 items-center justify-between px-6 border-b border-card-border">
+          <Link
+            to="/"
+            className="font-mono text-[13px] text-text-main tracking-[3px] uppercase hover:text-accent transition-colors duration-300"
+          >
+            INVESTSENSE AI
+          </Link>
+          <button
+            onClick={onClose}
+            className="lg:hidden text-text-muted hover:text-text-secondary p-1 transition-colors"
+          >
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Conversation list */}
         <div className="flex-1 overflow-y-auto py-3">
+          <div className="px-5 mb-5 mt-2">
+            <Link 
+              to="/dashboard"
+              className="w-full flex items-center justify-center gap-2 font-mono text-[11px] tracking-[2px] uppercase text-accent border border-accent/40 rounded-full py-2.5 hover:bg-accent hover:text-bg-dark transition-all duration-300"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              NEW ANALYSIS
+            </Link>
+          </div>
+
           <p className="px-5 mb-3 font-mono text-[9px] tracking-[2px] uppercase text-text-muted">
             RECENT
           </p>
@@ -85,15 +87,14 @@ const ChatSidebar = ({ isOpen, onClose }) => {
         </div>
 
         {/* Bottom */}
-        <div className="border-t border-hairline p-4 space-y-1">
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 text-text-muted hover:text-text-secondary transition-colors">
-            <Settings className="w-3.5 h-3.5" />
-            <span className="font-mono text-[10px] tracking-[1.5px] uppercase">Settings</span>
-          </button>
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 text-text-muted hover:text-text-secondary transition-colors">
-            <User className="w-3.5 h-3.5" />
-            <span className="font-mono text-[10px] tracking-[1.5px] uppercase">Profile</span>
-          </button>
+        <div className="border-t border-card-border p-4 space-y-1">
+          <div className="space-y-1">
+
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 text-text-muted hover:text-text-secondary transition-colors">
+              <User className="w-3.5 h-3.5" />
+              <span className="font-mono text-[10px] tracking-[1.5px] uppercase">Profile</span>
+            </button>
+          </div>
         </div>
       </aside>
     </>

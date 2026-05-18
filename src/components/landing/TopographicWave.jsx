@@ -22,7 +22,7 @@ const WaveMesh = () => {
   useFrame(({ clock }) => {
     if (!geometryRef.current) return;
 
-    const time = clock.getElapsedTime() * 0.15; // Slightly faster per user request
+    const time = clock.getElapsedTime() * 0.3; // Speed increased per user request
     const posArray = geometryRef.current.attributes.position.array;
 
     for (let i = 0; i < count; i++) {
@@ -47,7 +47,7 @@ const WaveMesh = () => {
   return (
     <mesh
       rotation={[-Math.PI * 0.55, 0, 0]}    // Steeper angle — more top-down
-      position={[0, -2, 0]}                  // Adjusted for orthographic
+      position={[0, -3.5, 0]}                  // Adjusted for orthographic - moved down per user request
     >
       <planeGeometry ref={geometryRef} args={[40, 20, 80, 40]} />
       <meshBasicMaterial

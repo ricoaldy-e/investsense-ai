@@ -1,6 +1,11 @@
+import { useState } from 'react';
 import { TriangleAlert } from 'lucide-react';
 
 const WarningBanner = () => {
+  const [isVisible, setIsVisible] = useState(true);
+
+  if (!isVisible) return null;
+
   return (
     <div className="bg-danger-soft border border-danger/20 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
       <div className="flex items-start gap-4 flex-1">
@@ -16,7 +21,10 @@ const WarningBanner = () => {
           </p>
         </div>
       </div>
-      <button className="shrink-0 w-full sm:w-auto font-mono text-[10px] tracking-[2px] uppercase text-text-muted border border-card-border px-4 py-2 hover:text-text-main hover:border-text-muted transition-colors">
+      <button 
+        onClick={() => setIsVisible(false)}
+        className="shrink-0 w-full sm:w-auto font-mono text-[10px] tracking-[2px] uppercase text-text-muted border border-card-border px-4 py-2 hover:text-text-main hover:border-text-muted transition-colors"
+      >
         Dismiss
       </button>
     </div>

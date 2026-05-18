@@ -1,4 +1,4 @@
-import { Menu, Wifi } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 const ChatHeader = ({ onMenuClick }) => {
   return (
@@ -20,16 +20,7 @@ const ChatHeader = ({ onMenuClick }) => {
         </div>
       </div>
 
-      {/* Status */}
-      <div className="flex items-center gap-2">
-        <Wifi className="w-3 h-3 text-success" />
-        <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-success">
-          ONLINE
-        </span>
-        <span className="font-mono text-[9px] text-text-muted ml-1">
-          12ms
-        </span>
-      </div>
+
     </header>
   );
 };

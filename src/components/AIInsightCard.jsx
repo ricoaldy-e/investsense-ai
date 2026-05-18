@@ -1,6 +1,10 @@
 import { Bot } from 'lucide-react';
 
-const AIInsightCard = () => {
+const AIInsightCard = ({ data }) => {
+  if (!data) return null;
+
+  const { observation, suggestedPlan } = data.aiInsights || {};
+
   return (
     <div className="bg-card-dark border border-card-border p-4 sm:p-6 h-full flex flex-col">
       <div className="flex items-center gap-2.5 mb-4 sm:mb-6">
@@ -15,7 +19,7 @@ const AIInsightCard = () => {
             Observation
           </p>
           <p className="font-body text-[14px] text-text-secondary leading-relaxed">
-            The stock has risen very fast recently. It is likely to take a small break or dip soon.
+            {observation || 'No observation data available.'}
           </p>
         </div>
 
@@ -25,7 +29,7 @@ const AIInsightCard = () => {
             Suggested Plan
           </p>
           <p className="font-body text-[14px] text-text-secondary leading-relaxed">
-            Do not buy right now. Wait for the price to settle before considering an entry.
+            {suggestedPlan || 'No plan data available.'}
           </p>
         </div>
       </div>

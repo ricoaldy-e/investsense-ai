@@ -1,4 +1,4 @@
-const MarketNewsCard = ({ data }) => {
+const MarketNewsCard = ({ data, mode }) => {
   if (!data) return null;
 
   const newsItems = (data.news || []).map(item => ({

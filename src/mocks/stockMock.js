@@ -1,14 +1,4 @@
-// src/services/mockData.js
-
-export const mockUsers = [
-  {
-    id: "uuid-user-1",
-    username: "alex_j",
-    email: "alex@investsense.ai",
-    password_hash: "password123", // Ingat: di real backend ini di-hash dengan bcrypt!
-    created_at: new Date().toISOString()
-  }
-];
+// src/mocks/stockMock.js
 
 export const mockStocks = {
   "AAPL": {
@@ -84,3 +74,19 @@ export const mockStocks = {
     ]
   }
 };
+
+/**
+ * Search index — lightweight entries for stocks that appear in search
+ * but may not have full dashboard analysis data yet.
+ * 
+ * stockService.searchStocks() uses this combined with mockStocks
+ * to return autocomplete results.
+ */
+export const mockSearchIndex = [
+  { ticker: "AAPL", name: "Apple Inc." },
+  { ticker: "TSLA", name: "Tesla Inc." },
+  { ticker: "MSFT", name: "Microsoft Corp." },
+  { ticker: "BBCA.JK", name: "Bank Central Asia Tbk" },
+  { ticker: "GOTO.JK", name: "GoTo Gojek Tokopedia" }
+];
+

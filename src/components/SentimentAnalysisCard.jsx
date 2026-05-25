@@ -1,6 +1,6 @@
 import { BarChart3 } from 'lucide-react';
 
-const SentimentAnalysisCard = ({ data }) => {
+const SentimentAnalysisCard = ({ data, mode }) => {
   if (!data) return null;
 
   const { positive = 0, neutral = 0, negative = 0 } = data.sentiment || {};

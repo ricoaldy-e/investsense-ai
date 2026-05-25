@@ -1,23 +1,20 @@
 import { Search, User, Menu, X } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const MOCK_SEARCH_RESULTS = [
-  { ticker: 'AAPL', name: 'Apple Inc.', type: 'Stock' },
-  { ticker: 'TSLA', name: 'Tesla Inc.', type: 'Stock' },
-  { ticker: 'MSFT', name: 'Microsoft Corp.', type: 'Stock' },
-  { ticker: 'BBCA.JK', name: 'Bank Central Asia Tbk', type: 'Stock' },
-  { ticker: 'GOTO.JK', name: 'GoTo Gojek Tokopedia', type: 'Stock' }
-];
+import ConfirmModal from './ui/ConfirmModal';
+import { stockService } from '../services/stockService';
 
 const Navbar = ({ onMenuClick, userMode, onModeChange }) => {
   const [username, setUsername] = useState('Guest');
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDashboardEmpty, setIsDashboardEmpty] = useState(true);
+  const [showClearModal, setShowClearModal] = useState(false);
   
   const navigate = useNavigate();
   const searchContainerRef = useRef(null);
+  const debounceRef = useRef(null);
 
   useEffect(() => {
     // Parse user
@@ -46,16 +43,35 @@ const Navbar = ({ onMenuClick, userMode, onModeChange }) => {
     return () => {
       window.removeEventListener('dashboardState', handleDashboardState);
       document.removeEventListener('mousedown', handleClickOutside);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, []);
 
   const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
+    const query = e.target.value;
+    setSearchQuery(query);
     setIsDropdownOpen(true);
+
+    // Debounce search calls (300ms)
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (query.trim()) {
+      debounceRef.current = setTimeout(async () => {
+        try {
+          const results = await stockService.searchStocks(query.trim());
+          setSearchResults(results);
+        } catch {
+          setSearchResults([]);
+        }
+      }, 300);
+    } else {
+      setSearchResults([]);
+    }
   };
 
   const handleSelectStock = (ticker) => {
     setSearchQuery('');
+    setSearchResults([]);
     setIsDropdownOpen(false);
     navigate(`/dashboard?stock=${ticker}`);
   };
@@ -64,29 +80,19 @@ const Navbar = ({ onMenuClick, userMode, onModeChange }) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
       e.preventDefault();
       
-      // Poka-Yoke: Cegah search asal-asalan. Hanya pilih jika ada di dropdown list
-      const exactMatch = MOCK_SEARCH_RESULTS.find(s => s.ticker.toLowerCase() === searchQuery.trim().toLowerCase());
+      // Poka-Yoke: Cegah search asal-asalan. Hanya pilih jika ada di search results
+      const exactMatch = searchResults.find(s => s.ticker.toLowerCase() === searchQuery.trim().toLowerCase());
       if (exactMatch) {
         handleSelectStock(exactMatch.ticker);
-      } else {
-        const filtered = MOCK_SEARCH_RESULTS.filter(s => 
-          s.ticker.toLowerCase().includes(searchQuery.toLowerCase()) || 
-          s.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-        if (filtered.length > 0) {
-          handleSelectStock(filtered[0].ticker);
-        }
-        // Jika tidak ada di filter, Enter tidak akan melakukan apa-apa (mencegah layar error)
+      } else if (searchResults.length > 0) {
+        handleSelectStock(searchResults[0].ticker);
       }
+      // Jika tidak ada di results, Enter tidak akan melakukan apa-apa (mencegah layar error)
     }
   };
 
-  const filteredStocks = MOCK_SEARCH_RESULTS.filter(s => 
-    s.ticker.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    s.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
+    <>
     <header className="h-16 flex-shrink-0 bg-bg-dark border-b border-card-border flex items-center justify-between px-4 md:px-6 lg:px-8 gap-4 z-50">
       {/* Mobile Menu Button */}
       <button onClick={onMenuClick} className="md:hidden p-2 -ml-2 text-text-muted hover:text-text-main transition-colors">
@@ -115,8 +121,8 @@ const Navbar = ({ onMenuClick, userMode, onModeChange }) => {
               <p className="px-4 py-1.5 font-mono text-[9px] tracking-[2px] text-text-muted uppercase mb-1">
                 Search Results
               </p>
-              {filteredStocks.length > 0 ? (
-                filteredStocks.map((stock) => (
+              {searchResults.length > 0 ? (
+                searchResults.map((stock) => (
                   <button
                     key={stock.ticker}
                     onClick={() => handleSelectStock(stock.ticker)}
@@ -130,8 +136,8 @@ const Navbar = ({ onMenuClick, userMode, onModeChange }) => {
                         {stock.name}
                       </p>
                     </div>
-                    <span className="font-mono text-[9px] tracking-[1px] uppercase text-text-muted bg-bg-dark px-2 py-1 rounded">
-                      {stock.type}
+                    <span className="font-mono text-[9px] tracking-[1px] uppercase text-text-muted bg-bg-dark px-2 py-1">
+                      Stock
                     </span>
                   </button>
                 ))
@@ -151,7 +157,7 @@ const Navbar = ({ onMenuClick, userMode, onModeChange }) => {
         {!isDashboardEmpty && (
           <div className="hidden sm:flex items-center gap-4 transition-opacity duration-500">
             <button 
-              onClick={() => window.dispatchEvent(new CustomEvent('clearDashboardCommand'))}
+              onClick={() => setShowClearModal(true)}
               className="font-mono text-[10px] tracking-[1px] uppercase text-text-muted hover:text-danger transition-colors flex items-center gap-1.5"
               title="Clear Analysis"
             >
@@ -189,6 +195,18 @@ const Navbar = ({ onMenuClick, userMode, onModeChange }) => {
         </div>
       </div>
     </header>
+
+    {/* Clear Dashboard Confirmation Modal */}
+    <ConfirmModal
+      isOpen={showClearModal}
+      onClose={() => setShowClearModal(false)}
+      onConfirm={() => window.dispatchEvent(new CustomEvent('clearDashboardCommand'))}
+      title="Clear Analysis"
+      description="This will reset the dashboard and remove the current stock analysis from view. You can search for a new stock at any time."
+      confirmLabel="CLEAR"
+      variant="neutral"
+    />
+    </>
   );
 };
 

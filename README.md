@@ -92,4 +92,17 @@ To provide a clean and intuitive interface that helps users understand stock ins
 
 ---
 
+## 🤖 AI Agent Onboarding Guide
+
+If you are an AI Assistant / Agent assigned to work on this repository, you MUST read and internalize the following documentation before suggesting any changes or refactoring:
+
+1. **[DESIGN.md](./DESIGN.md)**: This is the single most important visual document. We use a strictly defined **"Cold Surgical"** design system. You must understand the 3-font typography trinity, the absolute ban on rounded corners (except pill buttons), and the prohibition of generic "AI SaaS" glowing/shadow effects.
+2. **[SRS.md](./SRS.md)**: Understand the core product philosophy. This is an **Anti-FOMO** decision support tool, NOT a trading execution bot.
+3. **[USERFLOW.md](./USERFLOW.md)**: Reference for how the user navigates between the Landing Page, Dashboard, and Chatbot.
+4. **[DATABASE.md](./DATABASE.md)**: Reference for future backend integration context.
+
+**Golden Rule for AI Agents**: DO NOT redesign the UI, DO NOT add unnecessary abstractions, and ALWAYS respect the Cold Surgical design guidelines.
+
+---
+
 **InvestSense AI — helping you invest based on data, not emotion.**

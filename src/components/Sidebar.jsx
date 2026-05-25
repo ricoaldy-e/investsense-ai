@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { LayoutDashboard as LayoutDashboardIcon, MessageSquare as MessageSquareIcon, LogOut as LogOutIcon, Info, X } from 'lucide-react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
+import ConfirmModal from './ui/ConfirmModal';
 
 const Sidebar = ({ isOpen, onClose, userMode }) => {
   const navigate = useNavigate();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -76,7 +79,7 @@ const Sidebar = ({ isOpen, onClose, userMode }) => {
 
               {/* Logout Menu */}
               <button
-                onClick={handleLogout}
+                onClick={() => setShowLogoutModal(true)}
                 className="w-full flex items-center px-6 py-3 border-l-2 border-transparent text-text-muted hover:text-text-secondary hover:bg-surface transition-colors duration-200"
               >
                 <LogOutIcon className="w-4 h-4 mr-3" />
@@ -100,6 +103,17 @@ const Sidebar = ({ isOpen, onClose, userMode }) => {
           </div>
         </div>
       </aside>
+
+      {/* Logout Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
+        title="End Session"
+        description="You are about to terminate your current session. Any unsaved analysis context will be cleared."
+        confirmLabel="LOG OUT"
+        variant="danger"
+      />
     </>
   );
 };

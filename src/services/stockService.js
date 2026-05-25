@@ -1,7 +1,6 @@
-import { mockStocks } from './mockData';
-
-// Simulate network delay
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+import { mockStocks, mockSearchIndex } from '../mocks/stockMock';
+import api from './api';
+import { delay } from './utils';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
 
@@ -13,7 +12,7 @@ class StockService {
       const stock = mockStocks[upperTicker];
       
       if (!stock) {
-        throw new Error(`Stock data for ${upperTicker} not found.`);
+        throw new Error(`Stock data for ${upperTicker} is not available for analysis.`);
       }
       return stock;
     } else {
@@ -26,15 +25,16 @@ class StockService {
 
   async searchStocks(query) {
     if (USE_MOCK) {
-      await delay(400); // Simulasi pencarian cepat
+      await delay(200); // Simulasi pencarian cepat
       const lowerQuery = query.toLowerCase();
-      // Filter mockStocks based on ticker or name
-      const results = Object.values(mockStocks).filter(stock => 
+      return mockSearchIndex.filter(stock => 
         stock.ticker.toLowerCase().includes(lowerQuery) || 
         stock.name.toLowerCase().includes(lowerQuery)
       );
-      return results;
     } else {
+      // Future integration with Real API
+      // const response = await api.get(`/stocks/search?q=${query}`);
+      // return response.data;
       throw new Error("Real API not implemented yet");
     }
   }

@@ -26,16 +26,23 @@ const Chatbot = () => {
     // 1. Tambahkan pesan user ke layar
     const userMsg = { id: Date.now(), role: 'user', content: text };
     setMessages(prev => [...prev, userMsg]);
-    
+
     // 2. Tampilkan indikator loading AI
     setIsTyping(true);
-    
+
     try {
       // 3. Panggil otak AI (simulasi backend)
       const aiResponse = await chatService.sendMessage(text);
       setMessages(prev => [...prev, aiResponse]);
     } catch (error) {
-      console.error(error);
+      // Tampilkan error sebagai pesan AI agar user mendapat feedback
+      const errorMsg = {
+        id: Date.now(),
+        role: 'ai',
+        type: 'error',
+        content: 'Analysis engine is temporarily unavailable. Please try again shortly.'
+      };
+      setMessages(prev => [...prev, errorMsg]);
     } finally {
       setIsTyping(false);
     }
@@ -56,7 +63,7 @@ const Chatbot = () => {
         {/* Analysis content — scrollable */}
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-3xl mx-auto px-5 py-8 space-y-8">
-            
+
             {/* Zero State / Empty Chat */}
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
@@ -76,19 +83,26 @@ const Chatbot = () => {
             {messages.map((msg) => (
               <div key={msg.id} className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[85%] ${msg.role === 'user' ? 'bg-card-dark border border-card-border p-5' : ''}`}>
-                  
+
                   {msg.role === 'user' && (
                     <p className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted mb-2">YOUR QUERY</p>
                   )}
-                  
-                  {msg.role === 'ai' && (
+
+                  {msg.role === 'ai' && msg.type !== 'error' && (
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
                       <p className="font-mono text-[10px] tracking-[2px] uppercase text-accent">AI RESPONSE</p>
                     </div>
                   )}
 
-                  <p className={`font-body text-[14px] leading-relaxed ${msg.role === 'ai' ? 'text-text-secondary' : 'text-text-main'}`}>
+                  {msg.type === 'error' && (
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-1.5 h-1.5 bg-danger rounded-full" />
+                      <p className="font-mono text-[10px] tracking-[2px] uppercase text-danger">SYSTEM NOTICE</p>
+                    </div>
+                  )}
+
+                  <p className={`font-body text-[14px] leading-relaxed ${msg.type === 'error' ? 'text-danger/80' : msg.role === 'ai' ? 'text-text-secondary' : 'text-text-main'}`}>
                     {msg.content}
                   </p>
 

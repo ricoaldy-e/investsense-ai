@@ -1,4 +1,4 @@
-# InvestSense AI — Design System & Guidelines (V2)
+# InvestSense AI - Design System & Guidelines (V2)
 
 This document serves as the single source of truth for the InvestSense AI visual identity. The design language is inspired by high-end precision engineering (Bugatti) and clinical data analysis, moving away from generic "AI SaaS" templates.
 

@@ -8,7 +8,7 @@ const DashboardPreviewSection = () => {
   const stats = [
     { value: '4', label: 'ANALYSIS MODULES', accent: true },
     { value: '24/7', label: 'AI MONITORING', accent: false },
-    { value: '0', label: 'EMOTIONAL DECISIONS', accent: true },
+    { value: '100%', label: 'OBJECTIVE ANALYTICS', accent: true },
   ];
 
   return (
@@ -28,7 +28,7 @@ const DashboardPreviewSection = () => {
             Precision Analysis<br />Dashboard
           </h2>
           <p className="font-body text-[16px] md:text-[18px] text-text-secondary max-w-xl mx-auto leading-relaxed">
-            Optimized for rapid clinical analysis. Built on a foundation of clarity, precision, and rational decision-making.
+            Engineered for institutional-grade analytical speed. Designed to reduce cognitive fatigue and prioritize empirical data.
           </p>
         </motion.div>
 

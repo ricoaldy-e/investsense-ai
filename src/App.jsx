@@ -9,7 +9,7 @@ import GuestRoute from './components/auth/GuestRoute';
 const Landing = lazy(() => import('./pages/Landing'));
 const Auth = lazy(() => import('./pages/Auth'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
-const Chatbot = lazy(() => import('./pages/Chatbot'));
+const MarketInsight = lazy(() => import('./pages/MarketInsight'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Minimal Cold Surgical loading fallback
@@ -40,10 +40,9 @@ function App() {
 
             {/* Protected Routes: Only accessible if logged in */}
             <Route element={<ProtectedRoute />}>
-              <Route path="/chatbot" element={<Chatbot />} />
-              <Route path="/dashboard" element={<DashboardLayout />}>
-                <Route index element={<Dashboard />} />
-                {/* Other dashboard routes can be added here later */}
+              <Route element={<DashboardLayout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/market-insight" element={<MarketInsight />} />
               </Route>
             </Route>
 

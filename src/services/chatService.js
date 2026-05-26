@@ -17,7 +17,7 @@ export const chatService = {
           id: Date.now(),
           role: 'ai',
           type: 'text',
-          content: "Berdasarkan data terbaru, Apple Inc. (AAPL) menunjukkan momentum kenaikan yang stabil (RSI 65.4). Namun, ingatlah untuk tidak terjebak FOMO. Tunggu koreksi kecil sebelum menambah posisi Anda."
+          content: "Berdasarkan data terbaru, Apple Inc. (AAPL) menunjukkan momentum kenaikan yang stabil (RSI 65.4). Tetap pertahankan disiplin alokasi modal dan hindari aksi spekulatif. Pertimbangkan posisi masuk setelah terjadi koreksi teknis."
         };
       }
 

@@ -28,13 +28,13 @@ const AuthBranding = ({ isRegister }) => {
             >
               <h1 className="font-display text-[36px] xl:text-[42px] font-light text-text-main leading-[1.2] tracking-[1.5px] uppercase mb-6">
                 {isRegister ? (
-                  <>Join the future of<br />rational investing.</>
+                  <>Cultivate absolute<br />rational discipline.</>
                 ) : (
-                  <>Invest smarter,<br />not emotionally.</>
+                  <>Decouple analysis<br />from speculative hype.</>
                 )}
               </h1>
               <p className="font-body text-[16px] text-text-secondary leading-relaxed max-w-md">
-                Professional AI-powered stock analysis, sentiment tracking, and behavioral risk awareness to guide your rational investing journey.
+                Institutional-grade sentiment analysis, advanced risk metrics, and behavioral guardrails designed to secure your capital decisions.
               </p>
             </motion.div>
           </AnimatePresence>

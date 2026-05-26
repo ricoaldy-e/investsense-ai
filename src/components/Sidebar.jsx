@@ -1,29 +1,23 @@
 import { useState } from 'react';
-import { LayoutDashboard as LayoutDashboardIcon, MessageSquare as MessageSquareIcon, LogOut as LogOutIcon, Info, User } from 'lucide-react';
+import { LayoutDashboard as LayoutDashboardIcon, TrendingUp as TrendingUpIcon, LogOut as LogOutIcon, Info } from 'lucide-react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import ConfirmModal from './ui/ConfirmModal';
 
 const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
   const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [username] = useState(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        const userObj = JSON.parse(userStr);
-        return userObj.username || 'Guest';
-      } catch (e) {
-        console.error("Failed to parse user", e);
-      }
-    }
-    return 'Guest';
-  });
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     navigate('/login');
   };
+
+  const navLinkClass = ({ isActive }) =>
+    `flex items-center px-6 py-3 border-l-2 transition-colors duration-200 ${isActive
+      ? 'border-accent text-text-main bg-accent-soft'
+      : 'border-transparent text-text-secondary hover:text-text-main hover:bg-surface'
+    }`;
 
   return (
     <>
@@ -57,31 +51,14 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
 
             {/* Navigation Links */}
             <nav className="space-y-1" aria-label="Main navigation">
-              <NavLink
-                to="/dashboard"
-                className={({ isActive }) =>
-                  `flex items-center px-6 py-3 border-l-2 transition-colors duration-200 ${isActive
-                    ? 'border-accent text-text-main bg-accent-soft'
-                    : 'border-transparent text-text-secondary hover:text-text-main hover:bg-surface'
-                  }`
-                }
-              >
+              <NavLink to="/dashboard" className={navLinkClass}>
                 <LayoutDashboardIcon className="w-4 h-4 mr-3" />
                 <span className="font-mono text-[12px] tracking-[1px] uppercase">Dashboard</span>
               </NavLink>
 
-              <NavLink
-                to="/chatbot"
-                state={{ useStockContext: false }}
-                className={({ isActive }) =>
-                  `flex items-center px-6 py-3 border-l-2 transition-colors duration-200 ${isActive
-                    ? 'border-accent text-text-main bg-accent-soft'
-                    : 'border-transparent text-text-secondary hover:text-text-main hover:bg-surface'
-                  }`
-                }
-              >
-                <MessageSquareIcon className="w-4 h-4 mr-3" />
-                <span className="font-mono text-[12px] tracking-[1px] uppercase">Chatbot</span>
+              <NavLink to="/market-insight" className={navLinkClass}>
+                <TrendingUpIcon className="w-4 h-4 mr-3" />
+                <span className="font-mono text-[12px] tracking-[1px] uppercase">Market Insight</span>
               </NavLink>
             </nav>
           </div>
@@ -111,7 +88,7 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
             </div>
 
             {/* Mode Info Card */}
-            <div className="bg-surface border border-card-border p-4 flex gap-3">
+            <div className="bg-surface border border-card-border p-4 flex gap-3 mb-4">
               <Info className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
               <p className="font-body text-[13px] text-text-secondary leading-relaxed">
                 {userMode === 'beginner' 
@@ -119,23 +96,18 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
                   : <><span className="text-accent">Pro Mode</span> is active. Displaying raw data and advanced technical indicators.</>}
               </p>
             </div>
-
-            {/* User Profile Info & Logout */}
-            <div className="border-t border-card-border pt-3 space-y-1">
-              <div className="w-full flex items-center gap-3 px-3 py-2 text-text-main transition-colors">
-                <User className="w-3.5 h-3.5 text-text-muted flex-shrink-0" />
-                <span className="font-mono text-[10px] tracking-[1.5px] uppercase truncate">{username}</span>
-              </div>
-
-              <button 
-                onClick={() => setShowLogoutModal(true)}
-                className="w-full flex items-center gap-3 px-3 py-2 text-text-muted hover:text-text-secondary transition-colors"
-              >
-                <LogOutIcon className="w-3.5 h-3.5 flex-shrink-0" />
-                <span className="font-mono text-[10px] tracking-[1.5px] uppercase">Logout</span>
-              </button>
-            </div>
           </div>
+        </div>
+
+        {/* Logout — Fixed at the absolute bottom, outside scroll area, no top border */}
+        <div className="mt-auto pb-4">
+          <button
+            onClick={() => setShowLogoutModal(true)}
+            className="w-full flex items-center px-6 py-3 border-l-2 border-transparent text-text-secondary hover:text-text-main hover:bg-surface transition-colors duration-200"
+          >
+            <LogOutIcon className="w-4 h-4 mr-3" />
+            <span className="font-mono text-[12px] tracking-[1px] uppercase">Logout</span>
+          </button>
         </div>
       </aside>
 

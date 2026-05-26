@@ -9,13 +9,11 @@ Landing Page
 ↓
 Login / Register
 ↓
-Dashboard
+Dashboard (with AI Assistant Panel)
 ↓
-Stock Analysis Exploration
+Stock Analysis Exploration + AI Conversations
 ↓
-AI Chatbot Assistance
-↓
-Insight Interpretation
+Market Insight Page (macro-level overview)
 
 ---
 
@@ -72,7 +70,7 @@ Redirect to Dashboard
 
 ## Dashboard Purpose
 
-The dashboard acts as the main investment analysis workspace.
+The dashboard acts as the main investment analysis workspace. It combines stock analysis cards with an integrated AI Assistant Panel, enabling users to analyze stocks and consult with the AI in one unified view.
 
 ## Dashboard Sections
 
@@ -80,10 +78,10 @@ The dashboard acts as the main investment analysis workspace.
 
 Contains:
 - Dashboard
-- Chatbot
+- Market Insight
 - Logout
 
-### Main Content
+### Main Content Area
 
 Contains:
 - Market overview
@@ -92,6 +90,15 @@ Contains:
 - AI insight cards
 - Technical indicators
 - Risk awareness summaries
+
+### AI Assistant Panel (Right Side)
+
+The AI chatbot is embedded as a right-side collapsible panel within the Dashboard layout:
+- Toggled open/closed via a floating action button or panel trigger
+- Allows conversation-based AI interaction without leaving the analysis workspace
+- Provides contextual responses based on the currently viewed stock
+- Maintains session-level conversation history
+- On mobile, the panel appears as a slide-over overlay
 
 ---
 
@@ -113,13 +120,13 @@ User reviews:
 - technical indicators
 - AI-generated insights
 ↓
-User may continue using chatbot for deeper explanation
+User may open AI Assistant Panel for deeper explanation
 
 ---
 
-# 6. AI Chatbot Flow
+# 6. AI Assistant Flow (Integrated Panel)
 
-User opens Chatbot Page
+User opens AI Assistant Panel (right side of Dashboard)
 ↓
 User enters stock-related question
 ↓
@@ -136,11 +143,13 @@ AI generates:
 - sentiment interpretation
 - risk explanation
 ↓
-User receives AI-generated response
+User receives AI-generated response within the panel
+↓
+User can continue browsing dashboard cards simultaneously
 
 ---
 
-# 7. Example Chatbot Queries
+# 7. Example AI Assistant Queries
 
 Users may ask:
 - Analyze BBCA sentiment
@@ -152,7 +161,24 @@ Users may ask:
 
 ---
 
-# 8. AI Insight Flow
+# 8. Market Insight Page Flow
+
+User navigates to Market Insight via sidebar
+↓
+System displays:
+- aggregated market sentiment overview
+- curated financial news feed
+- sector performance summaries
+- trending stock highlights
+- educational market content
+↓
+User reviews macro-level market conditions
+↓
+User may return to Dashboard for stock-specific analysis
+
+---
+
+# 9. AI Insight Flow
 
 User selects stock/topic
 ↓
@@ -172,7 +198,7 @@ System displays:
 
 ---
 
-# 9. Risk Awareness Flow
+# 10. Risk Awareness Flow
 
 User reviews stock insight
 ↓
@@ -189,7 +215,7 @@ Platform displays:
 
 ---
 
-# 10. Beginner-Friendly Guidance Flow
+# 11. Beginner-Friendly Guidance Flow
 
 User views technical indicator
 ↓
@@ -202,13 +228,14 @@ System provides:
 
 ---
 
-# 11. Mobile User Flow
+# 12. Mobile User Flow
 
 Mobile users can:
 - access landing page
 - login/register
 - open dashboard
-- use chatbot
+- use AI Assistant Panel (slide-over overlay)
+- access Market Insight page
 - view market insights
 
 ## Mobile Navigation
@@ -216,26 +243,30 @@ Mobile users can:
 Sidebar behavior:
 - collapsible drawer menu
 
+AI Assistant Panel behavior:
+- slide-over overlay from the right
+- full-height panel covering the main content area
+
 Main focus:
 - analysis cards
-- chatbot interaction
+- AI Assistant interaction
 - responsive dashboard experience
 
 ---
 
-# 12. Navigation Structure
+# 13. Navigation Structure
 
 Routes:
 
 /               → Landing Page
 /login          → Login Page
 /register       → Register Page
-/dashboard      → Dashboard
-/chatbot        → AI Chatbot Page
+/dashboard      → Dashboard (with integrated AI Assistant Panel)
+/market-insight → Market Insight Page
 
 ---
 
-# 13. User Experience Goals
+# 14. User Experience Goals
 
 The platform should feel:
 - modern

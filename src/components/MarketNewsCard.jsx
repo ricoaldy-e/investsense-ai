@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
-const NEWS_PREVIEW_COUNT = 2;
+const NEWS_PREVIEW_BEGINNER = 2;
+const NEWS_PREVIEW_PRO = 4;
 
 /**
  * Single news item row — reused in card and modal.
  */
 const NewsItem = ({ item, isLast }) => {
   const sentimentLabel = item.sentiment === 'positive' ? 'BULLISH' : item.sentiment === 'negative' ? 'BEARISH' : 'NEUTRAL';
-  const sentimentStyle = item.sentiment === 'positive' ? 'text-accent' : item.sentiment === 'negative' ? 'text-danger' : 'text-text-muted';
+  const sentimentStyle = item.sentiment === 'positive' ? 'text-success' : item.sentiment === 'negative' ? 'text-danger' : 'text-text-muted';
 
   return (
     <div className={`group py-4 first:pt-0 ${isLast ? 'pb-0' : ''}`}>
@@ -34,9 +35,10 @@ const NewsItem = ({ item, isLast }) => {
  * Card shows first 2 items. "See All" opens a Cold Surgical modal
  * overlay showing all news with full context.
  */
-const MarketNewsCard = ({ data }) => {
+const MarketNewsCard = ({ data, mode }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const closeRef = useRef(null);
+  const isPro = mode === 'pro';
 
   // ESC key + focus trap for modal
   useEffect(() => {
@@ -60,15 +62,16 @@ const MarketNewsCard = ({ data }) => {
   if (!data) return null;
 
   const allNews = data.news || [];
-  const previewNews = allNews.slice(0, NEWS_PREVIEW_COUNT);
-  const hasMore = allNews.length > NEWS_PREVIEW_COUNT;
+  const previewCount = isPro ? NEWS_PREVIEW_PRO : NEWS_PREVIEW_BEGINNER;
+  const previewNews = allNews.slice(0, previewCount);
+  const hasMore = allNews.length > previewCount;
 
   return (
     <>
       {/* Card — Preview */}
       <div className="bg-card-dark border border-card-border p-4 sm:p-6 h-full flex flex-col">
         <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <h3 className="font-mono text-[11px] tracking-[2px] uppercase text-accent">Market News</h3>
+          <h3 className="font-mono text-[11px] tracking-[2px] uppercase text-accent">{isPro ? 'Market News' : 'Latest News'}</h3>
           {hasMore && (
             <button
               onClick={() => setIsModalOpen(true)}
@@ -119,7 +122,7 @@ const MarketNewsCard = ({ data }) => {
                     Market News
                   </h2>
                   <p className="font-mono text-[10px] tracking-[1px] text-text-muted uppercase">
-                    {data.ticker} — {allNews.length} articles
+                    {data.ticker} | {allNews.length} articles
                   </p>
                 </div>
                 <button

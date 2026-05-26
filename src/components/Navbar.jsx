@@ -1,10 +1,10 @@
-import { Search, User, Menu, X } from 'lucide-react';
+import { Search, User, Menu, X, BotMessageSquare } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmModal from './ui/ConfirmModal';
 import { stockService } from '../services/stockService';
 
-const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeChange }) => {
+const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeChange, onToggleAIPanel, isPanelOpen, isMobile }) => {
   const [username] = useState(() => {
     const userStr = localStorage.getItem('user');
     if (userStr) {
@@ -125,7 +125,7 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
           
           {/* Autocomplete Dropdown */}
           {isDropdownOpen && searchQuery.trim() && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-card-border shadow-2xl py-2 max-h-64 overflow-y-auto z-50">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-card-border py-2 max-h-64 overflow-y-auto z-50">
               <p className="px-4 py-1.5 font-mono text-[9px] tracking-[2px] text-text-muted uppercase mb-1">
                 Search Results
               </p>
@@ -192,6 +192,19 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
               </button>
             </div>
           </div>
+        )}
+
+        {/* Mobile AI Panel Toggle */}
+        {isMobile && onToggleAIPanel && (
+          <button
+            onClick={onToggleAIPanel}
+            className={`md:hidden p-2 transition-colors ${
+              isPanelOpen ? 'text-accent' : 'text-text-muted hover:text-text-main'
+            }`}
+            aria-label={isPanelOpen ? 'Close AI Assistant' : 'Open AI Assistant'}
+          >
+            <BotMessageSquare className="w-5 h-5" />
+          </button>
         )}
 
         {/* User Profile — Hidden on mobile, shown on tablet/desktop */}

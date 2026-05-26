@@ -3,56 +3,79 @@ const RiskAnalysisCard = ({ data, mode }) => {
 
   const rsi = data.metrics?.rsi14 ?? 50;
   const volatility = data.metrics?.volatility || 'Unknown';
+  const peRatio = data.metrics?.peRatio ?? null;
   const antiFomoWarning = data.aiInsights?.antiFomoWarning || 'Always research before investing.';
+
+  const isPro = mode === 'pro';
 
   // Derive risk level from RSI and volatility
   const riskLevel = rsi >= 70 || volatility === 'High' ? 'HIGH' : rsi <= 30 ? 'LOW' : 'MODERATE';
-  const riskColor = riskLevel === 'HIGH' ? 'text-danger' : riskLevel === 'LOW' ? 'text-accent' : 'text-accent';
+  const riskColor = riskLevel === 'HIGH' ? 'text-danger' : riskLevel === 'LOW' ? 'text-success' : 'text-text-main';
 
-  // Market condition summary
-  const conditionSummary = rsi >= 70
-    ? 'Asset appears overvalued with elevated buying pressure. Consider waiting for a correction before entering.'
-    : rsi <= 30
-      ? 'Asset appears undervalued. Potential opportunity, but confirm with additional indicators before acting.'
-      : 'Overall stable environment with moderate buying pressure. No immediate signals for extreme price shifts detected.';
+  // Market condition summary - different tone per mode
+  const conditionSummary = isPro
+    ? (rsi >= 70
+        ? `RSI at ${rsi.toFixed(1)} indicates overbought conditions. Elevated P/E (${peRatio ?? 'N/A'}) compounds valuation risk. Consider profit-taking or tightening stops.`
+        : rsi <= 30
+          ? `RSI at ${rsi.toFixed(1)} signals oversold territory. If fundamentals hold, this may present a value entry point. Confirm with volume analysis.`
+          : `RSI ${rsi.toFixed(1)}: neutral range. Volatility: ${volatility}. No extreme conditions detected. Standard position sizing recommended.`)
+    : (rsi >= 70
+        ? 'This stock has been going up very quickly. It might be too expensive right now. Consider waiting for the price to come down a bit.'
+        : rsi <= 30
+          ? 'This stock has dropped a lot recently. It could be a good deal, but make sure to do your research first before buying.'
+          : 'Everything looks normal right now. The stock isn\'t too expensive or too cheap.');
 
   return (
     <div className="bg-card-dark border border-card-border p-4 sm:p-6 h-full flex flex-col">
-      <p className="font-mono text-[11px] tracking-[2px] uppercase text-accent mb-4 sm:mb-6">Risk Analysis</p>
+      <p className="font-mono text-[11px] tracking-[2px] uppercase text-accent mb-4 sm:mb-6">
+        {isPro ? 'Risk Assessment' : 'Risk Level'}
+      </p>
 
       <div className="space-y-0 divide-y divide-hairline mb-6 sm:mb-8">
         <div className="flex justify-between items-center py-3">
-          <span className="font-mono text-[12px] tracking-[1px] uppercase text-text-muted">Risk Level</span>
+          <span className="font-mono text-[12px] tracking-[1px] uppercase text-text-muted">
+            {isPro ? 'Classification' : 'Risk Level'}
+          </span>
           <span className={`font-mono text-[11px] tracking-[2px] uppercase ${riskColor}`}>
             {riskLevel}
           </span>
         </div>
         <div className="flex justify-between items-center py-3">
           <span className="font-mono text-[12px] tracking-[1px] uppercase text-text-muted">
-            {mode === 'beginner' ? 'Price Swings' : 'Volatility'}
+            {isPro ? 'Volatility' : 'Price Swings'}
           </span>
           <span className="font-mono text-[13px] text-text-main">{volatility}</span>
         </div>
+        {/* Pro mode: show extra metrics */}
+        {isPro && peRatio && (
+          <div className="flex justify-between items-center py-3">
+            <span className="font-mono text-[12px] tracking-[1px] uppercase text-text-muted">P/E Ratio</span>
+            <span className="font-mono text-[13px] text-text-main">{peRatio}</span>
+          </div>
+        )}
+        {isPro && (
+          <div className="flex justify-between items-center py-3">
+            <span className="font-mono text-[12px] tracking-[1px] uppercase text-text-muted">RSI-14</span>
+            <span className={`font-mono text-[13px] ${riskColor}`}>{rsi.toFixed(1)}</span>
+          </div>
+        )}
       </div>
 
       <div className="mb-6 flex-1">
         <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted mb-3">
-          Rational Market Guidance
+          {isPro ? 'Technical Assessment' : 'What This Means'}
         </p>
-        <p className="font-body text-[14px] text-text-secondary leading-relaxed">
-          {mode === 'beginner' 
-            ? conditionSummary.replace('overvalued', 'too expensive').replace('undervalued', 'cheaper than usual').replace('buying pressure', 'buying interest')
-            : conditionSummary
-          }
+        <p className={`${isPro ? 'font-mono text-[12px]' : 'font-body text-[14px]'} text-text-secondary leading-relaxed`}>
+          {conditionSummary}
         </p>
       </div>
 
       <div className="border-l-2 border-accent pl-4 py-3">
         <p className="font-mono text-[10px] tracking-[2px] uppercase text-accent mb-2">
-          Reality Check
+          {isPro ? 'Behavioral Bias Signal' : 'Behavioral Guardrail'}
         </p>
-        <p className="font-body text-[14px] text-text-secondary italic leading-relaxed">
-          "{antiFomoWarning}"
+        <p className={`${isPro ? 'font-mono text-[12px]' : 'font-body text-[14px]'} text-text-secondary italic leading-relaxed`}>
+          &ldquo;{antiFomoWarning}&rdquo;
         </p>
       </div>
     </div>

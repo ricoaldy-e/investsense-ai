@@ -49,7 +49,7 @@ const SystemError = ({ onReset }) => {
         )}
         <button
           onClick={handleReturn}
-          className="inline-flex items-center justify-center gap-2.5 font-mono text-[11px] tracking-[2px] uppercase text-text-muted border border-card-border rounded-full px-8 py-3 hover:text-text-main hover:border-text-muted transition-all duration-300"
+          className="inline-flex items-center justify-center gap-2.5 font-mono text-[11px] tracking-[2px] uppercase text-bg-dark bg-text-main rounded-full px-8 py-3 hover:bg-text-secondary transition-all duration-300"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Return to Platform

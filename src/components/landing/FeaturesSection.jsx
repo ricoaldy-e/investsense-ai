@@ -9,23 +9,23 @@ const FeaturesSection = () => {
   const features = [
     {
       icon: <Sparkles className="w-5 h-5" />,
-      title: "AI Insights",
-      description: "AI-generated explanations that simplify stock analysis, making complex financial data accessible for beginner investors.",
+      title: "Contextual AI Synthesis",
+      description: "Translates complex fundamental metrics and quantitative indicators into clear, actionable intelligence.",
     },
     {
       icon: <BarChart3 className="w-5 h-5" />,
-      title: "Sentiment Analysis",
-      description: "Aggregate financial news sentiment and classify market signals into clear positive, neutral, or negative indicators.",
+      title: "Multi-Source Sentiment Telemetry",
+      description: "Aggregates global news flow and social sentiment into classified directional signals (Bullish, Neutral, Bearish).",
     },
     {
       icon: <TriangleAlert className="w-5 h-5" />,
-      title: "Behavioral Risk Analysis",
-      description: "Identify emotional investing patterns and recognize high-risk market conditions before they impact your portfolio.",
+      title: "Behavioral Risk Profiling",
+      description: "Evaluates market conditions for speculative anomalies and irrational exuberance to protect capital from retail impulses.",
     },
     {
       icon: <BotMessageSquare className="w-5 h-5" />,
-      title: "AI Chatbot",
-      description: "Interactive AI assistant for real-time stock explanations, analysis guidance, and investment education.",
+      title: "Conversational Financial Intelligence",
+      description: "Interactive, context-aware AI engine providing real-time technical clarifications and personalized analysis support.",
     }
   ];
 

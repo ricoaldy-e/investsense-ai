@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [stockData, setStockData] = useState(null);
   const [isLoading, setIsLoading] = useState(hasStock);
   const [error, setError] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Berkomunikasi dengan Navbar.jsx via CustomEvent
   const notifyNavbar = useCallback((isEmpty) => {
@@ -53,6 +54,14 @@ const Dashboard = () => {
     notifyNavbar(true);
     setIsLoading(false);
   }, [navigate, notifyNavbar]);
+
+  const handleRefresh = useCallback(() => {
+    const activeTicker = searchParams.get('stock') || localStorage.getItem('lastViewedStock');
+    if (activeTicker && !isRefreshing) {
+      setIsRefreshing(true);
+      loadStock(activeTicker).finally(() => setIsRefreshing(false));
+    }
+  }, [searchParams, isRefreshing, loadStock]);
 
   useEffect(() => {
     // Mendengarkan perintah Clear dari Navbar
@@ -140,36 +149,39 @@ const Dashboard = () => {
 
   return (
     <div className="pb-24 md:pb-0 relative">
-      <WarningBanner key={stockData?.ticker || 'empty'} data={stockData} />
+      <WarningBanner key={stockData?.ticker || 'empty'} data={stockData} mode={userMode} />
 
-      <div className="flex justify-end mb-4">
-        <p className="font-mono text-[10px] text-text-muted tracking-[1px] uppercase">
-          Data as of: {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-        </p>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="font-display text-[18px] md:text-[22px] font-light text-text-main tracking-[3px] uppercase">
+          {stockData?.ticker || 'Dashboard'}
+        </h1>
+        <div className="flex items-center gap-4">
+          <p className="font-mono text-[10px] text-text-muted tracking-[1px] uppercase hidden sm:block">
+            Data as of: {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+          </p>
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase text-accent border border-accent/40 rounded-full px-4 py-2 hover:bg-accent hover:text-bg-dark disabled:opacity-50 transition-all duration-200"
+          >
+            <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-        {/* Left Column (Main Area) */}
-        <div className="lg:col-span-2 flex flex-col gap-4 md:gap-6">
-          <div className="flex-none">
-            <StockChartCard data={stockData} mode={userMode} />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-stretch">
-            <SentimentAnalysisCard data={stockData} mode={userMode} />
-            <AIInsightCard data={stockData} mode={userMode} />
-          </div>
+      {/* Fluid grid — adapts dynamically to container width (AI panel resize) */}
+      <div className="grid gap-4 md:gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))' }}>
+        {/* Stock Chart — always full width */}
+        <div style={{ gridColumn: '1 / -1' }}>
+          <StockChartCard data={stockData} mode={userMode} />
         </div>
 
-        {/* Right Column (Side Area) */}
-        <div className="flex flex-col gap-4 md:gap-6">
-          <div className="flex-none">
-            <MarketNewsCard data={stockData} mode={userMode} />
-          </div>
-          <div className="flex-1">
-            <RiskAnalysisCard data={stockData} mode={userMode} />
-          </div>
-        </div>
+        {/* Analysis cards — fluid fill */}
+        <SentimentAnalysisCard data={stockData} mode={userMode} />
+        <AIInsightCard data={stockData} mode={userMode} />
+        <MarketNewsCard data={stockData} mode={userMode} />
+        <RiskAnalysisCard data={stockData} mode={userMode} />
       </div>
     </div>
   );

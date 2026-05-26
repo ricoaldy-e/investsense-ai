@@ -21,10 +21,10 @@ const AntiFomoSection = () => {
               BEHAVIORAL INTELLIGENCE
             </p>
             <h2 className="font-display text-[32px] md:text-[40px] font-light text-text-main tracking-[1.5px] uppercase leading-tight mb-8">
-              Silence the<br />Market Noise.
+              Neutralize Speculative<br />Sentiment.
             </h2>
             <p className="font-body text-[16px] text-text-secondary leading-relaxed mb-12">
-              Emotional investing is the primary cause of retail underperformance. InvestSense AI acts as your analytical buffer, providing objective risk assessment when the market enters a frenzy.
+              Speculative momentum and emotional biases consistently erode capital. InvestSense AI functions as a behavioral guardrail, providing a clinical analytical buffer that isolates fundamentals from market hysteria.
             </p>
             
             <div className="space-y-8">
@@ -38,8 +38,8 @@ const AntiFomoSection = () => {
                   <ShieldAlert className="w-4 h-4 text-danger" />
                 </div>
                 <div>
-                  <h4 className="font-display text-[16px] font-medium text-text-main tracking-[0.5px] mb-1.5">Reduce Impulse</h4>
-                  <p className="font-body text-[14px] text-text-secondary leading-relaxed">Recognize high-risk situations before acting on pure momentum.</p>
+                  <h4 className="font-display text-[16px] font-medium text-text-main tracking-[0.5px] mb-1.5">Mitigate Cognitive Bias</h4>
+                  <p className="font-body text-[14px] text-text-secondary leading-relaxed">Identify high-risk speculative patterns and market anomalies before deploying capital.</p>
                 </div>
               </motion.div>
               
@@ -53,8 +53,8 @@ const AntiFomoSection = () => {
                   <CheckCircle2 className="w-4 h-4 text-accent" />
                 </div>
                 <div>
-                  <h4 className="font-display text-[16px] font-medium text-text-main tracking-[0.5px] mb-1.5">Data-Backed Logic</h4>
-                  <p className="font-body text-[14px] text-text-secondary leading-relaxed">Receive neutral, unbiased analysis before any major market movement.</p>
+                  <h4 className="font-display text-[16px] font-medium text-text-main tracking-[0.5px] mb-1.5">Empirical Validation</h4>
+                  <p className="font-body text-[14px] text-text-secondary leading-relaxed">Access objective, multi-layered telemetry and news sentiment indicators before key market events.</p>
                 </div>
               </motion.div>
             </div>
@@ -87,15 +87,15 @@ const AntiFomoSection = () => {
                </div>
 
                <div className="border-l-2 border-danger pl-5 py-1">
-                 <div className="flex items-center gap-2 mb-2">
-                   <TriangleAlert className="w-3.5 h-3.5 text-danger" />
-                   <span className="font-mono text-[10px] tracking-[2px] uppercase text-danger">
-                     ANTI-FOMO REMINDER
-                   </span>
-                 </div>
-                 <p className="font-body text-[14px] text-text-secondary leading-relaxed">
-                   Market sentiment is currently detached from fundamentals. Wait for price correction before establishing new positions.
-                 </p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <TriangleAlert className="w-3.5 h-3.5 text-danger" />
+                    <span className="font-mono text-[10px] tracking-[2px] uppercase text-danger">
+                      BEHAVIORAL BIAS WARNING
+                    </span>
+                  </div>
+                  <p className="font-body text-[14px] text-text-secondary leading-relaxed">
+                    Speculative sentiment has reached statistical extremes, detaching from underlying technical indicators. Exercise caution before initiating new long exposure.
+                  </p>
                </div>
              </div>
           </motion.div>

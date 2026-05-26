@@ -30,7 +30,7 @@ export const mockStocks = {
     aiInsights: {
       observation: "AAPL is showing steady upward momentum driven by recent product announcements. RSI indicates it is approaching overbought territory but remains stable.",
       suggestedPlan: "Hold existing positions. Wait for a minor pullback before adding to the portfolio.",
-      antiFomoWarning: "Do not buy simply because of the current green streak. The tech sector is highly sensitive to upcoming macroeconomic data."
+      antiFomoWarning: "Avoid expanding positions solely based on short-term upward momentum. Tech sector valuations remain sensitive to macroeconomic indicators."
     },
     news: [
       { id: 1, source: "Financial Times", title: "Apple's supply chain diversifies further into Southeast Asia", sentiment: "positive", time: "2 hours ago" },
@@ -69,7 +69,7 @@ export const mockStocks = {
     aiInsights: {
       observation: "TSLA is experiencing significant downward pressure due to lower delivery reports. RSI suggests the stock is currently oversold.",
       suggestedPlan: "Monitor closely. High volatility implies potential for quick rebounds, but fundamental risks remain.",
-      antiFomoWarning: "Catching a falling knife is dangerous. Do not rush to 'buy the dip' without clear signs of a reversal pattern."
+      antiFomoWarning: "Initiating exposure during downward acceleration carries significant risk. Verify structural price stabilization before entering."
     },
     news: [
       { id: 1, source: "Reuters", title: "Tesla cuts vehicle prices in key European markets", sentiment: "negative", time: "1 hour ago" },

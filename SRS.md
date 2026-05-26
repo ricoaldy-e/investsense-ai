@@ -1,7 +1,7 @@
 # Software Requirements Specification (SRS)
 # InvestSense AI
 
-Version: 1.0  
+Version: 2.0  
 Project Type: AI-Powered Investment Decision Support Platform
 
 ---
@@ -91,8 +91,8 @@ AI Services:
 Core system features:
 - Landing Page
 - Authentication System
-- AI Investment Dashboard
-- AI Chatbot Assistant
+- AI Investment Dashboard (with integrated AI Assistant Panel)
+- Market Insight Page
 - Sentiment Analysis
 - Technical Indicator Analysis
 - Risk Awareness System
@@ -154,7 +154,7 @@ The platform does NOT require:
 
 ## Description
 
-The dashboard acts as the primary investment analysis workspace.
+The dashboard acts as the primary investment analysis workspace. It contains all stock analysis cards in the main content area, and an integrated AI Assistant Panel on the right side for contextual AI-driven conversations.
 
 ## Features
 
@@ -164,13 +164,14 @@ The dashboard acts as the primary investment analysis workspace.
 - AI-generated insights
 - Technical indicator summaries
 - Beginner-friendly explanations
+- Integrated AI Assistant Panel (right-side collapsible panel)
 
 ## Dashboard Sections
 
 ### Sidebar
 Contains:
 - Dashboard
-- Chatbot
+- Market Insight
 - Logout
 
 ### Main Content
@@ -181,15 +182,24 @@ Contains:
 - Technical indicators
 - Risk awareness indicators
 
+### AI Assistant Panel (Right Side)
+The AI chatbot is embedded as a collapsible right-side panel within the Dashboard layout, similar to modern AI agent interfaces. This panel:
+- slides in/out from the right side of the screen
+- allows users to ask stock-related questions without leaving the dashboard
+- maintains conversation history within the session
+- provides contextual analysis based on the currently viewed stock
+- can be toggled open/closed via a trigger button on the dashboard
+
 ---
 
-# 3.4 AI Chatbot Assistant
+# 3.4 AI Assistant (Integrated Panel)
 
 ## Description
 
-The chatbot acts as an AI-powered investment analysis assistant.
+The AI Assistant is an integrated right-side panel within the Dashboard, NOT a separate page. It acts as an AI-powered investment analysis assistant accessible directly alongside the stock analysis workspace.
 
-The chatbot is NOT:
+The AI Assistant is NOT:
+- a separate standalone page
 - customer support
 - a general-purpose chatbot
 - a trading bot
@@ -203,8 +213,9 @@ Users can:
 - ask for technical indicator explanations
 - receive beginner-friendly investment guidance
 - request market summaries
+- interact with the AI while simultaneously viewing dashboard analysis cards
 
-## Suggested Prompts
+## Example Queries
 
 Examples:
 - Analyze BBCA sentiment
@@ -215,7 +226,29 @@ Examples:
 
 ---
 
-# 3.5 Sentiment Analysis
+# 3.5 Market Insight Page
+
+## Description
+
+The Market Insight page is a dedicated page accessible from the sidebar navigation. It provides users with a curated overview of broader market trends, financial news, sentiment aggregation, and educational market content.
+
+## Features
+
+The page may include:
+- aggregated market sentiment overview
+- curated financial news feed
+- sector performance summaries
+- trending stock highlights
+- educational market explainers
+- global index summaries
+
+## Purpose
+
+Market Insight provides a macro-level view of market conditions, complementing the stock-specific analysis available on the Dashboard.
+
+---
+
+# 3.6 Sentiment Analysis
 
 ## Description
 
@@ -237,7 +270,7 @@ Possible data sources:
 
 ---
 
-# 3.6 Technical Analysis
+# 3.7 Technical Analysis
 
 ## Supported Indicators
 
@@ -253,7 +286,7 @@ Technical indicators are simplified to help beginner users better understand mar
 
 ---
 
-# 3.7 Risk Awareness System
+# 3.8 Risk Awareness System
 
 ## Description
 
@@ -269,7 +302,7 @@ The platform may provide:
 
 ---
 
-# 3.8 Anti-FOMO Guidance System
+# 3.9 Anti-FOMO Guidance System
 
 ## Description
 
@@ -289,7 +322,7 @@ Encourage users to evaluate investments logically rather than emotionally.
 
 ---
 
-# 3.9 Beginner-Friendly Experience
+# 3.10 Beginner-Friendly Experience
 
 ## Description
 
@@ -386,7 +419,8 @@ The platform functions solely as:
 Users can:
 - register/login
 - access dashboard
-- use chatbot
+- use AI Assistant panel (within dashboard)
+- access Market Insight page
 - view market insights
 - access sentiment analysis
 - explore technical indicators

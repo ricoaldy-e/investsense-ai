@@ -1,6 +1,6 @@
 import { BarChart3 } from 'lucide-react';
 
-const SentimentAnalysisCard = ({ data }) => {
+const SentimentAnalysisCard = ({ data, mode }) => {
   if (!data) return null;
 
   const { positive = 0, neutral = 0, negative = 0 } = data.sentiment || {};
@@ -12,22 +12,41 @@ const SentimentAnalysisCard = ({ data }) => {
       ? 'neutral' 
       : 'negative';
   
-  const dominantLabel = dominant === 'positive' ? 'bullish sentiment' : dominant === 'negative' ? 'bearish sentiment' : 'neutral sentiment';
-  const dominantStyle = dominant === 'positive' ? 'text-accent' : dominant === 'negative' ? 'text-danger' : 'text-text-main';
+  const isPro = mode === 'pro';
+
+  // Mode-aware labels
+  const dominantLabel = dominant === 'positive'
+    ? (isPro ? 'bullish' : 'positive outlook')
+    : dominant === 'negative'
+      ? (isPro ? 'bearish' : 'negative outlook')
+      : (isPro ? 'neutral' : 'balanced outlook');
+
+  const dominantStyle = dominant === 'positive' ? 'text-success' : dominant === 'negative' ? 'text-danger' : 'text-text-main';
 
   return (
     <div className="bg-card-dark border border-card-border p-4 sm:p-6 h-full flex flex-col">
-      <div className="flex items-center gap-2.5 mb-4 sm:mb-6">
-        <BarChart3 className="w-4 h-4 text-accent" />
-        <h3 className="font-mono text-[11px] tracking-[2px] uppercase text-accent">Sentiment Analysis</h3>
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div className="flex items-center gap-2.5">
+          <BarChart3 className="w-4 h-4 text-accent" />
+          <h3 className="font-mono text-[11px] tracking-[2px] uppercase text-accent">
+            {isPro ? 'Sentiment Distribution' : 'Market Mood'}
+          </h3>
+        </div>
+        {isPro && (
+          <span className={`font-mono text-[10px] tracking-[1.5px] uppercase ${dominantStyle}`}>
+            {dominantLabel}
+          </span>
+        )}
       </div>
 
       <div className="space-y-5 flex-1">
         {/* Positive */}
         <div className="flex items-center justify-between gap-4">
-          <span className="font-mono text-[11px] tracking-[1px] uppercase text-text-muted w-16">Positive</span>
+          <span className="font-mono text-[11px] tracking-[1px] uppercase text-text-muted w-16">
+            {isPro ? 'Bull' : 'Positive'}
+          </span>
           <div className="flex-1 h-1.5 bg-surface overflow-hidden">
-            <div className="h-full bg-accent/50 transition-all duration-500" style={{ width: `${positive}%` }}></div>
+            <div className="h-full bg-success/50 transition-all duration-500" style={{ width: `${positive}%` }}></div>
           </div>
           <span className="font-mono text-[11px] text-text-muted w-8 text-right">{positive}%</span>
         </div>
@@ -43,7 +62,9 @@ const SentimentAnalysisCard = ({ data }) => {
 
         {/* Negative */}
         <div className="flex items-center justify-between gap-4">
-          <span className="font-mono text-[11px] tracking-[1px] uppercase text-text-muted w-16">Negative</span>
+          <span className="font-mono text-[11px] tracking-[1px] uppercase text-text-muted w-16">
+            {isPro ? 'Bear' : 'Negative'}
+          </span>
           <div className="flex-1 h-1.5 bg-surface overflow-hidden">
             <div className="h-full bg-danger/50 transition-all duration-500" style={{ width: `${negative}%` }}></div>
           </div>
@@ -53,7 +74,10 @@ const SentimentAnalysisCard = ({ data }) => {
 
       <div className="mt-6 pt-5 border-t border-hairline">
         <p className="font-body text-[14px] text-text-secondary leading-relaxed">
-          Aggregated news and market data suggest a <span className={dominantStyle}>{dominantLabel}</span> for {data.ticker} today.
+          {isPro
+            ? <>Aggregated sentiment ratio: <span className="font-mono text-[12px] text-text-main">{positive}B / {neutral}N / {negative}S</span>. Dominant signal: <span className={dominantStyle}>{dominantLabel}</span> for {data.ticker}.</>
+            : <>Based on news and market data, {data.ticker} currently has a <span className={dominantStyle}>{dominantLabel}</span>. {dominant === 'positive' ? 'Most indicators look favorable.' : dominant === 'negative' ? 'Caution is advised.' : 'The market is undecided.'}</>
+          }
         </p>
       </div>
     </div>

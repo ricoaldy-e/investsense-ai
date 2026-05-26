@@ -14,8 +14,11 @@ The application addresses the common issue of **FOMO (Fear of Missing Out)** by 
 * **News Sentiment Analysis**
   Classifies financial news into positive, neutral, or negative sentiment
 
-* **AI Chatbot (RAG-based)**
-  Delivers contextual explanations and investment insights
+* **AI Assistant (Integrated Panel)**
+  A right-side collapsible panel embedded within the Dashboard that delivers contextual explanations and investment insights without leaving the analysis workspace
+
+* **Market Insight Page**
+  A dedicated page providing macro-level market overviews including aggregated sentiment, financial news, and sector performance
 
 * **Anti-FOMO Mechanisms**
 
@@ -47,9 +50,19 @@ It communicates with backend services and AI models through REST APIs.
 ```
 src/
 ├── components/
+│   ├── auth/              ← Authentication components
+│   ├── chatbot/           ← AI Assistant panel components
+│   ├── landing/           ← Landing page sections
+│   └── ui/                ← Shared UI components
 ├── layouts/
+│   └── DashboardLayout.jsx ← Sidebar + Navbar + AI Panel + Outlet
 ├── pages/
+│   ├── Landing.jsx
+│   ├── Auth.jsx
+│   ├── Dashboard.jsx
+│   └── MarketInsight.jsx
 ├── services/
+├── mocks/
 ├── App.jsx
 ├── main.jsx
 └── index.css
@@ -98,8 +111,9 @@ If you are an AI Assistant / Agent assigned to work on this repository, you MUST
 
 1. **[DESIGN.md](./DESIGN.md)**: This is the single most important visual document. We use a strictly defined **"Cold Surgical"** design system. You must understand the 3-font typography trinity, the absolute ban on rounded corners (except pill buttons), and the prohibition of generic "AI SaaS" glowing/shadow effects.
 2. **[SRS.md](./SRS.md)**: Understand the core product philosophy. This is an **Anti-FOMO** decision support tool, NOT a trading execution bot.
-3. **[USERFLOW.md](./USERFLOW.md)**: Reference for how the user navigates between the Landing Page, Dashboard, and Chatbot.
+3. **[USERFLOW.md](./USERFLOW.md)**: Reference for how the user navigates between the Landing Page, Dashboard (with AI Assistant Panel), and Market Insight page.
 4. **[DATABASE.md](./DATABASE.md)**: Reference for future backend integration context.
+5. **[DASHBOARD-CHATBOT.md](./DASHBOARD-CHATBOT.md)**: Detailed design and layout specification for the integrated AI Assistant Panel inside the Dashboard.
 
 **Golden Rule for AI Agents**: DO NOT redesign the UI, DO NOT add unnecessary abstractions, and ALWAYS respect the Cold Surgical design guidelines.
 

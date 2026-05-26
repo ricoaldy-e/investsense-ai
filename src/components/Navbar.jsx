@@ -4,8 +4,19 @@ import { useNavigate } from 'react-router-dom';
 import ConfirmModal from './ui/ConfirmModal';
 import { stockService } from '../services/stockService';
 
-const Navbar = ({ onMenuClick, userMode, onModeChange }) => {
-  const [username, setUsername] = useState('Guest');
+const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeChange }) => {
+  const [username] = useState(() => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const userObj = JSON.parse(userStr);
+        return userObj.username || 'Guest';
+      } catch (e) {
+        console.error("Failed to parse user", e);
+      }
+    }
+    return 'Guest';
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -17,17 +28,6 @@ const Navbar = ({ onMenuClick, userMode, onModeChange }) => {
   const debounceRef = useRef(null);
 
   useEffect(() => {
-    // Parse user
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        const userObj = JSON.parse(userStr);
-        if (userObj.username) setUsername(userObj.username);
-      } catch (e) {
-        console.error("Failed to parse user", e);
-      }
-    }
-
     // Listen for Zero State from Dashboard
     const handleDashboardState = (e) => setIsDashboardEmpty(e.detail.isEmpty);
     window.addEventListener('dashboardState', handleDashboardState);
@@ -95,8 +95,12 @@ const Navbar = ({ onMenuClick, userMode, onModeChange }) => {
     <>
     <header className="h-16 flex-shrink-0 bg-bg-dark border-b border-card-border flex items-center justify-between px-4 md:px-6 lg:px-8 gap-4 z-50">
       {/* Mobile Menu Button */}
-      <button onClick={onMenuClick} className="md:hidden p-2 -ml-2 text-text-muted hover:text-text-main transition-colors">
-        <Menu className="w-5 h-5" />
+      <button 
+        onClick={isSidebarOpen ? onCloseSidebar : onMenuClick} 
+        className="md:hidden p-2 -ml-2 text-text-muted hover:text-text-main transition-colors z-50" 
+        aria-label={isSidebarOpen ? "Close navigation menu" : "Open navigation menu"}
+      >
+        {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
       {/* Search Bar with Autocomplete */}
@@ -113,6 +117,10 @@ const Navbar = ({ onMenuClick, userMode, onModeChange }) => {
             onKeyDown={handleKeyDown}
             className="block w-full pl-7 pr-3 py-2 bg-transparent border-b border-card-border font-mono text-[13px] text-text-main placeholder-text-muted focus:outline-none focus:border-accent transition-colors"
             placeholder="Search stocks (e.g., AAPL, TSLA)..."
+            aria-label="Search stocks"
+            role="combobox"
+            aria-expanded={isDropdownOpen && searchQuery.trim().length > 0}
+            aria-autocomplete="list"
           />
           
           {/* Autocomplete Dropdown */}
@@ -163,9 +171,10 @@ const Navbar = ({ onMenuClick, userMode, onModeChange }) => {
             >
               <X className="w-3.5 h-3.5" /> Clear
             </button>
-            <div className="flex items-center gap-1 border border-card-border p-1">
+            <div className="flex items-center gap-1 border border-card-border p-1" role="group" aria-label="Analysis mode">
               <button 
                 onClick={() => onModeChange('beginner')}
+                aria-pressed={userMode === 'beginner'}
                 className={`px-4 py-1.5 font-mono text-[11px] tracking-[1px] uppercase transition-colors ${
                   userMode === 'beginner' ? 'bg-accent text-bg-dark' : 'text-text-muted hover:text-text-main'
                 }`}
@@ -174,6 +183,7 @@ const Navbar = ({ onMenuClick, userMode, onModeChange }) => {
               </button>
               <button 
                 onClick={() => onModeChange('pro')}
+                aria-pressed={userMode === 'pro'}
                 className={`px-4 py-1.5 font-mono text-[11px] tracking-[1px] uppercase transition-colors ${
                   userMode === 'pro' ? 'bg-accent text-bg-dark' : 'text-text-muted hover:text-text-main'
                 }`}
@@ -184,12 +194,12 @@ const Navbar = ({ onMenuClick, userMode, onModeChange }) => {
           </div>
         )}
 
-        {/* User Profile */}
-        <div className="flex items-center gap-3 pl-4 md:pl-6 border-l border-card-border">
+        {/* User Profile — Hidden on mobile, shown on tablet/desktop */}
+        <div className="hidden sm:flex items-center gap-3 pl-4 md:pl-6 border-l border-card-border">
           <div className="w-8 h-8 rounded-full border border-card-border flex items-center justify-center text-text-muted">
             <User className="w-3.5 h-3.5" />
           </div>
-          <span className="font-mono text-[12px] tracking-[0.5px] text-text-main hidden sm:block">
+          <span className="font-mono text-[12px] tracking-[0.5px] text-text-main">
             {username}
           </span>
         </div>

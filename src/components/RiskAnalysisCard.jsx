@@ -37,7 +37,7 @@ const RiskAnalysisCard = ({ data, mode }) => {
 
       <div className="mb-6 flex-1">
         <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted mb-3">
-          Market Condition Summary
+          Rational Market Guidance
         </p>
         <p className="font-body text-[14px] text-text-secondary leading-relaxed">
           {mode === 'beginner' 
@@ -49,7 +49,7 @@ const RiskAnalysisCard = ({ data, mode }) => {
 
       <div className="border-l-2 border-accent pl-4 py-3">
         <p className="font-mono text-[10px] tracking-[2px] uppercase text-accent mb-2">
-          Anti-FOMO Reminder
+          Reality Check
         </p>
         <p className="font-body text-[14px] text-text-secondary italic leading-relaxed">
           "{antiFomoWarning}"

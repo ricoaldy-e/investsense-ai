@@ -15,13 +15,20 @@ const DashboardLayout = () => {
   return (
     <div className="flex h-screen overflow-hidden bg-bg-dark relative">
       {/* Sidebar - fixed left */}
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} userMode={userMode} />
+      <Sidebar 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)} 
+        userMode={userMode} 
+        onModeChange={setUserMode} 
+      />
       
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Navbar */}
         <Navbar 
           onMenuClick={() => setIsSidebarOpen(true)} 
+          isSidebarOpen={isSidebarOpen}
+          onCloseSidebar={() => setIsSidebarOpen(false)}
           userMode={userMode}
           onModeChange={setUserMode}
         />

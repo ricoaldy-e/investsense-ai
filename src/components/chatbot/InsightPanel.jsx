@@ -20,7 +20,7 @@ const InsightPanel = ({ isOpen, onToggle }) => {
       `}>
         <div className="w-[280px] h-full overflow-y-auto">
           {/* Panel header */}
-          <div className="p-4 border-b border-hairline flex items-center justify-between">
+          <div className="h-16 px-4 border-b border-card-border flex items-center justify-between">
             <p className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted">
               MARKET CONTEXT
             </p>

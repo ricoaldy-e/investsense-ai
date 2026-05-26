@@ -34,7 +34,10 @@ export const mockStocks = {
     },
     news: [
       { id: 1, source: "Financial Times", title: "Apple's supply chain diversifies further into Southeast Asia", sentiment: "positive", time: "2 hours ago" },
-      { id: 2, source: "Bloomberg", title: "Tech stocks rally as inflation fears ease slightly", sentiment: "neutral", time: "5 hours ago" }
+      { id: 2, source: "Bloomberg", title: "Tech stocks rally as inflation fears ease slightly", sentiment: "neutral", time: "5 hours ago" },
+      { id: 3, source: "Reuters", title: "Apple announces record services revenue amid hardware slowdown", sentiment: "positive", time: "8 hours ago" },
+      { id: 4, source: "CNBC", title: "Analysts raise AAPL price targets following strong earnings beat", sentiment: "positive", time: "1 day ago" },
+      { id: 5, source: "Wall Street Journal", title: "Regulatory pressure mounts on Big Tech in European markets", sentiment: "negative", time: "1 day ago" }
     ]
   },
   "TSLA": {
@@ -70,7 +73,10 @@ export const mockStocks = {
     },
     news: [
       { id: 1, source: "Reuters", title: "Tesla cuts vehicle prices in key European markets", sentiment: "negative", time: "1 hour ago" },
-      { id: 2, source: "CNBC", title: "EV sector faces margin pressures amidst price war", sentiment: "negative", time: "3 hours ago" }
+      { id: 2, source: "CNBC", title: "EV sector faces margin pressures amidst price war", sentiment: "negative", time: "3 hours ago" },
+      { id: 3, source: "Bloomberg", title: "Tesla's Megapack energy storage business shows strong growth trajectory", sentiment: "positive", time: "6 hours ago" },
+      { id: 4, source: "Financial Times", title: "Global EV adoption accelerates despite economic uncertainty", sentiment: "neutral", time: "12 hours ago" },
+      { id: 5, source: "Wall Street Journal", title: "Autonomous driving regulation tightens across major markets", sentiment: "negative", time: "1 day ago" }
     ]
   }
 };

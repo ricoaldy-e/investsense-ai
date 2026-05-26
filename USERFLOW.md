@@ -44,13 +44,13 @@ Users can:
 User opens Register Page
 ↓
 User inputs:
-- Full Name
+- Username
 - Email
 - Password
 ↓
 Account Created
 ↓
-Redirect to Dashboard
+Redirect to Login Page
 
 ---
 
@@ -81,8 +81,7 @@ The dashboard acts as the main investment analysis workspace.
 Contains:
 - Dashboard
 - Chatbot
-- Market Insights
-- Settings
+- Logout
 
 ### Main Content
 

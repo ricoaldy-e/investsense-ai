@@ -1,6 +1,6 @@
 import { Bot } from 'lucide-react';
 
-const AIInsightCard = ({ data, mode }) => {
+const AIInsightCard = ({ data }) => {
   if (!data) return null;
 
   const { observation, suggestedPlan } = data.aiInsights || {};

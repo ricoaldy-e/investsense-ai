@@ -136,7 +136,7 @@ Users can:
 
 Users can:
 - create an account using:
-  - full name
+  - username
   - email
   - password
 
@@ -171,12 +171,11 @@ The dashboard acts as the primary investment analysis workspace.
 Contains:
 - Dashboard
 - Chatbot
-- Market Insights
-- Settings
+- Logout
 
 ### Main Content
 Contains:
-- Trending stocks
+- Market caution banner
 - Sentiment summaries
 - AI insight cards
 - Technical indicators

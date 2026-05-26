@@ -1,5 +1,5 @@
 import { mockStocks, mockSearchIndex } from '../mocks/stockMock';
-import api from './api';
+// import api from './api';
 import { delay } from './utils';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';

@@ -44,7 +44,7 @@ const LandingNavbar = () => {
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
         <div className="flex items-center h-[72px]">
           {/* Wordmark — fixed width left */}
-          <div className="flex-shrink-0 w-[200px]">
+          <div className="flex-shrink-0 w-auto md:w-[200px]">
             <button 
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="font-mono text-[13px] text-text-main tracking-[3px] uppercase hover:text-accent transition-colors duration-300"
@@ -71,7 +71,7 @@ const LandingNavbar = () => {
           </div>
 
           {/* Right Actions — fixed width right */}
-          <div className="flex items-center justify-end gap-6 flex-shrink-0 w-[200px] ml-auto md:ml-0">
+          <div className="flex items-center justify-end gap-4 sm:gap-6 flex-shrink-0 w-auto md:w-[200px] ml-auto">
             <Link 
               to="/login" 
               className="hidden sm:block font-mono text-[11px] tracking-[2px] uppercase text-text-secondary hover:text-text-main transition-colors duration-300"

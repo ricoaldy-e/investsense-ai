@@ -1,12 +1,8 @@
-import { useState } from 'react';
 import { Info } from 'lucide-react';
 import { AreaChart, Area, ResponsiveContainer, YAxis } from 'recharts';
 import Tooltip from './Tooltip';
 
 const StockChartCard = ({ data, mode }) => {
-  const [timeRange, setTimeRange] = useState('1D');
-  const ranges = ['1H', '1D', '1W', '1M'];
-
   if (!data) return null;
 
   // Derive RSI status
@@ -75,7 +71,7 @@ const StockChartCard = ({ data, mode }) => {
 
       {/* Chart Area */}
       <div className="flex-1 w-full min-h-[200px] md:min-h-[250px] mb-8 relative -ml-2">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
           <AreaChart data={chartPoints} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">

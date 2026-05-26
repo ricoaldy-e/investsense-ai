@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { Loader2, Search, ArrowLeft, RefreshCw } from 'lucide-react';
 import { stockService } from '../services/stockService';
@@ -11,37 +11,23 @@ import RiskAnalysisCard from '../components/RiskAnalysisCard';
 
 const Dashboard = () => {
   const { userMode } = useOutletContext();
-  const [stockData, setStockData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Mendengarkan perintah Clear dari Navbar
-    const handleClearCmd = () => handleClearDashboard();
-    window.addEventListener('clearDashboardCommand', handleClearCmd);
+  const stockFromUrl = searchParams.get('stock');
+  const lastViewed = localStorage.getItem('lastViewedStock');
+  const hasStock = !!(stockFromUrl || lastViewed);
 
-    const stockFromUrl = searchParams.get('stock');
-    const lastViewed = localStorage.getItem('lastViewedStock');
-
-    if (stockFromUrl || lastViewed) {
-      loadStock(stockFromUrl || lastViewed);
-    } else {
-      setIsLoading(false);
-      setStockData(null);
-      notifyNavbar(true); // Layar kosong, sembunyikan toggle Beginner/Pro
-    }
-
-    return () => window.removeEventListener('clearDashboardCommand', handleClearCmd);
-  }, [searchParams]);
+  const [stockData, setStockData] = useState(null);
+  const [isLoading, setIsLoading] = useState(hasStock);
+  const [error, setError] = useState('');
 
   // Berkomunikasi dengan Navbar.jsx via CustomEvent
-  const notifyNavbar = (isEmpty) => {
+  const notifyNavbar = useCallback((isEmpty) => {
     window.dispatchEvent(new CustomEvent('dashboardState', { detail: { isEmpty } }));
-  };
+  }, []);
 
-  const loadStock = async (ticker) => {
+  const loadStock = useCallback(async (ticker) => {
     setIsLoading(true);
     setError('');
     notifyNavbar(false); // Data sedang dimuat, layar tidak kosong
@@ -57,15 +43,38 @@ const Dashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [notifyNavbar]);
 
-  const handleClearDashboard = () => {
+  const handleClearDashboard = useCallback(() => {
     localStorage.removeItem('lastViewedStock');
     navigate('/dashboard'); // Menghapus ?stock= dari URL
     setStockData(null);
     setError(''); // Membersihkan error agar kembali ke Zero State
     notifyNavbar(true);
-  };
+    setIsLoading(false);
+  }, [navigate, notifyNavbar]);
+
+  useEffect(() => {
+    // Mendengarkan perintah Clear dari Navbar
+    const handleClearCmd = () => handleClearDashboard();
+    window.addEventListener('clearDashboardCommand', handleClearCmd);
+
+    const activeStock = searchParams.get('stock') || localStorage.getItem('lastViewedStock');
+
+    const timer = setTimeout(() => {
+      if (activeStock) {
+        loadStock(activeStock);
+      } else {
+        setStockData(null);
+        notifyNavbar(true); // Layar kosong, sembunyikan toggle Beginner/Pro
+      }
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('clearDashboardCommand', handleClearCmd);
+    };
+  }, [searchParams, loadStock, handleClearDashboard, notifyNavbar]);
 
   if (isLoading) {
     return (
@@ -131,7 +140,7 @@ const Dashboard = () => {
 
   return (
     <div className="pb-24 md:pb-0 relative">
-      <WarningBanner key={stockData?.ticker || 'empty'} />
+      <WarningBanner key={stockData?.ticker || 'empty'} data={stockData} />
 
       <div className="flex justify-end mb-4">
         <p className="font-mono text-[10px] text-text-muted tracking-[1px] uppercase">

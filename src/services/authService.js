@@ -1,13 +1,8 @@
-import axios from "axios";
 import api from "./api";
 
-// ─── Plain axios instance for /auth/refresh ───────────────────────────────
-// The intercepted `api` instance must NOT be used for refresh to prevent
-// an infinite 401 → refresh → 401 loop.
-const plainAxios = axios.create({
-  baseURL: "https://investsense-ai-investsense-backend.hf.space/api/v1",
-  headers: { "Content-Type": "application/json" },
-});
+// Note: plainAxios is defined in api.js and is not needed here.
+// authService.refresh() uses the api instance's plainAxios indirectly
+// via authService, but for logout and login we use the main api instance.
 
 export const authService = {
   /**
@@ -31,21 +26,22 @@ export const authService = {
    */
   login: async (email, password) => {
     const response = await api.post("/auth/login", { email, password });
+    console.log(response.data)
     return response.data;
   },
 
   /**
-   * Silently rotate an expired access token using the stored refresh token.
+   * Silently rotate an expired access token.
    * POST /auth/refresh
-   * Uses plain axios (not the intercepted instance) to avoid infinite loops.
-   * @returns {{ success: boolean, accessToken: string, refreshToken: string }}
+   * The refreshToken is sent automatically by the browser as an httpOnly
+   * cookie — no body payload needed. withCredentials: true on plainAxios
+   * (defined in api.js) ensures the cookie is included.
+   * @returns {{ success: boolean, data: { accessToken: string } }}
    */
   refresh: async () => {
-    const refreshToken = localStorage.getItem("refreshToken");
-    if (!refreshToken) {
-      throw new Error("No refresh token stored");
-    }
-    const response = await plainAxios.post("/auth/refresh", { refreshToken });
+    // Empty body — the backend reads the refreshToken from req.cookies,
+    // not from the request body. The browser attaches the cookie automatically.
+    const response = await api.post("/auth/refresh", {});
     return response.data;
   },
 

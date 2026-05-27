@@ -9,14 +9,19 @@ const BASE_URL =
 const api = axios.create({
   baseURL: BASE_URL,
   timeout: 30000, // 30 seconds default timeout
+  withCredentials: true, // Include httpOnly cookies on every request
   headers: { "Content-Type": "application/json" },
 });
 
 // ─── Plain instance for token refresh (avoids infinite interceptor loop) ──
 // This must NOT use the `api` instance, otherwise a 401 on /auth/refresh
 // would trigger the interceptor again, creating an infinite loop.
+// withCredentials: true is critical — the httpOnly refreshToken cookie
+// must be sent automatically by the browser on this call.
 const plainAxios = axios.create({
   baseURL: BASE_URL,
+  timeout: 30000,
+  withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -87,22 +92,17 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const refreshToken = localStorage.getItem("refreshToken");
+      // Send an empty body — the backend reads the refreshToken exclusively
+      // from the httpOnly cookie set at login. The browser includes it
+      // automatically because withCredentials: true is set on plainAxios.
+      const { data } = await plainAxios.post("/auth/refresh", {});
 
-      if (!refreshToken) {
-        // No refresh token available — cannot recover, force logout
-        throw new Error("No refresh token available");
-      }
+      // Backend response envelope: { success, data: { accessToken } }
+      const newAccessToken = data.data.accessToken;
 
-      // Call /auth/refresh using the plain instance (bypasses this interceptor)
-      const { data } = await plainAxios.post("/auth/refresh", { refreshToken });
-
-      const newAccessToken = data.accessToken;
-      const newRefreshToken = data.refreshToken;
-
-      // Persist the new token pair
+      // Only the accessToken is managed in localStorage.
+      // The backend rotates the refreshToken cookie automatically.
       localStorage.setItem("accessToken", newAccessToken);
-      localStorage.setItem("refreshToken", newRefreshToken);
 
       // Update the Authorization header for the retried request
       originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
@@ -112,10 +112,10 @@ api.interceptors.response.use(
 
       return api(originalRequest);
     } catch (refreshError) {
-      // Refresh failed — clear all tokens and force the user back to login
+      // Refresh failed (refreshToken cookie expired or revoked).
+      // Clear only the accessToken — the httpOnly cookie is managed by the browser.
       processQueue(refreshError, null);
       localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
 
       // Redirect to login (window.location is used here because we are
       // outside the React component tree and cannot call useNavigate)

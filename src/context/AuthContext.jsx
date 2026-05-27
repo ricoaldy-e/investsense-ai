@@ -26,19 +26,21 @@ const decodeUser = (token) => {
 };
 
 /**
- * Persist a token pair to localStorage.
+ * Persist the accessToken to localStorage.
+ * The refreshToken is an httpOnly cookie managed entirely by the browser
+ * — we never read, write, or delete it from JavaScript.
  */
-const storeTokens = (accessToken, refreshToken) => {
+const storeTokens = (accessToken) => {
   localStorage.setItem("accessToken", accessToken);
-  localStorage.setItem("refreshToken", refreshToken);
 };
 
 /**
- * Remove both tokens from localStorage.
+ * Remove the accessToken from localStorage on logout.
+ * The httpOnly cookie will be cleared by the server's Set-Cookie response
+ * on the /auth/logout call.
  */
 const clearTokens = () => {
   localStorage.removeItem("accessToken");
-  localStorage.removeItem("refreshToken");
 };
 
 // ─── Reducer ──────────────────────────────────────────────────────────────
@@ -90,10 +92,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const hydrate = async () => {
       const storedAccess = localStorage.getItem("accessToken");
-      const storedRefresh = localStorage.getItem("refreshToken");
 
-      // No tokens at all — user has never logged in or previously logged out
-      if (!storedAccess || !storedRefresh) {
+      // Only the accessToken is stored in localStorage.
+      // The refreshToken lives in an httpOnly cookie set by the server.
+      if (!storedAccess) {
         dispatch({
           type: AUTH_ACTIONS.HYDRATION_COMPLETE,
           payload: { isAuthenticated: false, user: null },
@@ -104,10 +106,13 @@ export const AuthProvider = ({ children }) => {
       try {
         // Proactively refresh: the stored accessToken may be expired.
         // A successful refresh proves the session is still valid.
-        const data = await authService.refresh();
+        // The backend returns: { success, data: { accessToken } }
+        const responseData = await authService.refresh();
 
-        storeTokens(data.accessToken, data.refreshToken);
-        const user = decodeUser(data.accessToken);
+        // Backend response envelope: responseData = { success, data: { accessToken } }
+        const newAccessToken = responseData.data.accessToken;
+        storeTokens(newAccessToken);
+        const user = decodeUser(newAccessToken);
 
         dispatch({
           type: AUTH_ACTIONS.HYDRATION_COMPLETE,
@@ -128,25 +133,29 @@ export const AuthProvider = ({ children }) => {
 
   // ── Login Action
   const login = useCallback(async (email, password) => {
-    const data = await authService.login(email, password);
-    // data = { success, accessToken, refreshToken }
-
-    storeTokens(data.accessToken, data.refreshToken);
-    const user = decodeUser(data.accessToken);
+    console.log("1. Mulai proses login ke authService...");
+    const responseData = await authService.login(email, password);
+    
+    
+    // TAMBAHKAN .data DI SINI 👇
+    const token = responseData.data.accessToken; 
+    
+    storeTokens(token);
+    const user = decodeUser(token);
 
     dispatch({ type: AUTH_ACTIONS.LOGIN_SUCCESS, payload: { user } });
   }, []);
 
-  // ── Register Action — registers then auto-logs in for seamless onboarding
+  // ── Register Action
   const register = useCallback(async (email, username, password) => {
-    // Step 1: Create the account
     await authService.register(email, username, password);
+    const responseData = await authService.login(email, password);
 
-    // Step 2: Auto-login with the same credentials
-    const data = await authService.login(email, password);
+    // TAMBAHKAN .data DI SINI 👇                         
+    const token = responseData.data.accessToken; 
 
-    storeTokens(data.accessToken, data.refreshToken);
-    const user = decodeUser(data.accessToken);
+    storeTokens(token);
+    const user = decodeUser(token);
 
     dispatch({ type: AUTH_ACTIONS.LOGIN_SUCCESS, payload: { user } });
   }, []);

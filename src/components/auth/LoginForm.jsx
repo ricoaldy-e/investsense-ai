@@ -60,6 +60,7 @@ const LoginForm = () => {
   };
 
   const handleLogin = async (e) => {
+    console.log("jalan")
     e.preventDefault();
     setErrors({ email: '', password: '', global: '' });
     

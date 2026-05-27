@@ -33,13 +33,12 @@ class StockService {
     // ─── Real API Mode ──────────────────────────────────────────────────
     const upperTicker = ticker.toUpperCase();
 
-    // Fire all 4 requests in parallel using Promise.allSettled for resilience.
-    // If one endpoint fails (e.g. no news yet), we still show what we have.
-    const [quoteResult, historyResult, indicatorsResult, newsResult] = await Promise.allSettled([
+    // Fire requests in parallel using Promise.allSettled for resilience.
+    // NOTE: /stocks/history is fetched directly by StockChartCard via Zustand.
+    // NOTE: /news is not available on this backend — news array stays empty.
+    const [quoteResult, indicatorsResult] = await Promise.allSettled([
       api.get(`/stocks/quote/${upperTicker}`),
-      api.get(`/stocks/history/${upperTicker}`),
       api.get(`/stocks/indicators/${upperTicker}`),
-      api.get(`/news/${upperTicker}`),
     ]);
 
     // ── Quote (required — if this fails, we can't show anything meaningful) ──
@@ -50,21 +49,6 @@ class StockService {
 
     const quote = quoteResult.value.data.data;
 
-    // ── History (optional — chart will be empty if unavailable) ──────────────
-    let chartData = [];
-    if (historyResult.status === 'fulfilled' && historyResult.value.data?.data) {
-      chartData = historyResult.value.data.data.map((point) => ({
-        time: new Date(point.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        price: point.close,
-        // Preserve full OHLCV for Pro mode tooltip
-        open: point.open,
-        high: point.high,
-        low: point.low,
-        volume: point.volume,
-        rawDate: point.date,
-      }));
-    }
-
     // ── Indicators (optional — RSI cards will show "N/A" if unavailable) ────
     let rsi14 = null;
     let trendStatus = null;
@@ -74,19 +58,8 @@ class StockService {
       trendStatus = indicators.trend_status;
     }
 
-    // ── News (optional — news card will show "No news available") ────────────
-    let news = [];
-    if (newsResult.status === 'fulfilled' && newsResult.value.data?.data) {
-      news = newsResult.value.data.data.map((article) => ({
-        id: article.id,
-        source: article.source_name || 'Unknown',
-        title: article.title,
-        sentiment: mapSentimentLabel(article.sentiment_label),
-        time: formatRelativeTime(article.published_at),
-        url: article.url,
-        description: article.description,
-      }));
-    }
+    // ── News — endpoint not available, default to empty ────────────────────
+    const news = [];
 
     // ── Compute aggregated sentiment from individual articles ────────────────
     const sentiment = computeSentimentPercentages(news);
@@ -107,16 +80,15 @@ class StockService {
       priceChange: priceChange,
       percentChange: quote.changePercent ?? 0,
       trend: trend,
-      chartData: chartData,
+      chartData: [],   // StockChartCard now self-fetches via /stocks/history
       metrics: {
         rsi14: rsi14,
-        volatility: null,  // Not available from BE — skipped per plan
-        peRatio: null,     // Not available from BE — skipped per plan
+        volatility: null,
+        peRatio: null,
       },
       sentiment: sentiment,
       aiInsights: deriveAIInsights(rsi14, trendStatus, upperTicker),
       news: news,
-      // Extra metadata from BE
       currency: quote.currency,
       marketState: quote.marketState,
     };

@@ -14,12 +14,12 @@ export const chatService = {
    *
    * Returns a message object matching the shape expected by AIChatPanel.
    */
-  async sendMessage(query) {
+  async sendMessage({ message, ticker }) {
     if (USE_MOCK) {
       // Simulasi waktu berpikir AI (1.5 detik)
       await delay(1500);
 
-      const lowerQuery = query.toLowerCase();
+      const lowerQuery = message.toLowerCase();
 
       // Jika pengguna bertanya tentang saham spesifik (misal AAPL atau TSLA)
       if (lowerQuery.includes('aapl') || lowerQuery.includes('apple')) {
@@ -60,8 +60,12 @@ export const chatService = {
 
     // ─── Real API Mode ──────────────────────────────────────────────────
     try {
+      const finalMessage = ticker 
+        ? `${message} (Context: Please analyze specifically for ticker ${ticker})` 
+        : message;
+
       const response = await api.post('/chat', {
-        user_message: query,
+        user_message: finalMessage,
       });
 
       const data = response.data;

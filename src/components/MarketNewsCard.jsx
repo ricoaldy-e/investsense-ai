@@ -1,139 +1,241 @@
 import { useState, useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
-
-const NEWS_PREVIEW_BEGINNER = 2;
-const NEWS_PREVIEW_PRO = 4;
-
-/**
- * Single news item row — reused in card and modal.
- */
-const NewsItem = ({ item, isLast }) => {
-  const sentimentLabel = item.sentiment === 'positive' ? 'BULLISH' : item.sentiment === 'negative' ? 'BEARISH' : 'NEUTRAL';
-  const sentimentStyle = item.sentiment === 'positive' ? 'text-success' : item.sentiment === 'negative' ? 'text-danger' : 'text-text-muted';
-
-  return (
-    <div className={`group py-4 first:pt-0 ${isLast ? 'pb-0' : ''}`}>
-      <div className="flex justify-between items-center mb-2">
-        <span className={`font-mono text-[10px] tracking-[2px] uppercase ${sentimentStyle}`}>
-          {sentimentLabel}
-        </span>
-        <span className="font-mono text-[10px] tracking-[1px] text-text-muted">{item.time}</span>
-      </div>
-      {item.url ? (
-        <a 
-          href={item.url} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="font-body text-[14px] text-text-secondary leading-snug group-hover:text-accent transition-colors block"
-        >
-          {item.title}
-        </a>
-      ) : (
-        <h4 className="font-body text-[14px] text-text-secondary leading-snug group-hover:text-text-main transition-colors">
-          {item.title}
-        </h4>
-      )}
-      {item.source && (
-        <p className="font-mono text-[10px] text-text-muted mt-1.5 tracking-[1px]">{item.source}</p>
-      )}
-    </div>
-  );
-};
+import { Newspaper, ExternalLink, Loader2, X } from 'lucide-react';
+import api from '../services/api';
+import { getNewsKeyword, formatRelativeTime } from '../services/utils';
+import useDashboardStore from '../store/useDashboardStore';
 
 /**
- * MarketNewsCard — Shows preview of market news with expand-to-modal.
- * 
- * Card shows first 2 items. "See All" opens a Cold Surgical modal
- * overlay showing all news with full context.
+ * MarketNewsCard — Self-fetching news component.
+ *
+ * Uses the Smart Dictionary (getNewsKeyword) to translate raw tickers
+ * into meaningful search terms before calling GET /news/search?keyword=.
+ * Re-fetches automatically whenever the global activeTicker changes.
  */
-const MarketNewsCard = ({ data, mode }) => {
+const MarketNewsCard = ({ mode }) => {
+  const activeTicker = useDashboardStore((s) => s.activeTicker);
+
+  const [articles, setArticles]     = useState([]);
+  const [isLoading, setIsLoading]   = useState(false);
+  const [error, setError]           = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const closeRef = useRef(null);
+
   const isPro = mode === 'pro';
 
-  // ESC key + focus trap for modal
+  // ─── Fetch news on ticker change ──────────────────────────────────────────
   useEffect(() => {
-    if (!isModalOpen) return;
+    if (!activeTicker) {
+      setArticles([]);
+      return;
+    }
 
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') setIsModalOpen(false);
+    let cancelled = false;
+    setIsLoading(true);
+    setError(null);
+    setArticles([]);
+    setIsModalOpen(false);
+
+    const keyword = getNewsKeyword(activeTicker);
+
+    const fetchNews = async () => {
+      try {
+        const response = await api.get(`/news/search?keyword=${encodeURIComponent(keyword)}`);
+        if (cancelled) return;
+
+        const raw = response.data?.data ?? [];
+        const mapped = raw.map((item, idx) => ({
+          id:          idx,
+          title:       item.title       ?? 'Untitled',
+          description: item.description ?? '',
+          url:         item.url         ?? '#',
+          image:       item.image       ?? null,
+          publishedAt: item.publishedAt ?? null,
+          sourceName:  item.source?.name ?? 'Unknown',
+        }));
+
+        setArticles(mapped);
+      } catch (err) {
+        if (!cancelled) {
+          setError(err.response?.data?.message || 'Failed to load news.');
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    // Prevent body scroll
+    fetchNews();
+    return () => { cancelled = true; };
+  }, [activeTicker]);
+
+  // ─── Modal: ESC key + body scroll lock ───────────────────────────────────
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const handleKey = (e) => { if (e.key === 'Escape') setIsModalOpen(false); };
+    document.addEventListener('keydown', handleKey);
     document.body.style.overflow = 'hidden';
     closeRef.current?.focus();
-
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keydown', handleKey);
       document.body.style.overflow = 'unset';
     };
   }, [isModalOpen]);
 
-  if (!data) return null;
+  const previewCount = isPro ? 4 : 3;
+  const previewArticles = articles.slice(0, previewCount);
+  const hasMore = articles.length > previewCount;
 
-  const allNews = data.news || [];
-  const previewCount = isPro ? NEWS_PREVIEW_PRO : NEWS_PREVIEW_BEGINNER;
-  const previewNews = allNews.slice(0, previewCount);
-  const hasMore = allNews.length > previewCount;
+  // ─── Skeleton rows shown while loading ───────────────────────────────────
+  const SkeletonRow = () => (
+    <div className="py-4 border-b border-hairline last:border-0 animate-pulse">
+      <div className="flex justify-between items-center mb-2">
+        <div className="h-2.5 bg-surface rounded w-16" />
+        <div className="h-2 bg-surface rounded w-12" />
+      </div>
+      <div className="h-3.5 bg-surface rounded w-full mb-1.5" />
+      <div className="h-3.5 bg-surface rounded w-4/5 mb-2" />
+      {isPro && <div className="h-2.5 bg-surface rounded w-3/5" />}
+    </div>
+  );
 
-  return (
-    <>
-      {/* Card — Preview */}
-      <div className="bg-card-dark border border-card-border p-4 sm:p-6 h-full flex flex-col">
-        <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <h3 className="font-mono text-[11px] tracking-[2px] uppercase text-accent">{isPro ? 'Market News' : 'Latest News'}</h3>
-          {hasMore && (
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="font-mono text-[10px] tracking-[1.5px] uppercase text-text-muted hover:text-accent transition-colors"
-            >
-              See All ({allNews.length})
-            </button>
-          )}
-        </div>
-
-        <div className="flex-1 space-y-0 divide-y divide-hairline">
-          {previewNews.length === 0 ? (
-            <p className="font-body text-[14px] text-text-muted py-4">No news available for this stock.</p>
-          ) : (
-            previewNews.map((item, i) => (
-              <NewsItem key={item.id} item={item} isLast={i === previewNews.length - 1} />
-            ))
-          )}
-        </div>
+  // ─── Single article row ───────────────────────────────────────────────────
+  const ArticleRow = ({ item, isLast }) => (
+    <div className={`group py-4 ${isLast ? '' : 'border-b border-hairline'}`}>
+      {/* Metadata row */}
+      <div className="flex items-center justify-between mb-1.5 gap-2">
+        <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-accent truncate">
+          {item.sourceName}
+        </span>
+        <span className="font-mono text-[9px] tracking-[1px] text-text-muted flex-shrink-0">
+          {item.publishedAt ? formatRelativeTime(item.publishedAt) : '—'}
+        </span>
       </div>
 
-      {/* Modal — Full News List */}
+      {/* Title */}
+      <a
+        href={item.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-start gap-1.5 group/link"
+        aria-label={`Read: ${item.title}`}
+      >
+        <span className="font-body text-[13px] text-text-secondary leading-snug group-hover/link:text-accent transition-colors duration-150 flex-1">
+          {item.title}
+        </span>
+        <ExternalLink className="w-3 h-3 text-text-muted group-hover/link:text-accent transition-colors flex-shrink-0 mt-0.5" />
+      </a>
+
+      {/* Description — Pro mode only */}
+      {isPro && item.description && (
+        <p className="font-body text-[11px] text-text-muted mt-1.5 leading-relaxed line-clamp-2">
+          {item.description}
+        </p>
+      )}
+    </div>
+  );
+
+  // ─── Render ───────────────────────────────────────────────────────────────
+  return (
+    <>
+      <div className="bg-card-dark border border-card-border p-4 sm:p-6 h-full flex flex-col">
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4 sm:mb-5">
+          <div className="flex items-center gap-2">
+            <Newspaper className="w-3.5 h-3.5 text-accent" />
+            <h3 className="font-mono text-[11px] tracking-[2px] uppercase text-accent">
+              {isPro ? 'Market News' : 'Latest News'}
+            </h3>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Keyword badge */}
+            {activeTicker && !isLoading && (
+              <span className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase hidden sm:block">
+                /{getNewsKeyword(activeTicker).split(' OR ')[0]}/
+              </span>
+            )}
+            {/* See All button */}
+            {hasMore && (
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="font-mono text-[10px] tracking-[1.5px] uppercase text-text-muted hover:text-accent transition-colors"
+              >
+                See All ({articles.length})
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1">
+
+          {/* Loading state */}
+          {isLoading && (
+            <div>
+              {[0, 1, 2].map((i) => <SkeletonRow key={i} />)}
+            </div>
+          )}
+
+          {/* Error state */}
+          {!isLoading && error && (
+            <div className="flex flex-col items-center justify-center h-32 gap-2">
+              <p className="font-mono text-[10px] tracking-[1px] uppercase text-danger">{error}</p>
+              <p className="font-body text-[12px] text-text-muted">News is temporarily unavailable.</p>
+            </div>
+          )}
+
+          {/* No ticker / no results */}
+          {!isLoading && !error && articles.length === 0 && (
+            <p className="font-body text-[14px] text-text-muted py-4">
+              {activeTicker ? `No recent news found for ${activeTicker}.` : 'Select a stock to load news.'}
+            </p>
+          )}
+
+          {/* Article list */}
+          {!isLoading && !error && previewArticles.length > 0 && (
+            <div>
+              {previewArticles.map((item, i) => (
+                <ArticleRow key={item.id} item={item} isLast={i === previewArticles.length - 1} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Footer disclaimer */}
+        {!isLoading && articles.length > 0 && (
+          <p className="font-body text-[10px] text-text-muted italic mt-4 pt-4 border-t border-hairline">
+            AI-curated for context only. Verify with primary sources.
+          </p>
+        )}
+      </div>
+
+      {/* ── Full News Modal ── */}
       {isModalOpen && (
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/60 z-[100] transition-opacity"
+            className="fixed inset-0 bg-black/60 z-[100]"
             onClick={() => setIsModalOpen(false)}
             aria-hidden="true"
           />
 
-          {/* Modal panel */}
+          {/* Panel */}
           <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 sm:p-6">
             <div
-              className="w-full max-w-[560px] max-h-[80vh] bg-surface border border-card-border flex flex-col"
+              className="w-full max-w-[580px] max-h-[82vh] bg-surface border border-card-border flex flex-col"
               role="dialog"
               aria-modal="true"
               aria-labelledby="news-modal-title"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Modal Header */}
+              {/* Modal header */}
               <div className="flex items-center justify-between px-6 py-5 border-b border-card-border flex-shrink-0">
                 <div>
-                  <h2
-                    id="news-modal-title"
-                    className="font-mono text-[11px] tracking-[2px] uppercase text-accent mb-1"
-                  >
+                  <h2 id="news-modal-title" className="font-mono text-[11px] tracking-[2px] uppercase text-accent mb-1">
                     Market News
                   </h2>
-                  <p className="font-mono text-[10px] tracking-[1px] text-text-muted uppercase">
-                    {data.ticker} | {allNews.length} articles
+                  <p className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase">
+                    {activeTicker} · {articles.length} articles · {getNewsKeyword(activeTicker).split(' OR ')[0]}
                   </p>
                 </div>
                 <button
@@ -146,16 +248,14 @@ const MarketNewsCard = ({ data, mode }) => {
                 </button>
               </div>
 
-              {/* Modal Content — Scrollable */}
+              {/* Scrollable list */}
               <div className="flex-1 overflow-y-auto px-6 py-2">
-                <div className="divide-y divide-hairline">
-                  {allNews.map((item, i) => (
-                    <NewsItem key={item.id} item={item} isLast={i === allNews.length - 1} />
-                  ))}
-                </div>
+                {articles.map((item, i) => (
+                  <ArticleRow key={item.id} item={item} isLast={i === articles.length - 1} />
+                ))}
               </div>
 
-              {/* Modal Footer */}
+              {/* Modal footer */}
               <div className="px-6 py-4 border-t border-card-border flex-shrink-0">
                 <p className="font-body text-[11px] text-text-muted italic text-center">
                   News data is AI-curated for analytical context only. Verify with primary sources.

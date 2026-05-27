@@ -1,4 +1,5 @@
 import api from './api';
+import i18n from '../i18n/i18n';
 import { mockUsers } from '../mocks/authMock';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
@@ -23,7 +24,7 @@ export const authService = {
             });
           } else {
             // Simulasi gagal login
-            reject(new Error("Invalid email or password"));
+            reject(new Error(i18n.t('service.auth_invalid_creds')));
           }
         }, 800);
       });
@@ -40,7 +41,7 @@ export const authService = {
         setTimeout(() => {
           const userExists = usersDb.find(u => u.email === email || u.username === username);
           if (userExists) {
-            reject(new Error("User with this email or username already exists"));
+            reject(new Error(i18n.t('service.auth_user_exists')));
           } else {
             const newUser = {
               id: `uuid-user-${Date.now()}`,

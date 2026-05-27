@@ -1,4 +1,5 @@
 import api from './api';
+import i18n from '../i18n/i18n';
 import { delay } from './utils';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
@@ -67,7 +68,7 @@ export const chatService = {
       const data = response.data;
 
       if (!data.success || !data.answer) {
-        throw new Error('AI response was empty or invalid.');
+        throw new Error(i18n.t('service.ai_empty'));
       }
 
       return {
@@ -85,7 +86,7 @@ export const chatService = {
           id: Date.now(),
           role: 'ai',
           type: 'error',
-          content: 'Mentor AI sedang tidak tersedia. Silakan coba beberapa saat lagi.',
+          content: i18n.t('service.ai_overloaded'),
         };
       }
 
@@ -94,7 +95,7 @@ export const chatService = {
           id: Date.now(),
           role: 'ai',
           type: 'error',
-          content: 'Sesi Anda telah berakhir. Silakan login ulang untuk menggunakan AI Assistant.',
+          content: i18n.t('service.unauthorized_api'),
         };
       }
 
@@ -103,7 +104,7 @@ export const chatService = {
           id: Date.now(),
           role: 'ai',
           type: 'error',
-          content: 'Pesan tidak dapat diproses. Pastikan pesan Anda tidak kosong.',
+          content: i18n.t('service.bad_request'),
         };
       }
 

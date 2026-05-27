@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { LayoutDashboard as LayoutDashboardIcon, TrendingUp as TrendingUpIcon, Star as StarIcon, LogOut as LogOutIcon, Info } from 'lucide-react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ConfirmModal from './ui/ConfirmModal';
+import LanguageToggle from './ui/LanguageToggle';
 
 const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -45,7 +48,7 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
             {/* Section Title */}
             <div className="px-6 mb-5">
               <p className="font-mono text-[10px] text-accent tracking-[2px] uppercase">
-                Intelligence
+                {t('nav.intelligence')}
               </p>
             </div>
 
@@ -53,65 +56,77 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
             <nav className="space-y-1" aria-label="Main navigation">
               <NavLink to="/dashboard" className={navLinkClass}>
                 <LayoutDashboardIcon className="w-4 h-4 mr-3" />
-                <span className="font-mono text-[12px] tracking-[1px] uppercase">Dashboard</span>
+                <span className="font-mono text-[12px] tracking-[1px] uppercase">{t('nav.dashboard')}</span>
               </NavLink>
 
               <NavLink to="/market-insight" className={navLinkClass}>
                 <TrendingUpIcon className="w-4 h-4 mr-3" />
-                <span className="font-mono text-[12px] tracking-[1px] uppercase">Market Insight</span>
+                <span className="font-mono text-[12px] tracking-[1px] uppercase">{t('nav.market_insight')}</span>
               </NavLink>
 
               <NavLink to="/watchlist" className={navLinkClass}>
                 <StarIcon className="w-4 h-4 mr-3" />
-                <span className="font-mono text-[12px] tracking-[1px] uppercase">Watchlist</span>
+                <span className="font-mono text-[12px] tracking-[1px] uppercase">{t('nav.watchlist')}</span>
               </NavLink>
             </nav>
           </div>
 
           {/* Bottom Section */}
-          <div className="px-4 space-y-4">
-            {/* Mobile Mode Toggle (only visible on mobile/tablet) */}
+          <div className="px-4 space-y-3">
+            {/* Mobile: Mode Toggle (hidden on desktop — shown in Navbar) */}
             <div className="sm:hidden">
-              <div className="flex items-center gap-1 border border-card-border p-1 bg-surface" role="group" aria-label="Analysis mode">
-                <button 
+              <p className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted mb-2 px-1">
+                {t('navbar.analysis_mode')}
+              </p>
+              <div className="flex items-center gap-1 border border-card-border p-1 bg-surface" role="group" aria-label={t('navbar.analysis_mode')}>
+                <button
                   onClick={() => onModeChange?.('beginner')}
                   className={`flex-1 py-1.5 font-mono text-[10px] tracking-[1.5px] uppercase transition-colors text-center ${
                     userMode === 'beginner' ? 'bg-accent text-bg-dark' : 'text-text-muted hover:text-text-main'
                   }`}
                 >
-                  Beginner
+                  {t('sidebar.mode_beginner')}
                 </button>
-                <button 
+                <button
                   onClick={() => onModeChange?.('pro')}
                   className={`flex-1 py-1.5 font-mono text-[10px] tracking-[1.5px] uppercase transition-colors text-center ${
                     userMode === 'pro' ? 'bg-accent text-bg-dark' : 'text-text-muted hover:text-text-main'
                   }`}
                 >
-                  Pro
+                  {t('sidebar.mode_pro')}
                 </button>
               </div>
             </div>
 
+            {/* Mobile: Language Toggle (hidden on desktop — shown in Navbar header) */}
+            <div className="sm:hidden">
+              <p className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted mb-2 px-1">
+                Language / Bahasa
+              </p>
+              <LanguageToggle variant="sidebar" />
+            </div>
+
             {/* Mode Info Card */}
-            <div className="bg-surface border border-card-border p-4 flex gap-3 mb-4">
+            <div className="bg-surface border border-card-border p-4 flex gap-3">
               <Info className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
               <p className="font-body text-[13px] text-text-secondary leading-relaxed">
-                {userMode === 'beginner' 
-                  ? <><span className="text-accent">Beginner Mode</span> is active. Technical terms are simplified to help you learn safely.</>
-                  : <><span className="text-accent">Pro Mode</span> is active. Displaying raw data and advanced technical indicators.</>}
+                {userMode === 'beginner'
+                  ? <><span className="text-accent">{t('sidebar.mode_beginner')}</span>{' '}{t('sidebar.beginner_desc')}</>
+                  : <><span className="text-accent">{t('sidebar.mode_pro')}</span>{' '}{t('sidebar.pro_desc')}</>
+                }
               </p>
             </div>
           </div>
         </div>
 
-        {/* Logout — Fixed at the absolute bottom, outside scroll area, no top border */}
+        {/* Logout — Fixed at the absolute bottom */}
         <div className="mt-auto pb-4">
           <button
             onClick={() => setShowLogoutModal(true)}
             className="w-full flex items-center px-6 py-3 border-l-2 border-transparent text-text-secondary hover:text-text-main hover:bg-surface transition-colors duration-200"
           >
             <LogOutIcon className="w-4 h-4 mr-3" />
-            <span className="font-mono text-[12px] tracking-[1px] uppercase">Logout</span>
+            <span className="font-mono text-[12px] tracking-[1px] uppercase">{t('sidebar.logout')}</span>
           </button>
         </div>
       </aside>
@@ -121,9 +136,9 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
         isOpen={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}
         onConfirm={handleLogout}
-        title="End Session"
-        description="You are about to terminate your current session. Any unsaved analysis context will be cleared."
-        confirmLabel="LOG OUT"
+        title={t('modal.logout_title')}
+        description={t('modal.logout_desc')}
+        confirmLabel={t('modal.logout_confirm')}
         variant="danger"
       />
     </>

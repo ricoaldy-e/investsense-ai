@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { Loader2, Search, ArrowLeft, RefreshCw, Star } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { stockService } from '../services/stockService';
 import { watchlistService } from '../services/watchlistService';
 import WarningBanner from '../components/WarningBanner';
@@ -11,6 +12,7 @@ import AIInsightCard from '../components/AIInsightCard';
 import RiskAnalysisCard from '../components/RiskAnalysisCard';
 
 const Dashboard = () => {
+  const { t, i18n } = useTranslation();
   const { userMode } = useOutletContext();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -97,7 +99,7 @@ const Dashboard = () => {
       if (err.response?.status === 409) {
         setIsInWatchlist(true);
       }
-      console.warn('[Dashboard] Watchlist toggle failed:', err.message);
+      console.warn(`[InvestSense Dashboard] Action failed: Unable to toggle watchlist status for ${stockData?.ticker || 'unknown'}.`, err.message);
     } finally {
       setWatchlistLoading(false);
     }
@@ -130,7 +132,7 @@ const Dashboard = () => {
       <div className="pb-24 md:pb-0 flex flex-col items-center justify-center min-h-[60vh]">
         <Loader2 className="w-6 h-6 text-accent animate-spin mb-4" />
         <p className="font-mono text-[11px] tracking-[2px] uppercase text-text-muted">
-          Loading market data...
+          {t('dashboard.loading')}
         </p>
       </div>
     );
@@ -144,7 +146,7 @@ const Dashboard = () => {
     return (
       <div className="pb-24 md:pb-0 flex flex-col items-center justify-center min-h-[60vh]">
         <p className="font-mono text-[12px] tracking-[1px] uppercase text-danger mb-2">
-          Data Unavailable
+          {t('dashboard.error_title')}
         </p>
         <p className="font-body text-[14px] text-text-secondary mb-8">{error}</p>
 
@@ -155,7 +157,7 @@ const Dashboard = () => {
               className="flex items-center gap-2 font-mono text-[11px] tracking-[2px] uppercase text-bg-dark bg-text-main rounded-full px-6 py-2.5 hover:bg-text-secondary transition-all duration-300"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              Return to {lastViewed}
+              {t('dashboard.return_to', { stock: lastViewed })}
             </button>
           )}
           <button
@@ -163,7 +165,7 @@ const Dashboard = () => {
             className="flex items-center gap-2 font-mono text-[11px] tracking-[2px] uppercase text-accent border border-accent/40 rounded-full px-6 py-2.5 hover:bg-accent hover:text-bg-dark transition-all duration-300"
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            Clear Dashboard
+            {t('navbar.clear')}
           </button>
         </div>
       </div>
@@ -178,10 +180,13 @@ const Dashboard = () => {
           <Search className="w-6 h-6 text-text-muted" />
         </div>
         <h2 className="font-display text-[18px] font-medium text-text-main tracking-[2px] uppercase mb-2">
-          Initialize Analysis
+          {t('dashboard.zero_title')}
         </h2>
         <p className="font-body text-[14px] text-text-secondary text-center max-w-md leading-relaxed mb-8">
-          Awaiting input. Please enter a stock ticker (e.g., AAPL, TSLA) in the search bar above to generate a clinical-grade market analysis.
+          {t('dashboard.zero_desc')}
+        </p>
+        <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted">
+          {t('dashboard.search_examples')}
         </p>
       </div>
     );
@@ -197,7 +202,7 @@ const Dashboard = () => {
         </h1>
         <div className="flex items-center gap-3">
           <p className="font-mono text-[10px] text-text-muted tracking-[1px] uppercase hidden sm:block">
-            Data as of: {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+            {t('dashboard.data_as_of')} {new Date().toLocaleTimeString(i18n.language === 'id' ? 'id-ID' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
           </p>
           <button
             onClick={handleToggleWatchlist}
@@ -207,10 +212,10 @@ const Dashboard = () => {
                 ? 'text-accent bg-accent/10 border border-accent/30'
                 : 'text-text-muted border border-card-border hover:text-accent hover:border-accent/40'
             } disabled:opacity-50`}
-            title={isInWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist'}
+            title={isInWatchlist ? t('watchlist.remove_title') : t('watchlist.add_stock')}
           >
             <Star className={`w-3 h-3 ${isInWatchlist ? 'fill-accent' : ''}`} />
-            <span className="hidden sm:inline">{isInWatchlist ? 'Saved' : 'Watch'}</span>
+            <span className="hidden sm:inline">{isInWatchlist ? t('dashboard.saved') : t('dashboard.watch')}</span>
           </button>
           <button
             onClick={handleRefresh}
@@ -218,7 +223,7 @@ const Dashboard = () => {
             className="flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase text-accent border border-accent/40 rounded-full px-4 py-2 hover:bg-accent hover:text-bg-dark disabled:opacity-50 transition-all duration-200"
           >
             <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
+            {t('dashboard.refresh')}
           </button>
         </div>
       </div>

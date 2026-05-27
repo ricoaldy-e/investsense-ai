@@ -1,15 +1,14 @@
 import { Info } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { AreaChart, Area, ResponsiveContainer, YAxis, XAxis, CartesianGrid, Tooltip as RechartsTooltip } from 'recharts';
 import Tooltip from './Tooltip';
 
-// Helper to format price with appropriate currency symbol
 const formatPrice = (value, currency) => {
   if (value == null) return 'N/A';
   if (currency === 'IDR') return `Rp${value.toLocaleString('id-ID')}`;
   return `$${value.toFixed(2)}`;
 };
 
-// Pro mode: custom tooltip for chart hover (defined outside component to avoid re-creation)
 const ProChartTooltip = ({ active, payload, currency }) => {
   if (!active || !payload?.length) return null;
   const point = payload[0].payload;
@@ -22,35 +21,36 @@ const ProChartTooltip = ({ active, payload, currency }) => {
 };
 
 const StockChartCard = ({ data, mode }) => {
+  const { t } = useTranslation();
   if (!data) return null;
 
-  // Derive RSI status
   const rsi = data.metrics?.rsi14 ?? 0;
   const isPro = mode === 'pro';
 
-  const rsiLabel = rsi >= 70 ? 'Overbought' : rsi <= 30 ? 'Oversold' : 'Stable';
+  const rsiLabel = rsi >= 70 ? t('stock_chart.overbought') : rsi <= 30 ? t('stock_chart.oversold') : t('stock_chart.stable');
   const rsiColor = rsi >= 70 ? 'text-danger' : rsi <= 30 ? 'text-success' : 'text-text-main';
   const rsiBarWidth = `${Math.min(rsi, 100)}%`;
 
-  // Derive trend status
-  const trendLabel = data.trend === 'up' ? 'Upward Trend' : data.trend === 'down' ? 'Downward Pressure' : 'Sideways';
+  const trendLabel = data.trend === 'up' ? t('stock_chart.upward_trend') : data.trend === 'down' ? t('stock_chart.downward_pressure') : t('stock_chart.sideways');
   const trendColor = data.trend === 'up' ? 'text-success' : data.trend === 'down' ? 'text-danger' : 'text-text-muted';
   const trendBarWidth = data.trend === 'up' ? '85%' : data.trend === 'down' ? '35%' : '50%';
 
-  // Price change color
   const priceChangeColor = data.percentChange >= 0 ? 'text-success' : 'text-danger';
   const priceChangePrefix = data.percentChange >= 0 ? '+' : '';
 
-  // Tooltip content based on mode
-  const rsiTooltip = isPro
-    ? "Relative Strength Index (RSI) measures the speed and magnitude of recent price changes to evaluate overvalued or undervalued conditions."
-    : "A speed limit gauge for stock prices. Above 70 means it's running too hot (Overbought), below 30 means it's heavily sold (Oversold).";
+  const rsiTooltip = isPro ? t('stock_chart.rsi_tooltip_pro') : t('stock_chart.rsi_tooltip_beginner');
+  const trendTooltip = isPro ? t('stock_chart.trend_tooltip_pro') : t('stock_chart.trend_tooltip_beginner');
 
-  const trendTooltip = isPro
-    ? "Moving Average based trend detection analyzing momentum shifts and prevailing price direction."
-    : "Shows the general direction the stock is heading. 'Upward' means buyers are currently in control.";
+  // RSI descriptions
+  const rsiDesc = isPro
+    ? (rsi >= 70 ? t('stock_chart.rsi_desc_pro_high') : rsi <= 30 ? t('stock_chart.rsi_desc_pro_low') : t('stock_chart.rsi_desc_pro_neutral'))
+    : (rsi >= 70 ? t('stock_chart.rsi_desc_beginner_high') : rsi <= 30 ? t('stock_chart.rsi_desc_beginner_low') : t('stock_chart.rsi_desc_beginner_neutral'));
 
-  // Transform chartData for Recharts
+  // Trend descriptions
+  const trendDesc = isPro
+    ? (data.trend === 'up' ? t('stock_chart.trend_desc_pro_up') : data.trend === 'down' ? t('stock_chart.trend_desc_pro_down') : t('stock_chart.trend_desc_pro_side'))
+    : (data.trend === 'up' ? t('stock_chart.trend_desc_beginner_up') : data.trend === 'down' ? t('stock_chart.trend_desc_beginner_down') : t('stock_chart.trend_desc_beginner_side'));
+
   const chartPoints = (data.chartData || []).map(point => ({ time: point.time, value: point.price }));
 
   return (
@@ -75,7 +75,6 @@ const StockChartCard = ({ data, mode }) => {
           </div>
         </div>
 
-        {/* Pro mode: extra metrics badge */}
         {isPro && (
           <div className="flex items-center gap-3 flex-wrap">
             {data.metrics?.peRatio != null && (
@@ -108,12 +107,7 @@ const StockChartCard = ({ data, mode }) => {
                 <stop offset="95%" stopColor="#7b8fa8" stopOpacity={0} />
               </linearGradient>
             </defs>
-
-            {/* Pro mode: show grid + axes */}
-            {isPro && (
-              <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" />
-            )}
-
+            {isPro && <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" />}
             <YAxis
               domain={['dataMin - 2', 'dataMax + 2']}
               hide={!isPro}
@@ -123,7 +117,6 @@ const StockChartCard = ({ data, mode }) => {
               tickFormatter={(v) => data.currency === 'IDR' ? `Rp${v.toLocaleString('id-ID')}` : `$${v}`}
               width={55}
             />
-
             <XAxis
               dataKey="time"
               hide={!isPro}
@@ -131,11 +124,7 @@ const StockChartCard = ({ data, mode }) => {
               axisLine={false}
               tickLine={false}
             />
-
-            {isPro && (
-              <RechartsTooltip content={<ProChartTooltip currency={data.currency} />} />
-            )}
-
+            {isPro && <RechartsTooltip content={<ProChartTooltip currency={data.currency} />} />}
             <Area
               type="monotone"
               dataKey="value"
@@ -156,7 +145,7 @@ const StockChartCard = ({ data, mode }) => {
           <div className="flex justify-between items-center mb-3 gap-2">
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
               <span className="font-mono text-[12px] tracking-[0.5px] text-text-secondary leading-tight truncate">
-                {mode === 'beginner' ? 'Price Momentum' : 'RSI-14'}
+                {isPro ? t('stock_chart.rsi_14') : t('stock_chart.price_momentum')}
               </span>
               <Tooltip content={rsiTooltip}>
                 <button className="text-text-muted hover:text-accent transition-colors flex-shrink-0 focus:outline-none flex items-center">
@@ -174,11 +163,7 @@ const StockChartCard = ({ data, mode }) => {
           <div className="h-1.5 w-full bg-surface overflow-hidden flex mb-2">
             <div className="h-full bg-accent/40" style={{ width: rsiBarWidth }}></div>
           </div>
-          <p className="font-body text-[12px] text-text-muted mt-2 leading-relaxed">
-            {mode === 'beginner'
-              ? (rsi >= 70 ? 'The price has gone up too fast recently. It might be slightly expensive right now.' : rsi <= 30 ? 'The stock has been sold heavily. It might be cheap, but be careful.' : 'The stock price is moving at a normal, healthy pace.')
-              : (rsi >= 70 ? 'Elevated RSI suggests potential overvaluation. Consider trailing stop.' : rsi <= 30 ? 'Low RSI indicates oversold conditions. Watch for reversal patterns.' : 'RSI neutral range. No immediate momentum signal.')}
-          </p>
+          <p className="font-body text-[12px] text-text-muted mt-2 leading-relaxed">{rsiDesc}</p>
         </div>
 
         {/* Price Trend */}
@@ -186,7 +171,7 @@ const StockChartCard = ({ data, mode }) => {
           <div className="flex justify-between items-center mb-3 gap-2">
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
               <span className="font-mono text-[12px] tracking-[0.5px] text-text-secondary leading-tight truncate">
-                {mode === 'beginner' ? 'Price Direction' : 'Trend Analysis'}
+                {isPro ? t('stock_chart.trend_analysis') : t('stock_chart.price_direction')}
               </span>
               <Tooltip content={trendTooltip}>
                 <button className="text-text-muted hover:text-accent transition-colors flex-shrink-0 focus:outline-none flex items-center">
@@ -201,11 +186,7 @@ const StockChartCard = ({ data, mode }) => {
           <div className="h-1.5 w-full bg-surface overflow-hidden mb-2">
             <div className="h-full bg-accent/60" style={{ width: trendBarWidth }}></div>
           </div>
-          <p className="font-body text-[12px] text-text-muted mt-2 leading-relaxed">
-            {mode === 'beginner'
-              ? (data.trend === 'up' ? 'The stock is generally going up. Buyers are in control.' : data.trend === 'down' ? 'The stock is going down. Sellers are in control right now.' : 'The stock isn\'t moving much in either direction.')
-              : (data.trend === 'up' ? 'Consistent upward channel. MA crossover confirms bullish momentum.' : data.trend === 'down' ? 'Downward pressure with bearish MA alignment. Risk elevated.' : 'Consolidation phase. Awaiting breakout confirmation.')}
-          </p>
+          <p className="font-body text-[12px] text-text-muted mt-2 leading-relaxed">{trendDesc}</p>
         </div>
       </div>
     </div>

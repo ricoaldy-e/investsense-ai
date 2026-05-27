@@ -1,5 +1,6 @@
 import { mockStocks, mockSearchIndex } from '../mocks/stockMock';
 import api from './api';
+import i18n from '../i18n/i18n';
 import { delay, formatRelativeTime, mapSentimentLabel, computeSentimentPercentages, deriveAIInsights, deriveTrend } from './utils';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
@@ -25,7 +26,7 @@ class StockService {
       const stock = mockStocks[upperTicker];
       
       if (!stock) {
-        throw new Error(`Stock data for ${upperTicker} is not available for analysis.`);
+        throw new Error(i18n.t('service.stock_not_available', { ticker: upperTicker }));
       }
       return stock;
     }
@@ -45,7 +46,7 @@ class StockService {
     // ── Quote (required — if this fails, we can't show anything meaningful) ──
     if (quoteResult.status === 'rejected') {
       const errMsg = quoteResult.reason?.response?.data?.message || quoteResult.reason?.message;
-      throw new Error(errMsg || `Failed to fetch quote for ${upperTicker}.`);
+      throw new Error(errMsg || i18n.t('service.failed_fetch_quote', { ticker: upperTicker }));
     }
 
     const quote = quoteResult.value.data.data;

@@ -26,7 +26,7 @@ class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     // Log to console in development — replace with monitoring service in production
-    console.error('[ErrorBoundary] Caught:', error, errorInfo);
+    console.error('[InvestSense ErrorBoundary] Uncaught Exception:', error, errorInfo);
   }
 
   handleReset = () => {

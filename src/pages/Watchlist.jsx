@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, Plus, Trash2, RefreshCw, Loader2, TrendingUp, TrendingDown, Minus, Search, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { watchlistService } from '../services/watchlistService';
 import { stockService } from '../services/stockService';
 import api from '../services/api';
@@ -38,6 +39,7 @@ const formatPrice = (value, currency) => {
 // ─── Main Page ───
 
 const Watchlist = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // State
@@ -68,9 +70,9 @@ const Watchlist = () => {
       setWatchlistItems(items);
       return items;
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Failed to load watchlist.';
+      const msg = err.response?.data?.message || err.message || t('watchlist.error_title');
       if (err.response?.status === 401) {
-        setError('Please log in to view your watchlist.');
+        setError(t('watchlist.login_required'));
       } else {
         setError(msg);
       }
@@ -188,7 +190,7 @@ const Watchlist = () => {
       const items = await fetchWatchlist();
       await enrichWithQuotes(items);
     } catch (err) {
-      console.error('[Watchlist] Remove failed:', err.message);
+      console.error(`[InvestSense Watchlist] Failed to remove stock ticker (${removeTarget}):`, err.message);
       setRemoveTarget(null);
     } finally {
       setIsRemoving(false);
@@ -201,7 +203,7 @@ const Watchlist = () => {
       <div className="pb-24 md:pb-0 flex flex-col items-center justify-center min-h-[60vh]">
         <Loader2 className="w-6 h-6 text-accent animate-spin mb-4" />
         <p className="font-mono text-[11px] tracking-[2px] uppercase text-text-muted">
-          Loading watchlist...
+          {t('watchlist.loading')}
         </p>
       </div>
     );
@@ -213,7 +215,7 @@ const Watchlist = () => {
       <div className="pb-24 md:pb-0 flex flex-col items-center justify-center min-h-[60vh]">
         <AlertCircle className="w-8 h-8 text-danger mb-4" />
         <p className="font-mono text-[12px] tracking-[1px] uppercase text-danger mb-2">
-          Unable to Load
+          {t('watchlist.error_title')}
         </p>
         <p className="font-body text-[14px] text-text-secondary mb-8 text-center max-w-md">
           {error}
@@ -223,7 +225,7 @@ const Watchlist = () => {
           className="flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase text-accent border border-accent/40 rounded-full px-6 py-2.5 hover:bg-accent hover:text-bg-dark transition-all duration-200"
         >
           <RefreshCw className="w-3 h-3" />
-          Retry
+          {t('watchlist.retry')}
         </button>
       </div>
     );
@@ -235,11 +237,11 @@ const Watchlist = () => {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6 md:mb-8">
         <div>
           <h1 className="font-display text-[20px] md:text-[24px] font-light text-text-main tracking-[3px] uppercase mb-1">
-            Watchlist
+            {t('watchlist.title')}
           </h1>
           <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted">
-            {watchlistItems.length} {watchlistItems.length === 1 ? 'Stock' : 'Stocks'} Monitored
-            {isEnriching && ' • Updating quotes...'}
+            {watchlistItems.length} {watchlistItems.length === 1 ? t('watchlist.stock_monitored') : t('watchlist.stocks_monitored')}
+            {isEnriching && ` • ${t('watchlist.updating_quotes')}`}
           </p>
         </div>
         <div className="flex items-center gap-3 self-start sm:self-auto">
@@ -248,7 +250,7 @@ const Watchlist = () => {
             className="flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase text-bg-dark bg-accent rounded-full px-4 py-2 hover:bg-accent/80 transition-all duration-200"
           >
             <Plus className="w-3 h-3" />
-            Add Stock
+            {t('watchlist.add_stock')}
           </button>
           <button
             onClick={handleRefresh}
@@ -256,7 +258,7 @@ const Watchlist = () => {
             className="flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase text-accent border border-accent/40 rounded-full px-4 py-2 hover:bg-accent hover:text-bg-dark disabled:opacity-50 transition-all duration-200"
           >
             <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
+            {t('watchlist.refresh')}
           </button>
         </div>
       </div>
@@ -268,17 +270,17 @@ const Watchlist = () => {
             <Star className="w-6 h-6 text-text-muted" />
           </div>
           <h2 className="font-display text-[18px] font-medium text-text-main tracking-[2px] uppercase mb-2">
-            No Stocks Tracked
+            {t('watchlist.empty_title')}
           </h2>
           <p className="font-body text-[14px] text-text-secondary text-center max-w-md leading-relaxed mb-8">
-            Your watchlist is empty. Add stocks to monitor their performance at a glance. Click "Add Stock" above or search for a ticker to get started.
+            {t('watchlist.empty_desc')}
           </p>
           <button
             onClick={() => { setShowAddModal(true); setAddQuery(''); setAddSearchResults([]); setAddError(''); }}
             className="flex items-center gap-2 font-mono text-[11px] tracking-[2px] uppercase text-accent border border-accent/40 rounded-full px-6 py-2.5 hover:bg-accent hover:text-bg-dark transition-all duration-300"
           >
             <Plus className="w-3.5 h-3.5" />
-            Add Your First Stock
+            {t('watchlist.add_first')}
           </button>
         </div>
       ) : (
@@ -287,11 +289,11 @@ const Watchlist = () => {
           <div className="hidden md:block bg-card-dark border border-card-border">
             {/* Table Header */}
             <div className="grid grid-cols-[1fr_120px_140px_100px_100px_48px] gap-4 px-6 py-3.5 border-b border-card-border">
-              <span className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted">Ticker</span>
-              <span className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted text-right">Price</span>
-              <span className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted text-right">Change</span>
-              <span className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted text-right">Market</span>
-              <span className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted text-right">Added</span>
+              <span className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted">{t('watchlist.ticker')}</span>
+              <span className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted text-right">{t('watchlist.price')}</span>
+              <span className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted text-right">{t('watchlist.change')}</span>
+              <span className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted text-right">{t('watchlist.market')}</span>
+              <span className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted text-right">{t('watchlist.added')}</span>
               <span className="sr-only">Actions</span>
             </div>
 
@@ -335,7 +337,7 @@ const Watchlist = () => {
                         <span className={`font-mono text-[10px] tracking-[1px] uppercase ${
                           quote.marketState === 'REGULAR' ? 'text-success' : 'text-text-muted'
                         }`}>
-                          {quote.marketState === 'REGULAR' ? 'Open' : quote.marketState === 'CLOSED' ? 'Closed' : quote.marketState}
+                          {quote.marketState === 'REGULAR' ? t('watchlist.open') : quote.marketState === 'CLOSED' ? t('watchlist.closed') : quote.marketState}
                         </span>
                       ) : (
                         <span className="font-mono text-[10px] text-text-muted">—</span>
@@ -409,22 +411,22 @@ const Watchlist = () => {
                   >
                     <div className="flex items-center justify-between pt-3 border-t border-hairline">
                       <div>
-                        <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mb-1">Price</p>
+                        <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mb-1">{t('watchlist.price')}</p>
                         <p className="font-mono text-[14px] text-text-main">
                           {quote ? formatPrice(quote.currentPrice, quote.currency) : '—'}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mb-1">Change</p>
+                        <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mb-1">{t('watchlist.change')}</p>
                         <ChangeIndicator value={quote?.changePercent} />
                       </div>
                       <div className="text-right">
-                        <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mb-1">Status</p>
+                        <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mb-1">{t('watchlist.status')}</p>
                         {quote?.marketState ? (
                           <span className={`font-mono text-[11px] tracking-[0.5px] ${
                             quote.marketState === 'REGULAR' ? 'text-success' : 'text-text-muted'
                           }`}>
-                            {quote.marketState === 'REGULAR' ? 'Open' : 'Closed'}
+                            {quote.marketState === 'REGULAR' ? t('watchlist.open') : t('watchlist.closed')}
                           </span>
                         ) : (
                           <span className="font-mono text-[11px] text-text-muted">—</span>
@@ -440,7 +442,7 @@ const Watchlist = () => {
           {/* Watchlist footer disclaimer */}
           <div className="mt-6 text-center">
             <p className="font-body text-[11px] text-text-muted italic">
-              Prices are delayed and provided for informational purposes only. Not financial advice.
+              {t('watchlist.footer_disclaimer')}
             </p>
           </div>
         </>
@@ -465,10 +467,10 @@ const Watchlist = () => {
               {/* Modal Header */}
               <div className="px-6 py-5 border-b border-card-border flex-shrink-0">
                 <h2 id="add-stock-title" className="font-mono text-[11px] tracking-[2px] uppercase text-accent mb-1">
-                  Add to Watchlist
+                  {t('watchlist.modal_title')}
                 </h2>
                 <p className="font-body text-[12px] text-text-muted">
-                  Search for a stock ticker to add to your watchlist.
+                  {t('watchlist.modal_desc')}
                 </p>
               </div>
 
@@ -487,7 +489,7 @@ const Watchlist = () => {
                     value={addQuery}
                     onChange={(e) => handleAddSearch(e.target.value)}
                     className="block w-full pl-7 pr-3 py-2 bg-transparent border-b border-card-border font-mono text-[13px] text-text-main placeholder-text-muted focus:outline-none focus:border-accent transition-colors"
-                    placeholder="Search ticker (e.g., BBCA, AAPL)..."
+                    placeholder={t('watchlist.search_placeholder')}
                     autoFocus
                   />
                 </div>
@@ -525,11 +527,11 @@ const Watchlist = () => {
                           </div>
                           {alreadyAdded ? (
                             <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted border border-card-border px-2 py-1 flex-shrink-0">
-                              Added
+                              {t('watchlist.already_added')}
                             </span>
                           ) : (
                             <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-accent flex-shrink-0">
-                              {isAdding ? '...' : '+ Add'}
+                              {isAdding ? t('watchlist.adding') : t('watchlist.add_btn')}
                             </span>
                           )}
                         </button>
@@ -538,11 +540,11 @@ const Watchlist = () => {
                   </div>
                 ) : addQuery.trim() && !isSearching ? (
                   <div className="flex items-center justify-center py-12">
-                    <p className="font-mono text-[11px] text-text-muted tracking-[1px]">No results found</p>
+                    <p className="font-mono text-[11px] text-text-muted tracking-[1px]">{t('watchlist.no_results')}</p>
                   </div>
                 ) : !addQuery.trim() ? (
                   <div className="flex items-center justify-center py-12">
-                    <p className="font-body text-[13px] text-text-muted italic">Type a ticker symbol to search</p>
+                    <p className="font-body text-[13px] text-text-muted italic">{t('watchlist.type_to_search')}</p>
                   </div>
                 ) : null}
               </div>
@@ -553,7 +555,7 @@ const Watchlist = () => {
                   onClick={() => setShowAddModal(false)}
                   className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted border border-card-border rounded-full px-5 py-2 hover:text-text-main hover:border-text-muted transition-colors"
                 >
-                  Close
+                  {t('watchlist.close')}
                 </button>
               </div>
             </div>
@@ -566,9 +568,9 @@ const Watchlist = () => {
         isOpen={!!removeTarget}
         onClose={() => setRemoveTarget(null)}
         onConfirm={handleRemoveTicker}
-        title="Remove from Watchlist"
-        description={`Are you sure you want to remove ${removeTarget} from your watchlist? You can always add it back later.`}
-        confirmLabel={isRemoving ? 'REMOVING...' : 'REMOVE'}
+        title={t('watchlist.remove_title')}
+        description={t('watchlist.remove_desc', { ticker: removeTarget })}
+        confirmLabel={isRemoving ? t('watchlist.removing') : t('watchlist.remove_confirm')}
         variant="danger"
       />
     </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { TrendingUp, TrendingDown, Minus, Clock, ExternalLink, RefreshCw, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import { formatRelativeTime, mapSentimentLabel } from '../services/utils';
 
@@ -94,16 +95,16 @@ const ChangeIndicator = ({ value, size = 'default' }) => {
 const SentimentTag = ({ sentiment }) => {
   // Normalize to display label
   const normalizedMap = {
-    'Bullish': 'Bullish', 'positive': 'Bullish',
-    'Bearish': 'Bearish', 'negative': 'Bearish',
-    'Neutral': 'Neutral', 'neutral': 'Neutral',
+    'Bullish': t('market.bullish'), 'positive': t('market.bullish'),
+    'Bearish': t('market.bearish'), 'negative': t('market.bearish'),
+    'Neutral': t('market.neutral'), 'neutral': t('market.neutral'),
   };
-  const displayLabel = normalizedMap[sentiment] || 'Neutral';
+  const displayLabel = normalizedMap[sentiment] || t('market.neutral');
 
   const colors = {
-    Bullish: 'text-success border-success/30 bg-success-soft',
-    Bearish: 'text-danger border-danger/30 bg-danger-soft',
-    Neutral: 'text-text-muted border-card-border bg-surface',
+    [t('market.bullish')]: 'text-success border-success/30 bg-success-soft',
+    [t('market.bearish')]: 'text-danger border-danger/30 bg-danger-soft',
+    [t('market.neutral')]: 'text-text-muted border-card-border bg-surface',
   };
 
   return (
@@ -116,6 +117,7 @@ const SentimentTag = ({ sentiment }) => {
 // ─── Main Page ───
 
 const MarketInsight = () => {
+  const { t, i18n } = useTranslation();
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [marketHeadlines, setMarketHeadlines] = useState(USE_MOCK ? mockHeadlines : []);
@@ -150,7 +152,7 @@ const MarketInsight = () => {
         setMarketHeadlines(mockHeadlines);
       }
     } catch (err) {
-      console.warn('[MarketInsight] ⚠️ Failed to fetch market news — using fallback data:', err.message);
+      console.warn(`[InvestSense MarketInsight] Degradation: Failed to fetch live market news. Falling back to cached data. Details: ${err.message}`);
       setMarketHeadlines(mockHeadlines);
     } finally {
       setIsLoadingNews(false);
@@ -198,11 +200,11 @@ const MarketInsight = () => {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6 md:mb-8">
         <div>
           <h1 className="font-display text-[20px] md:text-[24px] font-light text-text-main tracking-[3px] uppercase mb-1">
-            Market Insight
+            {t('market.title')}
           </h1>
           <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted">
-            Data as of: {lastUpdated.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} |{' '}
-            {lastUpdated.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            {t('market.data_as_of')} {lastUpdated.toLocaleTimeString(i18n.language === 'id' ? 'id-ID' : 'en-US', { hour: '2-digit', minute: '2-digit' })} |{' '}
+            {lastUpdated.toLocaleDateString(i18n.language === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
         <button
@@ -211,30 +213,29 @@ const MarketInsight = () => {
           className="flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase text-accent border border-accent/40 rounded-full px-4 py-2 hover:bg-accent hover:text-bg-dark disabled:opacity-50 transition-all duration-200 self-start sm:self-auto"
         >
           <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Refresh
+          {t('market.refresh')}
         </button>
       </div>
 
-      {/* Market Sentiment Summary Bar */}
       <div className="bg-card-dark border border-card-border p-4 flex flex-wrap items-center gap-4 md:gap-8 mb-4 md:mb-6">
         <div className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted">
-          Sentiment Overview
+          {t('market.sentiment_overview')}
         </div>
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 bg-success" />
             <span className="font-mono text-[11px] text-success">{bullishCount}</span>
-            <span className="font-mono text-[9px] tracking-[1px] uppercase text-text-muted">Bullish</span>
+            <span className="font-mono text-[9px] tracking-[1px] uppercase text-text-muted">{t('market.bullish')}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 bg-danger" />
             <span className="font-mono text-[11px] text-danger">{bearishCount}</span>
-            <span className="font-mono text-[9px] tracking-[1px] uppercase text-text-muted">Bearish</span>
+            <span className="font-mono text-[9px] tracking-[1px] uppercase text-text-muted">{t('market.bearish')}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 bg-text-muted" />
             <span className="font-mono text-[11px] text-text-muted">{neutralCount}</span>
-            <span className="font-mono text-[9px] tracking-[1px] uppercase text-text-muted">Neutral</span>
+            <span className="font-mono text-[9px] tracking-[1px] uppercase text-text-muted">{t('market.neutral')}</span>
           </div>
         </div>
       </div>
@@ -247,10 +248,10 @@ const MarketInsight = () => {
           <div className="bg-card-dark border border-card-border">
             <div className="px-5 py-4 border-b border-card-border flex items-center justify-between">
               <h2 className="font-display text-[11px] tracking-[2px] uppercase text-text-muted">
-                Global Markets
+                {t('market.global_markets')}
               </h2>
               <span className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase">
-                {globalIndices.length} Indices
+                {globalIndices.length} {t('market.indices')}
               </span>
             </div>
             <div className="divide-y divide-hairline">
@@ -284,10 +285,10 @@ const MarketInsight = () => {
           <div className="bg-card-dark border border-card-border">
             <div className="px-5 py-4 border-b border-card-border flex items-center justify-between">
               <h2 className="font-display text-[11px] tracking-[2px] uppercase text-text-muted">
-                Sector Movers
+                {t('market.sector_movers')}
               </h2>
               <span className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase">
-                Today
+                {t('market.today')}
               </span>
             </div>
             <div className="divide-y divide-hairline">
@@ -320,10 +321,10 @@ const MarketInsight = () => {
           <div className="bg-card-dark border border-card-border h-full flex flex-col">
             <div className="px-5 py-4 border-b border-card-border flex items-center justify-between">
               <h2 className="font-display text-[11px] tracking-[2px] uppercase text-text-muted">
-                Market Headlines
+                {t('market.market_headlines')}
               </h2>
               <span className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase">
-                {isLoadingNews ? '...' : `${marketHeadlines.length} Articles`}
+                {isLoadingNews ? '...' : `${marketHeadlines.length} ${t('market.articles')}`}
               </span>
             </div>
 
@@ -332,7 +333,7 @@ const MarketInsight = () => {
                 <div className="text-center">
                   <Loader2 className="w-5 h-5 text-accent animate-spin mx-auto mb-3" />
                   <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted">
-                    Fetching headlines...
+                    {t('market.fetching_headlines')}
                   </p>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, ChevronLeft, ChevronRight, X, Plus, MessageSquare, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { chatService } from '../services/chatService';
 
 // ─── Generate conversation title from first user message ───
@@ -14,13 +15,13 @@ const generateTitle = (messages) => {
 const EMPTY_MESSAGES = [];
 
 const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) => {
-  // ─── Conversation management ───
+  const { t } = useTranslation();
   const [conversations, setConversations] = useState(() => {
     const lastStock = localStorage.getItem('lastViewedStock');
     const initialMsgs = lastStock
-      ? [{ id: Date.now(), role: 'system', content: `Stock context: ${lastStock}. Ask me anything about this stock.` }]
+      ? [{ id: Date.now(), role: 'system', content: t('chat_panel.stock_context', { stock: lastStock }) }]
       : [];
-    return [{ id: Date.now(), title: 'New Analysis', messages: initialMsgs }];
+    return [{ id: Date.now(), title: t('chat_panel.new_analysis'), messages: initialMsgs }];
   });
   const [activeConvId, setActiveConvId] = useState(() => conversations[0]?.id);
   const [showHistory, setShowHistory] = useState(false);
@@ -57,7 +58,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       if (lastStock && isOpen) {
         setConversations(prev => prev.map(c =>
           c.id === activeConvId
-            ? { ...c, messages: [...c.messages, { id: Date.now(), role: 'system', content: `Stock context updated: ${lastStock}` }] }
+            ? { ...c, messages: [...c.messages, { id: Date.now(), role: 'system', content: t('chat_panel.stock_updated', { stock: lastStock }) }] }
             : c
         ));
       }
@@ -99,13 +100,13 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
     const newId = Date.now();
     const lastStock = localStorage.getItem('lastViewedStock');
     const initialMsgs = lastStock
-      ? [{ id: newId + 1, role: 'system', content: `Stock context: ${lastStock}. Ask me anything about this stock.` }]
+      ? [{ id: newId + 1, role: 'system', content: t('chat_panel.stock_context', { stock: lastStock }) }]
       : [];
-    setConversations(prev => [{ id: newId, title: 'New Analysis', messages: initialMsgs }, ...prev]);
+    setConversations(prev => [{ id: newId, title: t('chat_panel.new_analysis'), messages: initialMsgs }, ...prev]);
     setActiveConvId(newId);
     setInputMessage('');
     setShowHistory(false);
-  }, []);
+  }, [t]);
 
   // ─── Delete conversation ───
   const handleDeleteConv = useCallback((convId) => {
@@ -115,9 +116,9 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
         const newId = Date.now();
         const lastStock = localStorage.getItem('lastViewedStock');
         const initialMsgs = lastStock
-          ? [{ id: newId + 1, role: 'system', content: `Stock context: ${lastStock}. Ask me anything about this stock.` }]
+          ? [{ id: newId + 1, role: 'system', content: t('chat_panel.stock_context', { stock: lastStock }) }]
           : [];
-        const newConv = { id: newId, title: 'New Analysis', messages: initialMsgs };
+        const newConv = { id: newId, title: t('chat_panel.new_analysis'), messages: initialMsgs };
         setActiveConvId(newId);
         return [newConv];
       }
@@ -156,7 +157,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
     } catch {
       setConversations(prev => prev.map(c =>
         c.id === activeConvId
-          ? { ...c, messages: [...c.messages, { id: Date.now(), role: 'ai', type: 'error', content: 'Analysis engine temporarily unavailable.' }] }
+          ? { ...c, messages: [...c.messages, { id: Date.now(), role: 'ai', type: 'error', content: t('chat_panel.error_unavailable') }] }
           : c
       ));
     } finally {
@@ -185,10 +186,10 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
             <span className="font-mono text-[13px] text-accent">AI</span>
           </div>
           <h2 className="font-display text-[15px] text-text-main tracking-[2px] uppercase mb-2">
-            System Ready
+            {t('chat_panel.system_ready')}
           </h2>
           <p className="font-body text-[13px] text-text-secondary leading-relaxed max-w-xs">
-            Provide a stock ticker or ask an investment question to begin analysis.
+            {t('chat_panel.system_ready_desc')}
           </p>
         </div>
       );
@@ -212,7 +213,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
             {msg.type === 'error' && (
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-1.5 h-1.5 bg-danger rounded-full" />
-                <p className="font-mono text-[9px] tracking-[2px] uppercase text-danger">System Notice</p>
+                <p className="font-mono text-[9px] tracking-[2px] uppercase text-danger">{t('chat_panel.system_notice')}</p>
               </div>
             )}
             <p className={`font-body text-[13px] leading-relaxed ${
@@ -233,7 +234,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       <div className="flex items-center gap-2">
         <div className="w-1.5 h-1.5 bg-text-muted rounded-full animate-ping" />
         <p className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted animate-pulse">
-          [ANALYZING MARKET DATA...]
+          {t('chat_panel.analyzing')}
         </p>
       </div>
     );
@@ -249,15 +250,15 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask about stocks, market sentiment, risk analysis..."
-            aria-label="Type your investment question"
+            placeholder={t('chat_panel.placeholder')}
+            aria-label={t('chat_panel.placeholder')}
             rows={1}
             className="w-full bg-transparent text-text-main font-body text-[13px] leading-relaxed px-3 pt-3 pb-1 resize-none placeholder:text-text-muted/60 focus:outline-none overflow-y-auto"
             style={{ maxHeight: '120px' }}
           />
           <div className="flex items-center justify-between px-3 pb-2 pt-1">
             <p className="font-body text-[9px] text-text-muted italic">
-              Not financial advice
+              {t('chat_panel.not_financial_advice')}
             </p>
             <button
               type="submit"
@@ -279,7 +280,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       <div className="flex flex-col h-full">
         {/* History header */}
         <div className="h-14 flex items-center justify-between px-4 border-b border-card-border flex-shrink-0">
-          <span className="font-mono text-[11px] tracking-[2px] uppercase text-text-main">History</span>
+          <span className="font-mono text-[11px] tracking-[2px] uppercase text-text-main">{t('chat_panel.history')}</span>
           <button onClick={() => setShowHistory(false)} className="p-1 text-text-muted hover:text-text-main transition-colors">
             <X className="w-3.5 h-3.5" />
           </button>
@@ -292,7 +293,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
             className="w-full flex items-center justify-center gap-2 font-mono text-[10px] tracking-[2px] uppercase text-accent border border-accent/40 rounded-full px-4 py-2 hover:bg-accent hover:text-bg-dark transition-all duration-200"
           >
             <Plus className="w-3 h-3" />
-            New Chat
+            {t('chat_panel.new_chat')}
           </button>
         </div>
 

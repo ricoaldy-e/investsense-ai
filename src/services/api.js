@@ -1,4 +1,5 @@
 import axios from "axios";
+import i18n from "../i18n/i18n";
 
 // ─── Axios Instance ───────────────────────────────────────────────────────────
 // Central API client configured with the production backend URL.
@@ -38,8 +39,8 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       console.warn(
-        "[API] ⚠️ 401 Unauthorized — token mungkin tidak valid atau belum tersedia. " +
-        "Fitur autentikasi belum diintegrasikan."
+        `[InvestSense API] Auth Degradation: ${i18n.t('service.unauthorized_api')} ` +
+        "Authentication integration is currently deferred."
       );
       // Don't redirect to login yet since auth integration is deferred.
       // The calling service will receive the error and can handle it locally.

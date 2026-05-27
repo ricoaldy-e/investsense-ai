@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * ConfirmModal — Enterprise-grade confirmation dialog.
@@ -27,8 +28,11 @@ const ConfirmModal = ({
   title, 
   description, 
   confirmLabel = 'CONFIRM',
+  cancelLabel,
   variant = 'danger'
 }) => {
+  const { t } = useTranslation();
+  const resolvedCancelLabel = cancelLabel || t('modal.cancel');
   const cancelRef = useRef(null);
 
   // ESC key handler
@@ -95,7 +99,7 @@ const ConfirmModal = ({
               onClick={onClose}
               className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted border border-card-border rounded-full px-6 py-2.5 hover:text-text-main hover:border-text-muted transition-all duration-200 focus:outline-none focus:border-accent"
             >
-              CANCEL
+              {resolvedCancelLabel}
             </button>
             <button
               onClick={() => {

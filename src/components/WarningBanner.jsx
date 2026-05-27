@@ -1,22 +1,13 @@
 import { useState } from 'react';
 import { TriangleAlert } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * WarningBanner — Dynamic risk awareness banner.
- * 
- * Derives warning from stock metrics:
- * - RSI >= 70 → Overbought warning
- * - RSI <= 30 → Oversold warning
- * - Volatility "High" → Volatility caution
- * - Negative sentiment dominant → Bearish caution
- * 
- * If no risk condition is detected, banner does not render.
- * 
- * Mode-aware:
- * - Beginner: friendly, educational language
- * - Pro: technical, concise language
+ * Mode-aware, i18n-aware.
  */
 const WarningBanner = ({ data, mode }) => {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(true);
 
   if (!isVisible || !data) return null;
@@ -26,41 +17,39 @@ const WarningBanner = ({ data, mode }) => {
   const sentiment = data.sentiment || {};
   const isPro = mode === 'pro';
 
-  // Derive warning condition
   let title = '';
   let message = '';
 
   if (rsi >= 70) {
     title = isPro
       ? `Overbought: ${data.ticker} RSI ${rsi.toFixed(1)}`
-      : `Valuation Alert: ${data.ticker} Trading Near Historical Highs`;
+      : `${t('warning_banner.fomo_title')}: ${data.ticker}`;
     message = isPro
       ? `RSI ${rsi.toFixed(1)} exceeds 70 threshold. Momentum exhaustion likely. Consider trailing stop or partial profit-taking.`
-      : `This asset is experiencing rapid upward momentum. While bullish, current price levels may represent a short-term premium. Consider evaluating entry points after a consolidation phase.`;
+      : t('warning_banner.high_rsi', { value: rsi.toFixed(1) });
   } else if (rsi <= 30) {
     title = isPro
       ? `Oversold: ${data.ticker} RSI ${rsi.toFixed(1)}`
-      : `Market Alert: Significant Price Correction on ${data.ticker}`;
+      : `${t('warning_banner.risk_title')}: ${data.ticker}`;
     message = isPro
       ? `RSI ${rsi.toFixed(1)} below 30 threshold. Oversold conditions detected. Watch for reversal patterns and volume confirmation before entry.`
-      : `This asset has undergone a significant valuation decrease. While potentially representing a value entry point, verify the underlying drivers of this decline before initiating exposure.`;
+      : t('warning_banner.low_rsi', { value: rsi.toFixed(1) });
   } else if (volatility === 'High') {
     title = isPro
       ? `High Volatility: ${data.ticker}`
-      : `Volatility Alert: Elevated Price Swings on ${data.ticker}`;
+      : `${t('warning_banner.risk_title')}: ${data.ticker}`;
     message = isPro
       ? `Elevated volatility detected. Wider stop-loss recommended. Reduce position sizing to manage risk exposure.`
-      : `This asset displays high intraday volatility. Price fluctuations carry increased capital risk; ensure position sizing is aligned with your risk tolerance.`;
+      : t('warning_banner.high_rsi', { value: 'N/A' });
   } else if (sentiment.negative > sentiment.positive && sentiment.negative >= 40) {
     title = isPro
       ? `Bearish Sentiment: ${data.ticker} (${sentiment.negative}%)`
-      : `Sentiment Shift: Dominant Negative Coverage on ${data.ticker}`;
+      : `${t('warning_banner.risk_title')}: ${data.ticker}`;
     message = isPro
       ? `Sentiment skew: ${sentiment.negative}% bearish. Cross-reference with technical indicators before position changes.`
-      : `News coverage and market discussions show a negative sentiment bias. While market price does not always track media sentiment cycles, further research is advised.`;
+      : t('warning_banner.low_rsi', { value: sentiment.negative + '%' });
   }
 
-  // No warning condition detected — don't render
   if (!title) return null;
 
   return (
@@ -78,11 +67,11 @@ const WarningBanner = ({ data, mode }) => {
           </p>
         </div>
       </div>
-      <button 
+      <button
         onClick={() => setIsVisible(false)}
         className="shrink-0 w-full sm:w-auto font-mono text-[10px] tracking-[2px] uppercase text-text-muted border border-card-border px-4 py-2 hover:text-text-main hover:border-text-muted transition-colors"
       >
-        Dismiss
+        {t('warning_banner.dismiss')}
       </button>
     </div>
   );

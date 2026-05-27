@@ -1,10 +1,13 @@
 import { Search, User, Menu, X, BotMessageSquare } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ConfirmModal from './ui/ConfirmModal';
+import LanguageToggle from './ui/LanguageToggle';
 import { stockService } from '../services/stockService';
 
 const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeChange, onToggleAIPanel, isPanelOpen, isMobile }) => {
+  const { t } = useTranslation();
   const [username] = useState(() => {
     const userStr = localStorage.getItem('user');
     if (userStr) {
@@ -12,7 +15,7 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
         const userObj = JSON.parse(userStr);
         return userObj.username || 'Guest';
       } catch (e) {
-        console.error("Failed to parse user", e);
+        console.error("[InvestSense Navbar] Data parsing error: Invalid user session format.", e);
       }
     }
     return 'Guest';
@@ -28,11 +31,9 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
   const debounceRef = useRef(null);
 
   useEffect(() => {
-    // Listen for Zero State from Dashboard
     const handleDashboardState = (e) => setIsDashboardEmpty(e.detail.isEmpty);
     window.addEventListener('dashboardState', handleDashboardState);
 
-    // Close dropdown on outside click
     const handleClickOutside = (e) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
         setIsDropdownOpen(false);
@@ -52,7 +53,6 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
     setSearchQuery(query);
     setIsDropdownOpen(true);
 
-    // Debounce search calls (300ms)
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     if (query.trim()) {
@@ -79,15 +79,12 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
       e.preventDefault();
-      
-      // Poka-Yoke: Cegah search asal-asalan. Hanya pilih jika ada di search results
       const exactMatch = searchResults.find(s => s.ticker.toLowerCase() === searchQuery.trim().toLowerCase());
       if (exactMatch) {
         handleSelectStock(exactMatch.ticker);
       } else if (searchResults.length > 0) {
         handleSelectStock(searchResults[0].ticker);
       }
-      // Jika tidak ada di results, Enter tidak akan melakukan apa-apa (mencegah layar error)
     }
   };
 
@@ -116,8 +113,8 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
             onFocus={() => setIsDropdownOpen(true)}
             onKeyDown={handleKeyDown}
             className="block w-full pl-7 pr-3 py-2 bg-transparent border-b border-card-border font-mono text-[13px] text-text-main placeholder-text-muted focus:outline-none focus:border-accent transition-colors"
-            placeholder="Search stocks (e.g., AAPL, TSLA)..."
-            aria-label="Search stocks"
+            placeholder={t('navbar.search_placeholder')}
+            aria-label={t('navbar.search_placeholder')}
             role="combobox"
             aria-expanded={isDropdownOpen && searchQuery.trim().length > 0}
             aria-autocomplete="list"
@@ -127,7 +124,7 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
           {isDropdownOpen && searchQuery.trim() && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-card-border py-2 max-h-64 overflow-y-auto z-50">
               <p className="px-4 py-1.5 font-mono text-[9px] tracking-[2px] text-text-muted uppercase mb-1">
-                Search Results
+                {t('navbar.search_results')}
               </p>
               {searchResults.length > 0 ? (
                 searchResults.map((stock) => (
@@ -151,7 +148,7 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
                 ))
               ) : (
                 <div className="px-4 py-3 text-center">
-                  <p className="font-mono text-[11px] text-text-muted tracking-[1px]">No results found</p>
+                  <p className="font-mono text-[11px] text-text-muted tracking-[1px]">{t('navbar.no_results')}</p>
                 </div>
               )}
             </div>
@@ -160,18 +157,18 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
       </div>
 
       {/* Right Actions */}
-      <div className="flex items-center space-x-4 md:space-x-6">
+      <div className="flex items-center space-x-3 md:space-x-4">
         {/* Tools & Mode Toggle — Hidden in Zero State */}
         {!isDashboardEmpty && (
-          <div className="hidden sm:flex items-center gap-4 transition-opacity duration-500">
+          <div className="hidden sm:flex items-center gap-3 transition-opacity duration-500">
             <button 
               onClick={() => setShowClearModal(true)}
               className="font-mono text-[10px] tracking-[1px] uppercase text-text-muted hover:text-danger transition-colors flex items-center gap-1.5"
-              title="Clear Analysis"
+              title={t('navbar.clear_title')}
             >
-              <X className="w-3.5 h-3.5" /> Clear
+              <X className="w-3.5 h-3.5" /> {t('navbar.clear')}
             </button>
-            <div className="flex items-center gap-1 border border-card-border p-1" role="group" aria-label="Analysis mode">
+            <div className="flex items-center gap-1 border border-card-border p-1" role="group" aria-label={t('navbar.analysis_mode')}>
               <button 
                 onClick={() => onModeChange('beginner')}
                 aria-pressed={userMode === 'beginner'}
@@ -179,7 +176,7 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
                   userMode === 'beginner' ? 'bg-accent text-bg-dark' : 'text-text-muted hover:text-text-main'
                 }`}
               >
-                Beginner
+                {t('sidebar.mode_beginner')}
               </button>
               <button 
                 onClick={() => onModeChange('pro')}
@@ -188,11 +185,16 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
                   userMode === 'pro' ? 'bg-accent text-bg-dark' : 'text-text-muted hover:text-text-main'
                 }`}
               >
-                Pro
+                {t('sidebar.mode_pro')}
               </button>
             </div>
           </div>
         )}
+
+        {/* ─── Language Toggle — always visible in header on sm+ ─── */}
+        <div className="hidden sm:block">
+          <LanguageToggle variant="inline" />
+        </div>
 
         {/* Mobile AI Panel Toggle */}
         {isMobile && onToggleAIPanel && (
@@ -207,8 +209,8 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
           </button>
         )}
 
-        {/* User Profile — Hidden on mobile, shown on tablet/desktop */}
-        <div className="hidden sm:flex items-center gap-3 pl-4 md:pl-6 border-l border-card-border">
+        {/* User Profile — Hidden on mobile */}
+        <div className="hidden sm:flex items-center gap-3 pl-3 md:pl-4 border-l border-card-border">
           <div className="w-8 h-8 rounded-full border border-card-border flex items-center justify-center text-text-muted">
             <User className="w-3.5 h-3.5" />
           </div>
@@ -224,9 +226,9 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
       isOpen={showClearModal}
       onClose={() => setShowClearModal(false)}
       onConfirm={() => window.dispatchEvent(new CustomEvent('clearDashboardCommand'))}
-      title="Clear Analysis"
-      description="This will reset the dashboard and remove the current stock analysis from view. You can search for a new stock at any time."
-      confirmLabel="CLEAR"
+      title={t('navbar.clear_title')}
+      description={t('navbar.clear_desc')}
+      confirmLabel={t('navbar.clear_confirm')}
       variant="neutral"
     />
     </>

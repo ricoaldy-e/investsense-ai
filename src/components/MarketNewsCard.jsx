@@ -1,18 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const NEWS_PREVIEW_BEGINNER = 2;
 const NEWS_PREVIEW_PRO = 4;
 
-/**
- * Single news item row — reused in card and modal.
- */
-const NewsItem = ({ item, isLast }) => {
+const NewsItem = ({ item }) => {
+  const { t } = useTranslation();
   const sentimentLabel = item.sentiment === 'positive' ? 'BULLISH' : item.sentiment === 'negative' ? 'BEARISH' : 'NEUTRAL';
   const sentimentStyle = item.sentiment === 'positive' ? 'text-success' : item.sentiment === 'negative' ? 'text-danger' : 'text-text-muted';
 
   return (
-    <div className={`group py-4 first:pt-0 ${isLast ? 'pb-0' : ''}`}>
+    <div className="group py-4 first:pt-0">
       <div className="flex justify-between items-center mb-2">
         <span className={`font-mono text-[10px] tracking-[2px] uppercase ${sentimentStyle}`}>
           {sentimentLabel}
@@ -20,11 +19,12 @@ const NewsItem = ({ item, isLast }) => {
         <span className="font-mono text-[10px] tracking-[1px] text-text-muted">{item.time}</span>
       </div>
       {item.url ? (
-        <a 
-          href={item.url} 
-          target="_blank" 
+        <a
+          href={item.url}
+          target="_blank"
           rel="noopener noreferrer"
           className="font-body text-[14px] text-text-secondary leading-snug group-hover:text-accent transition-colors block"
+          aria-label={`${t('news_card.read_full')}: ${item.title}`}
         >
           {item.title}
         </a>
@@ -40,18 +40,12 @@ const NewsItem = ({ item, isLast }) => {
   );
 };
 
-/**
- * MarketNewsCard — Shows preview of market news with expand-to-modal.
- * 
- * Card shows first 2 items. "See All" opens a Cold Surgical modal
- * overlay showing all news with full context.
- */
 const MarketNewsCard = ({ data, mode }) => {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const closeRef = useRef(null);
   const isPro = mode === 'pro';
 
-  // ESC key + focus trap for modal
   useEffect(() => {
     if (!isModalOpen) return;
 
@@ -60,7 +54,6 @@ const MarketNewsCard = ({ data, mode }) => {
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    // Prevent body scroll
     document.body.style.overflow = 'hidden';
     closeRef.current?.focus();
 
@@ -82,7 +75,9 @@ const MarketNewsCard = ({ data, mode }) => {
       {/* Card — Preview */}
       <div className="bg-card-dark border border-card-border p-4 sm:p-6 h-full flex flex-col">
         <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <h3 className="font-mono text-[11px] tracking-[2px] uppercase text-accent">{isPro ? 'Market News' : 'Latest News'}</h3>
+          <h3 className="font-mono text-[11px] tracking-[2px] uppercase text-accent">
+            {isPro ? t('news_card.title_pro') : t('news_card.title_beginner')}
+          </h3>
           {hasMore && (
             <button
               onClick={() => setIsModalOpen(true)}
@@ -95,10 +90,10 @@ const MarketNewsCard = ({ data, mode }) => {
 
         <div className="flex-1 space-y-0 divide-y divide-hairline">
           {previewNews.length === 0 ? (
-            <p className="font-body text-[14px] text-text-muted py-4">No news available for this stock.</p>
+            <p className="font-body text-[14px] text-text-muted py-4">{t('news_card.no_news')}</p>
           ) : (
-            previewNews.map((item, i) => (
-              <NewsItem key={item.id} item={item} isLast={i === previewNews.length - 1} />
+            previewNews.map((item) => (
+              <NewsItem key={item.id} item={item} />
             ))
           )}
         </div>
@@ -107,14 +102,11 @@ const MarketNewsCard = ({ data, mode }) => {
       {/* Modal — Full News List */}
       {isModalOpen && (
         <>
-          {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/60 z-[100] transition-opacity"
             onClick={() => setIsModalOpen(false)}
             aria-hidden="true"
           />
-
-          {/* Modal panel */}
           <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 sm:p-6">
             <div
               className="w-full max-w-[560px] max-h-[80vh] bg-surface border border-card-border flex flex-col"
@@ -130,7 +122,7 @@ const MarketNewsCard = ({ data, mode }) => {
                     id="news-modal-title"
                     className="font-mono text-[11px] tracking-[2px] uppercase text-accent mb-1"
                   >
-                    Market News
+                    {isPro ? t('news_card.title_pro') : t('news_card.title_beginner')}
                   </h2>
                   <p className="font-mono text-[10px] tracking-[1px] text-text-muted uppercase">
                     {data.ticker} | {allNews.length} articles
@@ -146,11 +138,11 @@ const MarketNewsCard = ({ data, mode }) => {
                 </button>
               </div>
 
-              {/* Modal Content — Scrollable */}
+              {/* Modal Content */}
               <div className="flex-1 overflow-y-auto px-6 py-2">
                 <div className="divide-y divide-hairline">
-                  {allNews.map((item, i) => (
-                    <NewsItem key={item.id} item={item} isLast={i === allNews.length - 1} />
+                  {allNews.map((item) => (
+                    <NewsItem key={item.id} item={item} />
                   ))}
                 </div>
               </div>
@@ -158,7 +150,7 @@ const MarketNewsCard = ({ data, mode }) => {
               {/* Modal Footer */}
               <div className="px-6 py-4 border-t border-card-border flex-shrink-0">
                 <p className="font-body text-[11px] text-text-muted italic text-center">
-                  News data is AI-curated for analytical context only. Verify with primary sources.
+                  {t('ai_insight_card.disclaimer')}
                 </p>
               </div>
             </div>

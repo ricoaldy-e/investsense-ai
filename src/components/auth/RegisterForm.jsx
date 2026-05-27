@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { authService } from '../../services/authService';
+import { useAuth } from '../../context/AuthContext';
 import InputField from '../ui/InputField';
 
 const RegisterForm = () => {
@@ -10,7 +10,8 @@ const RegisterForm = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({ username: '', email: '', password: '', global: '' });
-  
+
+  const { register } = useAuth();
   const usernameRef = useRef(null);
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
@@ -103,12 +104,17 @@ const RegisterForm = () => {
 
     setIsLoading(true);
     try {
-      await authService.register(username, email, password);
-      // Redirection pintar: Setelah sukses, lempar user ke halaman login
-      // agar mereka membuktikan kredensial dengan login mandiri.
-      navigate('/login');
+      // AuthContext.register(): registers → auto-login → stores tokens
+      await register(email, username, password);
+      // Navigate directly to dashboard (auto-logged in)
+      navigate('/dashboard');
     } catch (err) {
-      setErrors({ ...newErrors, global: err.message || 'Registration failed' });
+      // Prefer the structured backend message; fall back to generic
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        'Registration failed. Please try again.';
+      setErrors({ ...newErrors, global: message });
     } finally {
       setIsLoading(false);
     }

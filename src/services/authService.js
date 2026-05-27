@@ -1,67 +1,58 @@
-import api from './api';
-import i18n from '../i18n/i18n';
-import { mockUsers } from '../mocks/authMock';
+import api from "./api";
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
-
-// Kita simpan mock data dalam variabel memori sementara agar user yang baru register
-// bisa langsung login di sesi yang sama tanpa me-refresh browser.
-let usersDb = [...mockUsers];
+// Note: plainAxios is defined in api.js and is not needed here.
+// authService.refresh() uses the api instance's plainAxios indirectly
+// via authService, but for logout and login we use the main api instance.
 
 export const authService = {
-  login: async (email, password) => {
-    if (USE_MOCK) {
-      // 1. Mode Mock Data: Mensimulasikan delay internet 800ms
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const user = usersDb.find(u => u.email === email && u.password_hash === password);
-          if (user) {
-            // Simulasi sukses login
-            const token = "mock-jwt-token-777";
-            resolve({ 
-              user: { id: user.id, username: user.username, email: user.email }, 
-              token 
-            });
-          } else {
-            // Simulasi gagal login
-            reject(new Error(i18n.t('service.auth_invalid_creds')));
-          }
-        }, 800);
-      });
-    } else {
-      // 2. Mode Real API: Menghubungi backend Express.js
-      const response = await api.post('/auth/login', { email, password });
-      return response.data;
-    }
+  /**
+   * Register a new user account.
+   * POST /auth/register
+   * @returns {{ success: boolean, data: { id, email, username, created_at } }}
+   */
+  register: async (email, username, password) => {
+    const response = await api.post("/auth/register", {
+      email,
+      username,
+      password,
+    });
+    return response.data;
   },
 
-  register: async (username, email, password) => {
-    if (USE_MOCK) {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const userExists = usersDb.find(u => u.email === email || u.username === username);
-          if (userExists) {
-            reject(new Error(i18n.t('service.auth_user_exists')));
-          } else {
-            const newUser = {
-              id: `uuid-user-${Date.now()}`,
-              username,
-              email,
-              password_hash: password,
-              created_at: new Date().toISOString()
-            };
-            usersDb.push(newUser); // Simpan ke database mock sementara
-            const token = "mock-jwt-token-777";
-            resolve({ 
-              user: { id: newUser.id, username: newUser.username, email: newUser.email }, 
-              token 
-            });
-          }
-        }, 800);
-      });
-    } else {
-      const response = await api.post('/auth/register', { username, email, password });
-      return response.data;
-    }
-  }
+  /**
+   * Login with email and password.
+   * POST /auth/login
+   * @returns {{ success: boolean, accessToken: string, refreshToken: string }}
+   */
+  login: async (email, password) => {
+    const response = await api.post("/auth/login", { email, password });
+    console.log(response.data)
+    return response.data;
+  },
+
+  /**
+   * Silently rotate an expired access token.
+   * POST /auth/refresh
+   * The refreshToken is sent automatically by the browser as an httpOnly
+   * cookie — no body payload needed. withCredentials: true on plainAxios
+   * (defined in api.js) ensures the cookie is included.
+   * @returns {{ success: boolean, data: { accessToken: string } }}
+   */
+  refresh: async () => {
+    // Empty body — the backend reads the refreshToken from req.cookies,
+    // not from the request body. The browser attaches the cookie automatically.
+    const response = await api.post("/auth/refresh", {});
+    return response.data;
+  },
+
+  /**
+   * Invalidate the current session on the server.
+   * POST /auth/logout — Protected (Bearer token sent automatically by interceptor)
+   * @returns {{ success: boolean }}
+   */
+  logout: async () => {
+    const response = await api.post("/auth/logout");
+    return response.data;
+  },
 };
+

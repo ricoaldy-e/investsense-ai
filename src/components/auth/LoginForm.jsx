@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { authService } from '../../services/authService';
+import { useAuth } from '../../context/AuthContext';
 import InputField from '../ui/InputField';
 
 const LoginForm = () => {
@@ -10,7 +10,8 @@ const LoginForm = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({ email: '', password: '', global: '' });
-  
+
+  const { login } = useAuth();
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
   const navigate = useNavigate();
@@ -59,6 +60,7 @@ const LoginForm = () => {
   };
 
   const handleLogin = async (e) => {
+    console.log("jalan")
     e.preventDefault();
     setErrors({ email: '', password: '', global: '' });
     
@@ -88,12 +90,15 @@ const LoginForm = () => {
 
     setIsLoading(true);
     try {
-      const response = await authService.login(email, password);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      localStorage.setItem('token', response.token);
+      await login(email, password);
       navigate('/dashboard');
     } catch (err) {
-      setErrors({ ...newErrors, global: err.message || 'Login failed' });
+      // Prefer the structured backend message; fall back to generic
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        'Login failed. Please try again.';
+      setErrors({ ...newErrors, global: message });
     } finally {
       setIsLoading(false);
     }

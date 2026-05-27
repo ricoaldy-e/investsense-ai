@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, ChevronLeft, ChevronRight, X, Plus, MessageSquare, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { chatService } from '../services/chatService';
+import useDashboardStore from '../store/useDashboardStore';
 
 // ─── Generate conversation title from first user message ───
 const generateTitle = (messages) => {
@@ -16,10 +17,13 @@ const EMPTY_MESSAGES = [];
 
 const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) => {
   const { t } = useTranslation();
+  const activeTicker = useDashboardStore(s => s.activeTicker);
+
+  // ─── Conversation management ───
   const [conversations, setConversations] = useState(() => {
-    const lastStock = localStorage.getItem('lastViewedStock');
-    const initialMsgs = lastStock
-      ? [{ id: Date.now(), role: 'system', content: t('chat_panel.stock_context', { stock: lastStock }) }]
+    const initialTicker = useDashboardStore.getState().activeTicker;
+    const initialMsgs = initialTicker
+      ? [{ id: Date.now(), role: 'system', content: t('chat_panel.stock_context', { stock: initialTicker }) }]
       : [];
     return [{ id: Date.now(), title: t('chat_panel.new_analysis'), messages: initialMsgs }];
   });
@@ -65,7 +69,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
     };
     window.addEventListener('stockChanged', handleStockChange);
     return () => window.removeEventListener('stockChanged', handleStockChange);
-  }, [isOpen, activeConvId]);
+  }, [isOpen, activeConvId, t]);
 
   // ─── Drag resize (desktop) ───
   const handleDragStart = useCallback((e) => {
@@ -98,15 +102,14 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
   // ─── New chat ───
   const handleNewChat = useCallback(() => {
     const newId = Date.now();
-    const lastStock = localStorage.getItem('lastViewedStock');
-    const initialMsgs = lastStock
-      ? [{ id: newId + 1, role: 'system', content: t('chat_panel.stock_context', { stock: lastStock }) }]
+    const initialMsgs = activeTicker
+      ? [{ id: newId + 1, role: 'system', content: t('chat_panel.stock_context', { stock: activeTicker }) }]
       : [];
     setConversations(prev => [{ id: newId, title: t('chat_panel.new_analysis'), messages: initialMsgs }, ...prev]);
     setActiveConvId(newId);
     setInputMessage('');
     setShowHistory(false);
-  }, [t]);
+  }, [activeTicker, t]);
 
   // ─── Delete conversation ───
   const handleDeleteConv = useCallback((convId) => {
@@ -114,9 +117,8 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       const filtered = prev.filter(c => c.id !== convId);
       if (filtered.length === 0) {
         const newId = Date.now();
-        const lastStock = localStorage.getItem('lastViewedStock');
-        const initialMsgs = lastStock
-          ? [{ id: newId + 1, role: 'system', content: t('chat_panel.stock_context', { stock: lastStock }) }]
+        const initialMsgs = activeTicker
+          ? [{ id: newId + 1, role: 'system', content: t('chat_panel.stock_context', { stock: activeTicker }) }]
           : [];
         const newConv = { id: newId, title: t('chat_panel.new_analysis'), messages: initialMsgs };
         setActiveConvId(newId);
@@ -127,7 +129,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       }
       return filtered;
     });
-  }, [activeConvId]);
+  }, [activeConvId, activeTicker]);
 
   // ─── Send message ───
   const handleSend = useCallback(async (text) => {
@@ -148,7 +150,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
     setIsTyping(true);
 
     try {
-      const aiResponse = await chatService.sendMessage(text.trim());
+      const aiResponse = await chatService.sendMessage({ message: text.trim(), ticker: activeTicker });
       setConversations(prev => prev.map(c =>
         c.id === activeConvId
           ? { ...c, messages: [...c.messages, aiResponse] }
@@ -163,7 +165,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
     } finally {
       setIsTyping(false);
     }
-  }, [activeConvId]);
+  }, [activeConvId, activeTicker]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

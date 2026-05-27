@@ -154,3 +154,78 @@ export const deriveAIInsights = (rsi, trendStatus, ticker) => {
 
   return { observation, suggestedPlan, antiFomoWarning };
 };
+
+/**
+ * getNewsKeyword — Maps a stock ticker to a human-friendly search term for news.
+ *
+ * Problem: Raw tickers (e.g. "GOTO.JK") yield zero results on news portals.
+ * Solution: A curated dictionary maps known tickers to meaningful search phrases.
+ *           Unknown tickers fall back to the base symbol (stripped of exchange suffix).
+ *
+ * @param {string} ticker - Stock ticker (e.g. "GOTO.JK", "AAPL")
+ * @returns {string} A search keyword suitable for GET /news/search?keyword=
+ */
+export const getNewsKeyword = (ticker) => {
+  if (!ticker) return '';
+
+  const upper = ticker.toUpperCase();
+
+  // ─── Indonesian IDX stocks ─────────────────────────────────────────────────
+  const dictionary = {
+    // Big caps
+    'GOTO.JK':  'GoTo OR Gojek OR Tokopedia',
+    'TLKM.JK':  'Telkom Indonesia OR IndiHome OR TelkomSel',
+    'BBCA.JK':  'Bank BCA OR BCA',
+    'BBRI.JK':  'Bank BRI OR BRI',
+    'BMRI.JK':  'Bank Mandiri',
+    'ASII.JK':  'Astra International',
+    'UNVR.JK':  'Unilever Indonesia',
+    'ICBP.JK':  'Indofood CBP',
+    'INDF.JK':  'Indofood',
+    'KLBF.JK':  'Kalbe Farma',
+    'PTBA.JK':  'Bukit Asam',
+    'ADRO.JK':  'Adaro Energy',
+    'MDKA.JK':  'Merdeka Copper Gold',
+    'ANTM.JK':  'Aneka Tambang OR ANTAM',
+    'SMGR.JK':  'Semen Indonesia',
+    'PGAS.JK':  'Perusahaan Gas Negara OR PGN',
+    'JSMR.JK':  'Jasa Marga',
+    'BSDE.JK':  'Bumi Serpong Damai',
+    'CPIN.JK':  'Charoen Pokphand Indonesia',
+    'EXCL.JK':  'XL Axiata',
+    'ISAT.JK':  'Indosat Ooredoo',
+    'INCO.JK':  'Vale Indonesia',
+    'MEDC.JK':  'Medco Energi',
+    'LPKR.JK':  'Lippo Karawaci',
+    'WSKT.JK':  'Waskita Karya',
+    'WTON.JK':  'Wijaya Karya Beton',
+    'BBNI.JK':  'Bank BNI OR BNI',
+    'BRPT.JK':  'Barito Pacific',
+    'BUKA.JK':  'Bukalapak',
+    'EMTK.JK':  'Elang Mahkota Teknologi',
+
+    // ─── US / Global blue chips ─────────────────────────────────────────────
+    'AAPL':   'Apple',
+    'MSFT':   'Microsoft',
+    'GOOGL':  'Google OR Alphabet',
+    'GOOG':   'Google OR Alphabet',
+    'AMZN':   'Amazon',
+    'META':   'Meta OR Facebook',
+    'TSLA':   'Tesla',
+    'NVDA':   'Nvidia',
+    'NFLX':   'Netflix',
+    'AMD':    'AMD OR Advanced Micro Devices',
+    'INTC':   'Intel',
+    'JPM':    'JPMorgan',
+    'BAC':    'Bank of America',
+    'GS':     'Goldman Sachs',
+    'BABA':   'Alibaba',
+    'TSM':    'TSMC OR Taiwan Semiconductor',
+  };
+
+  if (dictionary[upper]) return dictionary[upper];
+
+  // ─── Fallback: strip exchange suffix (.JK, .US, .L, etc.) ────────────────
+  const base = upper.split('.')[0];
+  return base;
+};

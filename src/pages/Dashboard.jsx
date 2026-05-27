@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { Loader2, Search, ArrowLeft, RefreshCw, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ import MarketNewsCard from '../components/MarketNewsCard';
 import SentimentAnalysisCard from '../components/SentimentAnalysisCard';
 import AIInsightCard from '../components/AIInsightCard';
 import RiskAnalysisCard from '../components/RiskAnalysisCard';
+import useDashboardStore from '../store/useDashboardStore';
 
 const Dashboard = () => {
   const { t, i18n } = useTranslation();
@@ -17,72 +18,86 @@ const Dashboard = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const stockFromUrl = searchParams.get('stock');
-  const lastViewed = localStorage.getItem('lastViewedStock');
-  const hasStock = !!(stockFromUrl || lastViewed);
+  // ─── Zustand global state ─────────────────────────────────────────────────
+  const activeTicker    = useDashboardStore((s) => s.activeTicker);
+  const setActiveTicker = useDashboardStore((s) => s.setActiveTicker);
 
-  const [stockData, setStockData] = useState(null);
-  const [isLoading, setIsLoading] = useState(hasStock);
-  const [error, setError] = useState('');
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isInWatchlist, setIsInWatchlist] = useState(false);
+  const stockFromUrl = searchParams.get('stock');
+  const lastViewed   = localStorage.getItem('lastViewedStock');
+  const hasStock     = !!(stockFromUrl || lastViewed);
+
+  // ─── Local State ──────────────────────────────────────────────────────────
+  const [stockData, setStockData]           = useState(null);
+  const [isLoading, setIsLoading]           = useState(hasStock);
+  const [error, setError]                   = useState('');
+  const [isRefreshing, setIsRefreshing]     = useState(false);
+  const [isInWatchlist, setIsInWatchlist]   = useState(false);
   const [watchlistLoading, setWatchlistLoading] = useState(false);
 
-  // Berkomunikasi dengan Navbar.jsx via CustomEvent
+  // ─── Ref to skip the Zustand effect on the very first render ─────────────
+  // The URL-param effect already handles the initial load from ?stock= or localStorage.
+  // We only want the Zustand effect to fire on SUBSEQUENT activeTicker changes
+  // (i.e., when the user searches from the Navbar after the page has mounted).
+  const isFirstRender = useRef(true);
+
+  // ─── Navbar communication via CustomEvent ─────────────────────────────────
   const notifyNavbar = useCallback((isEmpty) => {
     window.dispatchEvent(new CustomEvent('dashboardState', { detail: { isEmpty } }));
   }, []);
 
+  // ─── Core data loader ─────────────────────────────────────────────────────
   const loadStock = useCallback(async (ticker) => {
     setIsLoading(true);
     setError('');
-    notifyNavbar(false); // Data sedang dimuat, layar tidak kosong
+    notifyNavbar(false);
 
     try {
       const data = await stockService.getStockDetail(ticker);
       setStockData(data);
       localStorage.setItem('lastViewedStock', ticker.toUpperCase());
-      // Check if this stock is in the watchlist
+      // Keep Zustand store in sync when loading via URL param / localStorage
+      setActiveTicker(ticker.toUpperCase());
       checkWatchlistStatus(ticker.toUpperCase());
     } catch (err) {
       setError(err.message || 'Failed to load stock data.');
       setStockData(null);
-      notifyNavbar(true); // Terjadi error, layar secara teknis kosong
+      notifyNavbar(true);
     } finally {
       setIsLoading(false);
     }
-  }, [notifyNavbar]);
+  }, [notifyNavbar, setActiveTicker]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ─── Clear dashboard ──────────────────────────────────────────────────────
   const handleClearDashboard = useCallback(() => {
     localStorage.removeItem('lastViewedStock');
-    navigate('/dashboard'); // Menghapus ?stock= dari URL
+    navigate('/dashboard');
     setStockData(null);
-    setError(''); // Membersihkan error agar kembali ke Zero State
+    setError('');
+    setActiveTicker(null);
     notifyNavbar(true);
     setIsLoading(false);
-  }, [navigate, notifyNavbar]);
+  }, [navigate, notifyNavbar, setActiveTicker]);
 
+  // ─── Refresh ──────────────────────────────────────────────────────────────
   const handleRefresh = useCallback(() => {
-    const activeTicker = searchParams.get('stock') || localStorage.getItem('lastViewedStock');
-    if (activeTicker && !isRefreshing) {
+    const refreshTicker = activeTicker || searchParams.get('stock') || localStorage.getItem('lastViewedStock');
+    if (refreshTicker && !isRefreshing) {
       setIsRefreshing(true);
-      loadStock(activeTicker).finally(() => setIsRefreshing(false));
+      loadStock(refreshTicker).finally(() => setIsRefreshing(false));
     }
-  }, [searchParams, isRefreshing, loadStock]);
+  }, [activeTicker, searchParams, isRefreshing, loadStock]);
 
-  // ─── Check if current stock is in watchlist ───
+  // ─── Watchlist helpers ────────────────────────────────────────────────────
   const checkWatchlistStatus = useCallback(async (ticker) => {
     try {
       const items = await watchlistService.getWatchlist();
       const found = items.some((item) => item.ticker.toUpperCase() === ticker.toUpperCase());
       setIsInWatchlist(found);
     } catch {
-      // Silently fail — watchlist status is non-critical
       setIsInWatchlist(false);
     }
   }, []);
 
-  // ─── Toggle watchlist ───
   const handleToggleWatchlist = useCallback(async () => {
     if (!stockData?.ticker || watchlistLoading) return;
     setWatchlistLoading(true);
@@ -105,8 +120,8 @@ const Dashboard = () => {
     }
   }, [stockData?.ticker, isInWatchlist, watchlistLoading]);
 
+  // ─── Effect 1: URL param / localStorage initial load ─────────────────────
   useEffect(() => {
-    // Mendengarkan perintah Clear dari Navbar
     const handleClearCmd = () => handleClearDashboard();
     window.addEventListener('clearDashboardCommand', handleClearCmd);
 
@@ -117,7 +132,7 @@ const Dashboard = () => {
         loadStock(activeStock);
       } else {
         setStockData(null);
-        notifyNavbar(true); // Layar kosong, sembunyikan toggle Beginner/Pro
+        notifyNavbar(true);
       }
     }, 0);
 
@@ -127,6 +142,19 @@ const Dashboard = () => {
     };
   }, [searchParams, loadStock, handleClearDashboard, notifyNavbar]);
 
+  // ─── Effect 2: Zustand activeTicker → load data (skips first render) ──────
+  // Fires when the user selects a stock from the Navbar's StockSearch.
+  // The first render is skipped to avoid double-loading with Effect 1.
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (!activeTicker) return;
+    loadStock(activeTicker);
+  }, [activeTicker]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ─── Render: Loading ──────────────────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="pb-24 md:pb-0 flex flex-col items-center justify-center min-h-[60vh]">
@@ -138,10 +166,10 @@ const Dashboard = () => {
     );
   }
 
-  // Error State: Memberikan opsi cerdas untuk kembali atau mereset
+  // ─── Render: Error ────────────────────────────────────────────────────────
   if (error) {
-    const lastViewed = localStorage.getItem('lastViewedStock');
-    const hasValidHistory = lastViewed && lastViewed !== searchParams.get('stock');
+    const cachedLastViewed = localStorage.getItem('lastViewedStock');
+    const hasValidHistory  = cachedLastViewed && cachedLastViewed !== searchParams.get('stock');
 
     return (
       <div className="pb-24 md:pb-0 flex flex-col items-center justify-center min-h-[60vh]">
@@ -149,15 +177,14 @@ const Dashboard = () => {
           {t('dashboard.error_title')}
         </p>
         <p className="font-body text-[14px] text-text-secondary mb-8">{error}</p>
-
         <div className="flex flex-col sm:flex-row gap-4">
           {hasValidHistory && (
             <button
-              onClick={() => navigate(`/dashboard?stock=${lastViewed}`)}
+              onClick={() => navigate(`/dashboard?stock=${cachedLastViewed}`)}
               className="flex items-center gap-2 font-mono text-[11px] tracking-[2px] uppercase text-bg-dark bg-text-main rounded-full px-6 py-2.5 hover:bg-text-secondary transition-all duration-300"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              {t('dashboard.return_to', { stock: lastViewed })}
+              {t('dashboard.return_to', { stock: cachedLastViewed })}
             </button>
           )}
           <button
@@ -172,8 +199,9 @@ const Dashboard = () => {
     );
   }
 
-  // Zero State: Tampilan elegan untuk pengguna yang benar-benar baru
-  if (!stockData && !isLoading && !error) {
+  // ─── Render: Zero State ───────────────────────────────────────────────────
+  // Show only when no ticker is active anywhere (Zustand, URL param, localStorage)
+  if (!activeTicker && !stockFromUrl && !lastViewed) {
     return (
       <div className="pb-24 md:pb-0 flex flex-col items-center justify-center min-h-[70vh]">
         <div className="w-16 h-16 border border-card-border flex items-center justify-center mb-6">
@@ -192,13 +220,14 @@ const Dashboard = () => {
     );
   }
 
+  // ─── Render: Data ─────────────────────────────────────────────────────────
   return (
     <div className="pb-24 md:pb-0 relative">
       <WarningBanner key={stockData?.ticker || 'empty'} data={stockData} mode={userMode} />
 
       <div className="flex items-center justify-between mb-4">
         <h1 className="font-display text-[18px] md:text-[22px] font-light text-text-main tracking-[3px] uppercase">
-          {stockData?.ticker || 'Dashboard'}
+          {stockData?.ticker || activeTicker || 'Dashboard'}
         </h1>
         <div className="flex items-center gap-3">
           <p className="font-mono text-[10px] text-text-muted tracking-[1px] uppercase hidden sm:block">
@@ -206,7 +235,7 @@ const Dashboard = () => {
           </p>
           <button
             onClick={handleToggleWatchlist}
-            disabled={watchlistLoading}
+            disabled={watchlistLoading || !stockData?.ticker}
             className={`flex items-center gap-1.5 font-mono text-[10px] tracking-[1.5px] uppercase rounded-full px-3 py-2 transition-all duration-200 ${
               isInWatchlist
                 ? 'text-accent bg-accent/10 border border-accent/30'
@@ -230,16 +259,22 @@ const Dashboard = () => {
 
       {/* Fluid grid — adapts dynamically to container width (AI panel resize) */}
       <div className="grid gap-4 md:gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))' }}>
-        {/* Stock Chart — always full width */}
+        {/* Chart — always full width, self-fetches history from Zustand activeTicker */}
         <div style={{ gridColumn: '1 / -1' }}>
           <StockChartCard data={stockData} mode={userMode} />
         </div>
 
-        {/* Analysis cards — fluid fill */}
-        <SentimentAnalysisCard data={stockData} mode={userMode} />
-        <AIInsightCard data={stockData} mode={userMode} />
-        <MarketNewsCard data={stockData} mode={userMode} />
-        <RiskAnalysisCard data={stockData} mode={userMode} />
+        {/* News — self-fetching, renders skeleton while stockData loads */}
+        <MarketNewsCard mode={userMode} />
+
+        {/* Analysis cards — only render when full stock data is available */}
+        {stockData && (
+          <>
+            <SentimentAnalysisCard data={stockData} mode={userMode} />
+            <AIInsightCard data={stockData} mode={userMode} />
+            <RiskAnalysisCard data={stockData} mode={userMode} />
+          </>
+        )}
       </div>
     </div>
   );

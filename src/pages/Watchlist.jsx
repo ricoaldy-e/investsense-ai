@@ -64,6 +64,7 @@ const Watchlist = () => {
 
   // ─── Fetch watchlist from BE ───
   const fetchWatchlist = useCallback(async () => {
+    console.log("masuk sini")
     try {
       setError('');
       const items = await watchlistService.getWatchlist();

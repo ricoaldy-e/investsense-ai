@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { Loader2, Search, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Loader2, Search, ArrowLeft, RefreshCw, Star } from 'lucide-react';
 import { stockService } from '../services/stockService';
+import { watchlistService } from '../services/watchlistService';
 import WarningBanner from '../components/WarningBanner';
 import StockChartCard from '../components/StockChartCard';
 import MarketNewsCard from '../components/MarketNewsCard';
@@ -22,6 +23,8 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(hasStock);
   const [error, setError] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isInWatchlist, setIsInWatchlist] = useState(false);
+  const [watchlistLoading, setWatchlistLoading] = useState(false);
 
   // Berkomunikasi dengan Navbar.jsx via CustomEvent
   const notifyNavbar = useCallback((isEmpty) => {
@@ -37,6 +40,8 @@ const Dashboard = () => {
       const data = await stockService.getStockDetail(ticker);
       setStockData(data);
       localStorage.setItem('lastViewedStock', ticker.toUpperCase());
+      // Check if this stock is in the watchlist
+      checkWatchlistStatus(ticker.toUpperCase());
     } catch (err) {
       setError(err.message || 'Failed to load stock data.');
       setStockData(null);
@@ -62,6 +67,41 @@ const Dashboard = () => {
       loadStock(activeTicker).finally(() => setIsRefreshing(false));
     }
   }, [searchParams, isRefreshing, loadStock]);
+
+  // ─── Check if current stock is in watchlist ───
+  const checkWatchlistStatus = useCallback(async (ticker) => {
+    try {
+      const items = await watchlistService.getWatchlist();
+      const found = items.some((item) => item.ticker.toUpperCase() === ticker.toUpperCase());
+      setIsInWatchlist(found);
+    } catch {
+      // Silently fail — watchlist status is non-critical
+      setIsInWatchlist(false);
+    }
+  }, []);
+
+  // ─── Toggle watchlist ───
+  const handleToggleWatchlist = useCallback(async () => {
+    if (!stockData?.ticker || watchlistLoading) return;
+    setWatchlistLoading(true);
+    try {
+      if (isInWatchlist) {
+        await watchlistService.removeFromWatchlist(stockData.ticker);
+        setIsInWatchlist(false);
+      } else {
+        await watchlistService.addToWatchlist(stockData.ticker);
+        setIsInWatchlist(true);
+      }
+    } catch (err) {
+      // 409 means already added — just update UI state
+      if (err.response?.status === 409) {
+        setIsInWatchlist(true);
+      }
+      console.warn('[Dashboard] Watchlist toggle failed:', err.message);
+    } finally {
+      setWatchlistLoading(false);
+    }
+  }, [stockData?.ticker, isInWatchlist, watchlistLoading]);
 
   useEffect(() => {
     // Mendengarkan perintah Clear dari Navbar
@@ -155,10 +195,23 @@ const Dashboard = () => {
         <h1 className="font-display text-[18px] md:text-[22px] font-light text-text-main tracking-[3px] uppercase">
           {stockData?.ticker || 'Dashboard'}
         </h1>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <p className="font-mono text-[10px] text-text-muted tracking-[1px] uppercase hidden sm:block">
             Data as of: {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
           </p>
+          <button
+            onClick={handleToggleWatchlist}
+            disabled={watchlistLoading}
+            className={`flex items-center gap-1.5 font-mono text-[10px] tracking-[1.5px] uppercase rounded-full px-3 py-2 transition-all duration-200 ${
+              isInWatchlist
+                ? 'text-accent bg-accent/10 border border-accent/30'
+                : 'text-text-muted border border-card-border hover:text-accent hover:border-accent/40'
+            } disabled:opacity-50`}
+            title={isInWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist'}
+          >
+            <Star className={`w-3 h-3 ${isInWatchlist ? 'fill-accent' : ''}`} />
+            <span className="hidden sm:inline">{isInWatchlist ? 'Saved' : 'Watch'}</span>
+          </button>
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}

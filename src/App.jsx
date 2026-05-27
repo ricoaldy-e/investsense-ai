@@ -11,6 +11,7 @@ const Landing = lazy(() => import('./pages/Landing'));
 const Auth = lazy(() => import('./pages/Auth'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const MarketInsight = lazy(() => import('./pages/MarketInsight'));
+const Watchlist = lazy(() => import('./pages/Watchlist'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Minimal Cold Surgical loading fallback
@@ -33,7 +34,7 @@ function App() {
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Landing />} />
-              
+
               {/* Guest Routes: Only accessible if NOT logged in */}
               <Route element={<GuestRoute />}>
                 <Route path="/login" element={<Auth />} />
@@ -45,6 +46,7 @@ function App() {
                 <Route element={<DashboardLayout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/market-insight" element={<MarketInsight />} />
+                  <Route path="/watchlist" element={<Watchlist />} />
                 </Route>
               </Route>
 
@@ -58,4 +60,4 @@ function App() {
   );
 }
 
-export default App;
+export default App;

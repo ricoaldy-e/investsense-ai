@@ -19,9 +19,20 @@ const NewsItem = ({ item, isLast }) => {
         </span>
         <span className="font-mono text-[10px] tracking-[1px] text-text-muted">{item.time}</span>
       </div>
-      <h4 className="font-body text-[14px] text-text-secondary leading-snug group-hover:text-text-main transition-colors">
-        {item.title}
-      </h4>
+      {item.url ? (
+        <a 
+          href={item.url} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="font-body text-[14px] text-text-secondary leading-snug group-hover:text-accent transition-colors block"
+        >
+          {item.title}
+        </a>
+      ) : (
+        <h4 className="font-body text-[14px] text-text-secondary leading-snug group-hover:text-text-main transition-colors">
+          {item.title}
+        </h4>
+      )}
       {item.source && (
         <p className="font-mono text-[10px] text-text-muted mt-1.5 tracking-[1px]">{item.source}</p>
       )}

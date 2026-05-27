@@ -1,11 +1,14 @@
 import axios from "axios";
 
 // ─── Production Base URL ───────────────────────────────────────────────────
-const BASE_URL = "https://investsense-ai-investsense-backend.hf.space/api/v1";
+const BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://investsense-ai-investsense-backend.hf.space/api/v1";
 
 // ─── Primary intercepted instance (used by all app services) ──────────────
 const api = axios.create({
   baseURL: BASE_URL,
+  timeout: 30000, // 30 seconds default timeout
   headers: { "Content-Type": "application/json" },
 });
 
@@ -38,6 +41,8 @@ const processQueue = (error, token = null) => {
 };
 
 // ─── Request Interceptor — Attach Access Token ────────────────────────────
+// Automatically attaches the Bearer token from localStorage to every request.
+// If no token exists, the request proceeds without auth (graceful bypass).
 api.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("accessToken");
@@ -123,4 +128,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export default api;

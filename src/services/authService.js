@@ -1,66 +1,62 @@
-import api from './api';
-import { mockUsers } from '../mocks/authMock';
+import axios from "axios";
+import api from "./api";
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
-
-// Kita simpan mock data dalam variabel memori sementara agar user yang baru register
-// bisa langsung login di sesi yang sama tanpa me-refresh browser.
-let usersDb = [...mockUsers];
+// ─── Plain axios instance for /auth/refresh ───────────────────────────────
+// The intercepted `api` instance must NOT be used for refresh to prevent
+// an infinite 401 → refresh → 401 loop.
+const plainAxios = axios.create({
+  baseURL: "https://investsense-ai-investsense-backend.hf.space/api/v1",
+  headers: { "Content-Type": "application/json" },
+});
 
 export const authService = {
-  login: async (email, password) => {
-    if (USE_MOCK) {
-      // 1. Mode Mock Data: Mensimulasikan delay internet 800ms
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const user = usersDb.find(u => u.email === email && u.password_hash === password);
-          if (user) {
-            // Simulasi sukses login
-            const token = "mock-jwt-token-777";
-            resolve({ 
-              user: { id: user.id, username: user.username, email: user.email }, 
-              token 
-            });
-          } else {
-            // Simulasi gagal login
-            reject(new Error("Invalid email or password"));
-          }
-        }, 800);
-      });
-    } else {
-      // 2. Mode Real API: Menghubungi backend Express.js
-      const response = await api.post('/auth/login', { email, password });
-      return response.data;
-    }
+  /**
+   * Register a new user account.
+   * POST /auth/register
+   * @returns {{ success: boolean, data: { id, email, username, created_at } }}
+   */
+  register: async (email, username, password) => {
+    const response = await api.post("/auth/register", {
+      email,
+      username,
+      password,
+    });
+    return response.data;
   },
 
-  register: async (username, email, password) => {
-    if (USE_MOCK) {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const userExists = usersDb.find(u => u.email === email || u.username === username);
-          if (userExists) {
-            reject(new Error("User with this email or username already exists"));
-          } else {
-            const newUser = {
-              id: `uuid-user-${Date.now()}`,
-              username,
-              email,
-              password_hash: password,
-              created_at: new Date().toISOString()
-            };
-            usersDb.push(newUser); // Simpan ke database mock sementara
-            const token = "mock-jwt-token-777";
-            resolve({ 
-              user: { id: newUser.id, username: newUser.username, email: newUser.email }, 
-              token 
-            });
-          }
-        }, 800);
-      });
-    } else {
-      const response = await api.post('/auth/register', { username, email, password });
-      return response.data;
+  /**
+   * Login with email and password.
+   * POST /auth/login
+   * @returns {{ success: boolean, accessToken: string, refreshToken: string }}
+   */
+  login: async (email, password) => {
+    const response = await api.post("/auth/login", { email, password });
+    return response.data;
+  },
+
+  /**
+   * Silently rotate an expired access token using the stored refresh token.
+   * POST /auth/refresh
+   * Uses plain axios (not the intercepted instance) to avoid infinite loops.
+   * @returns {{ success: boolean, accessToken: string, refreshToken: string }}
+   */
+  refresh: async () => {
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (!refreshToken) {
+      throw new Error("No refresh token stored");
     }
-  }
+    const response = await plainAxios.post("/auth/refresh", { refreshToken });
+    return response.data;
+  },
+
+  /**
+   * Invalidate the current session on the server.
+   * POST /auth/logout — Protected (Bearer token sent automatically by interceptor)
+   * @returns {{ success: boolean }}
+   */
+  logout: async () => {
+    const response = await api.post("/auth/logout");
+    return response.data;
+  },
 };
+

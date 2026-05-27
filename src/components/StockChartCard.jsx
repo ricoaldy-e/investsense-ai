@@ -2,13 +2,21 @@ import { Info } from 'lucide-react';
 import { AreaChart, Area, ResponsiveContainer, YAxis, XAxis, CartesianGrid, Tooltip as RechartsTooltip } from 'recharts';
 import Tooltip from './Tooltip';
 
+// Helper to format price with appropriate currency symbol
+const formatPrice = (value, currency) => {
+  if (value == null) return 'N/A';
+  if (currency === 'IDR') return `Rp${value.toLocaleString('id-ID')}`;
+  return `$${value.toFixed(2)}`;
+};
+
 // Pro mode: custom tooltip for chart hover (defined outside component to avoid re-creation)
-const ProChartTooltip = ({ active, payload }) => {
+const ProChartTooltip = ({ active, payload, currency }) => {
   if (!active || !payload?.length) return null;
+  const point = payload[0].payload;
   return (
     <div className="bg-surface border border-card-border px-3 py-2">
-      <p className="font-mono text-[10px] text-text-main">${payload[0].value?.toFixed(2)}</p>
-      <p className="font-mono text-[9px] text-text-muted">{payload[0].payload?.time}</p>
+      <p className="font-mono text-[10px] text-text-main">{formatPrice(payload[0].value, currency)}</p>
+      <p className="font-mono text-[9px] text-text-muted">{point?.time}</p>
     </div>
   );
 };
@@ -56,11 +64,11 @@ const StockChartCard = ({ data, mode }) => {
           <div className="min-w-0">
             <h2 className="font-display text-[20px] font-medium text-text-main tracking-[0.5px] mb-1 truncate">{data.name} ({data.ticker})</h2>
             <div className="flex items-center gap-3 flex-wrap">
-              <span className="font-mono text-[14px] text-text-main tracking-[0.5px]">${data.currentPrice?.toFixed(2)}</span>
+              <span className="font-mono text-[14px] text-text-main tracking-[0.5px]">{formatPrice(data.currentPrice, data.currency)}</span>
               <span className={`font-mono text-[12px] ${priceChangeColor} tracking-[0.5px]`}>{priceChangePrefix}{data.percentChange?.toFixed(2)}%</span>
-              {isPro && (
+              {isPro && data.priceChange != null && (
                 <span className="font-mono text-[10px] text-text-muted tracking-[1px]">
-                  {priceChangePrefix}${Math.abs(data.priceChange || 0).toFixed(2)}
+                  {priceChangePrefix}{formatPrice(Math.abs(data.priceChange || 0), data.currency)}
                 </span>
               )}
             </div>
@@ -70,17 +78,21 @@ const StockChartCard = ({ data, mode }) => {
         {/* Pro mode: extra metrics badge */}
         {isPro && (
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="border border-card-border px-3 py-1.5">
-              <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted block">P/E</span>
-              <span className="font-mono text-[12px] text-text-main">{data.metrics?.peRatio ?? 'N/A'}</span>
-            </div>
-            <div className="border border-card-border px-3 py-1.5">
-              <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted block">VOL</span>
-              <span className="font-mono text-[12px] text-text-main">{data.metrics?.volatility ?? 'N/A'}</span>
-            </div>
+            {data.metrics?.peRatio != null && (
+              <div className="border border-card-border px-3 py-1.5">
+                <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted block">P/E</span>
+                <span className="font-mono text-[12px] text-text-main">{data.metrics.peRatio}</span>
+              </div>
+            )}
+            {data.metrics?.volatility != null && (
+              <div className="border border-card-border px-3 py-1.5">
+                <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted block">VOL</span>
+                <span className="font-mono text-[12px] text-text-main">{data.metrics.volatility}</span>
+              </div>
+            )}
             <div className="border border-card-border px-3 py-1.5">
               <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted block">RSI</span>
-              <span className={`font-mono text-[12px] ${rsiColor}`}>{rsi.toFixed(1)}</span>
+              <span className={`font-mono text-[12px] ${rsiColor}`}>{rsi ? rsi.toFixed(1) : 'N/A'}</span>
             </div>
           </div>
         )}
@@ -108,7 +120,7 @@ const StockChartCard = ({ data, mode }) => {
               tick={{ fill: '#52525b', fontSize: 10, fontFamily: 'JetBrains Mono' }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(v) => `$${v}`}
+              tickFormatter={(v) => data.currency === 'IDR' ? `Rp${v.toLocaleString('id-ID')}` : `$${v}`}
               width={55}
             />
 
@@ -121,7 +133,7 @@ const StockChartCard = ({ data, mode }) => {
             />
 
             {isPro && (
-              <RechartsTooltip content={<ProChartTooltip />} />
+              <RechartsTooltip content={<ProChartTooltip currency={data.currency} />} />
             )}
 
             <Area

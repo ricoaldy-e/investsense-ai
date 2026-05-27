@@ -22,7 +22,7 @@ const WarningBanner = ({ data, mode }) => {
   if (!isVisible || !data) return null;
 
   const rsi = data.metrics?.rsi14 ?? 50;
-  const volatility = data.metrics?.volatility || 'Medium';
+  const volatility = data.metrics?.volatility || null;
   const sentiment = data.sentiment || {};
   const isPro = mode === 'pro';
 

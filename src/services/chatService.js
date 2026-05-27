@@ -1,9 +1,19 @@
-// import api from './api';
+import api from './api';
 import { delay } from './utils';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
 
 export const chatService = {
+  /**
+   * sendMessage — Sends a user message to the RAG chatbot.
+   *
+   * Real API mode:
+   *   POST /api/v1/chat
+   *   Body: { user_message: string }
+   *   Response: { success, ticker_detected, answer }
+   *
+   * Returns a message object matching the shape expected by AIChatPanel.
+   */
   async sendMessage(query) {
     if (USE_MOCK) {
       // Simulasi waktu berpikir AI (1.5 detik)
@@ -46,12 +56,59 @@ export const chatService = {
         type: 'text',
         content: "Saya adalah Asisten InvestSense AI. Saya dapat menganalisis saham spesifik (seperti AAPL atau TSLA), memberikan wawasan sentimen pasar, atau menjelaskan konsep investasi. Apa yang ingin Anda analisis hari ini?"
       };
-    } else {
-      // Future integration with Real AI Backend (FastAPI)
-      // const response = await api.post('/chat/send', { query });
-      // return response.data;
-      throw new Error("Real API not implemented yet");
+    }
+
+    // ─── Real API Mode ──────────────────────────────────────────────────
+    try {
+      const response = await api.post('/chat', {
+        user_message: query,
+      });
+
+      const data = response.data;
+
+      if (!data.success || !data.answer) {
+        throw new Error('AI response was empty or invalid.');
+      }
+
+      return {
+        id: Date.now(),
+        role: 'ai',
+        type: 'text',
+        content: data.answer,
+        // Extra metadata from BE — can be used by the panel for context indicators
+        tickerDetected: data.ticker_detected || null,
+      };
+    } catch (error) {
+      // Handle specific BE error responses
+      if (error.response?.status === 503) {
+        return {
+          id: Date.now(),
+          role: 'ai',
+          type: 'error',
+          content: 'Mentor AI sedang tidak tersedia. Silakan coba beberapa saat lagi.',
+        };
+      }
+
+      if (error.response?.status === 401) {
+        return {
+          id: Date.now(),
+          role: 'ai',
+          type: 'error',
+          content: 'Sesi Anda telah berakhir. Silakan login ulang untuk menggunakan AI Assistant.',
+        };
+      }
+
+      if (error.response?.status === 400) {
+        return {
+          id: Date.now(),
+          role: 'ai',
+          type: 'error',
+          content: 'Pesan tidak dapat diproses. Pastikan pesan Anda tidak kosong.',
+        };
+      }
+
+      // Re-throw for generic errors so AIChatPanel's catch block handles it
+      throw error;
     }
   }
 };
-

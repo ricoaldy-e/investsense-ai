@@ -1,7 +1,11 @@
-import { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, Minus, Clock, ExternalLink, RefreshCw } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { TrendingUp, TrendingDown, Minus, Clock, ExternalLink, RefreshCw, Loader2 } from 'lucide-react';
+import api from '../services/api';
+import { formatRelativeTime, mapSentimentLabel } from '../services/utils';
 
-// ─── Mock Data ───
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
+
+// ─── Mock Data (Global Indices & Sectors — no BE endpoint available) ───
 
 const globalIndices = [
   { name: 'IDX Composite', ticker: 'IHSG', value: 7200.45, change: +0.4, points: '+28.80' },
@@ -20,7 +24,8 @@ const sectorData = [
   { name: 'Real Estate', change: -1.2, status: 'Lagging' },
 ];
 
-const marketHeadlines = [
+// Fallback mock headlines (used when BE is unavailable or in mock mode)
+const mockHeadlines = [
   {
     id: 1,
     title: 'Bank Indonesia Holds Key Rate Steady at 5.75% Amid Global Uncertainty',
@@ -81,7 +86,20 @@ const ChangeIndicator = ({ value, size = 'default' }) => {
   );
 };
 
+/**
+ * SentimentTag — Maps sentiment labels to UI tags.
+ * Handles both mock format ("Bullish"/"Bearish"/"Neutral") and
+ * BE-derived format ("positive"/"negative"/"neutral").
+ */
 const SentimentTag = ({ sentiment }) => {
+  // Normalize to display label
+  const normalizedMap = {
+    'Bullish': 'Bullish', 'positive': 'Bullish',
+    'Bearish': 'Bearish', 'negative': 'Bearish',
+    'Neutral': 'Neutral', 'neutral': 'Neutral',
+  };
+  const displayLabel = normalizedMap[sentiment] || 'Neutral';
+
   const colors = {
     Bullish: 'text-success border-success/30 bg-success-soft',
     Bearish: 'text-danger border-danger/30 bg-danger-soft',
@@ -89,8 +107,8 @@ const SentimentTag = ({ sentiment }) => {
   };
 
   return (
-    <span className={`font-mono text-[9px] tracking-[1.5px] uppercase px-2.5 py-1 border rounded-full ${colors[sentiment]}`}>
-      {sentiment}
+    <span className={`font-mono text-[9px] tracking-[1.5px] uppercase px-2.5 py-1 border rounded-full ${colors[displayLabel]}`}>
+      {displayLabel}
     </span>
   );
 };
@@ -100,14 +118,60 @@ const SentimentTag = ({ sentiment }) => {
 const MarketInsight = () => {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [marketHeadlines, setMarketHeadlines] = useState(USE_MOCK ? mockHeadlines : []);
+  const [isLoadingNews, setIsLoadingNews] = useState(!USE_MOCK);
 
-  // Simulate data refresh
+  /**
+   * Fetch market headlines from BE news search endpoint.
+   * Uses keyword "saham indonesia" to get general market news.
+   * Falls back to mock data if the request fails.
+   */
+  const fetchMarketNews = useCallback(async () => {
+    if (USE_MOCK) return;
+
+    setIsLoadingNews(true);
+    try {
+      const response = await api.get('/news/search', { params: { keyword: 'saham indonesia' } });
+      const articles = response.data?.data || [];
+
+      if (articles.length > 0) {
+        const mapped = articles.slice(0, 8).map((article, idx) => ({
+          id: article.id || idx,
+          title: article.title,
+          source: article.source?.name || article.source_name || 'Unknown',
+          time: formatRelativeTime(article.publishedAt || article.published_at),
+          sentiment: mapSentimentLabel(article.sentiment_label),
+          url: article.url,
+          description: article.description,
+        }));
+        setMarketHeadlines(mapped);
+      } else {
+        // No results — keep mock data as fallback
+        setMarketHeadlines(mockHeadlines);
+      }
+    } catch (err) {
+      console.warn('[MarketInsight] ⚠️ Failed to fetch market news — using fallback data:', err.message);
+      setMarketHeadlines(mockHeadlines);
+    } finally {
+      setIsLoadingNews(false);
+    }
+  }, []);
+
+  // Initial load
+  useEffect(() => {
+    fetchMarketNews();
+  }, [fetchMarketNews]);
+
+  // Refresh handler
   const handleRefresh = () => {
     setIsRefreshing(true);
-    setTimeout(() => {
-      setLastUpdated(new Date());
-      setIsRefreshing(false);
-    }, 800);
+    setLastUpdated(new Date());
+
+    if (!USE_MOCK) {
+      fetchMarketNews().finally(() => setIsRefreshing(false));
+    } else {
+      setTimeout(() => setIsRefreshing(false), 800);
+    }
   };
 
   // Auto-refresh timestamp every 60 seconds
@@ -124,9 +188,9 @@ const MarketInsight = () => {
   };
 
   // Count sentiments for summary
-  const bullishCount = marketHeadlines.filter(n => n.sentiment === 'Bullish').length;
-  const bearishCount = marketHeadlines.filter(n => n.sentiment === 'Bearish').length;
-  const neutralCount = marketHeadlines.filter(n => n.sentiment === 'Neutral').length;
+  const bullishCount = marketHeadlines.filter(n => n.sentiment === 'Bullish' || n.sentiment === 'positive').length;
+  const bearishCount = marketHeadlines.filter(n => n.sentiment === 'Bearish' || n.sentiment === 'negative').length;
+  const neutralCount = marketHeadlines.filter(n => n.sentiment === 'Neutral' || n.sentiment === 'neutral').length;
 
   return (
     <div className="pb-24 md:pb-0">
@@ -251,7 +315,7 @@ const MarketInsight = () => {
           </div>
         </div>
 
-        {/* Right Column — Market Headlines */}
+        {/* Right Column — Market Headlines (integrated with BE news search) */}
         <div>
           <div className="bg-card-dark border border-card-border h-full flex flex-col">
             <div className="px-5 py-4 border-b border-card-border flex items-center justify-between">
@@ -259,35 +323,58 @@ const MarketInsight = () => {
                 Market Headlines
               </h2>
               <span className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase">
-                {marketHeadlines.length} Articles
+                {isLoadingNews ? '...' : `${marketHeadlines.length} Articles`}
               </span>
             </div>
-            <div className="divide-y divide-hairline flex-1">
-              {marketHeadlines.map((news) => (
-                <div key={news.id} className="px-5 py-4 hover:bg-surface/30 transition-colors duration-150 group cursor-pointer">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-body text-[14px] text-text-main leading-relaxed group-hover:text-accent transition-colors duration-200">
-                        {news.title}
-                      </p>
-                      <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-2.5">
-                        <span className="font-mono text-[10px] tracking-[1px] text-text-muted flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {news.time}
-                        </span>
-                        <span className="font-mono text-[10px] tracking-[1px] text-text-muted flex items-center gap-1">
-                          <ExternalLink className="w-3 h-3" />
-                          {news.source}
-                        </span>
+
+            {isLoadingNews ? (
+              <div className="flex-1 flex items-center justify-center py-12">
+                <div className="text-center">
+                  <Loader2 className="w-5 h-5 text-accent animate-spin mx-auto mb-3" />
+                  <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted">
+                    Fetching headlines...
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="divide-y divide-hairline flex-1">
+                {marketHeadlines.map((news) => (
+                  <div key={news.id} className="px-5 py-4 hover:bg-surface/30 transition-colors duration-150 group cursor-pointer">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        {news.url ? (
+                          <a
+                            href={news.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-body text-[14px] text-text-main leading-relaxed group-hover:text-accent transition-colors duration-200 block"
+                          >
+                            {news.title}
+                          </a>
+                        ) : (
+                          <p className="font-body text-[14px] text-text-main leading-relaxed group-hover:text-accent transition-colors duration-200">
+                            {news.title}
+                          </p>
+                        )}
+                        <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-2.5">
+                          <span className="font-mono text-[10px] tracking-[1px] text-text-muted flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {news.time}
+                          </span>
+                          <span className="font-mono text-[10px] tracking-[1px] text-text-muted flex items-center gap-1">
+                            <ExternalLink className="w-3 h-3" />
+                            {news.source}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex-shrink-0 mt-0.5">
+                        <SentimentTag sentiment={news.sentiment} />
                       </div>
                     </div>
-                    <div className="flex-shrink-0 mt-0.5">
-                      <SentimentTag sentiment={news.sentiment} />
-                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

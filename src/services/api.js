@@ -70,6 +70,13 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    if (
+      originalRequest.url.includes("/auth/login") || 
+      originalRequest.url.includes("/auth/register")
+    ) {
+      return Promise.reject(error);
+    }
+
     // Prevent infinite retry loop: if this request was already a retry, reject
     if (originalRequest._retry) {
       return Promise.reject(error);
@@ -128,4 +135,9 @@ api.interceptors.response.use(
   }
 );
 
+// Named export so authService.refresh() can bypass the 401 interceptor.
+// The interceptor must NOT be involved in the refresh call itself —
+// a 401 on /auth/refresh means the session is genuinely expired, not
+// something that should trigger another refresh attempt.
+export { plainAxios };
 export default api;

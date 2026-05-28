@@ -1,8 +1,8 @@
-import api from "./api";
+import api, { plainAxios } from "./api";
 
-// Note: plainAxios is defined in api.js and is not needed here.
-// authService.refresh() uses the api instance's plainAxios indirectly
-// via authService, but for logout and login we use the main api instance.
+// Note: plainAxios is defined in api.js and exported as a named export.
+// authService.refresh() uses plainAxios directly to bypass the 401 interceptor.
+// All other authService methods use the main intercepted `api` instance.
 
 export const authService = {
   /**
@@ -26,7 +26,6 @@ export const authService = {
    */
   login: async (email, password) => {
     const response = await api.post("/auth/login", { email, password });
-    console.log(response.data)
     return response.data;
   },
 
@@ -39,9 +38,11 @@ export const authService = {
    * @returns {{ success: boolean, data: { accessToken: string } }}
    */
   refresh: async () => {
-    // Empty body — the backend reads the refreshToken from req.cookies,
-    // not from the request body. The browser attaches the cookie automatically.
-    const response = await api.post("/auth/refresh", {});
+    // IMPORTANT: Use plainAxios (non-intercepted) here, NOT the main `api` instance.
+    // If we used `api` and the server returned 401, the response interceptor would
+    // fire, attempt another refresh, get 401 again → infinite loop → force logout.
+    // plainAxios has withCredentials:true so the httpOnly cookie is sent correctly.
+    const response = await plainAxios.post("/auth/refresh", {});
     return response.data;
   },
 

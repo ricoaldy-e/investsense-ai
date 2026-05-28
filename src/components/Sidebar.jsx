@@ -4,16 +4,33 @@ import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ConfirmModal from './ui/ConfirmModal';
 import LanguageToggle from './ui/LanguageToggle';
+import { useAuth } from '../context/AuthContext';
 
 const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
+  /**
+   * Delegates entirely to AuthContext.logout(), which:
+   *  1. Calls authService.logout() → asks the server to invalidate the
+   *     refreshToken in the DB and clear the httpOnly cookie.
+   *  2. In the finally block, removes 'accessToken' and 'username' from
+   *     localStorage regardless of whether the server call succeeded.
+   *  3. Dispatches LOGOUT to the reducer, setting isAuthenticated → false.
+   * After that we navigate to /login.
+   */
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      // logout() itself is already try/catch/finally guarded inside AuthContext.
+      // This outer catch is a last-resort safety net for unexpected throws.
+      console.error('[Sidebar] Unexpected error during logout:', error);
+    } finally {
+      navigate('/login');
+    }
   };
 
   const navLinkClass = ({ isActive }) =>

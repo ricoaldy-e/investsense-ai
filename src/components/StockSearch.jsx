@@ -16,19 +16,22 @@ import useDashboardStore from '../store/useDashboardStore';
  */
 const StockSearch = () => {
   const setActiveTicker = useDashboardStore((s) => s.setActiveTicker);
+  console.log("search input")
+
+  console.log(setActiveTicker, "setActiveTicker")
 
   // ─── Local State ──────────────────────────────────────────────────────────
-  const [query, setQuery]           = useState('');
-  const [results, setResults]       = useState([]);
-  const [isOpen, setIsOpen]         = useState(false);
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [fetchError, setFetchError] = useState(false);
 
   // ─── Refs ─────────────────────────────────────────────────────────────────
-  const wrapperRef  = useRef(null);
-  const inputRef    = useRef(null);
-  const listRef     = useRef(null);
+  const wrapperRef = useRef(null);
+  const inputRef = useRef(null);
+  const listRef = useRef(null);
 
   // ─── Debounce ─────────────────────────────────────────────────────────────
   const debouncedQuery = useDebounce(query, 500);
@@ -53,6 +56,8 @@ const StockSearch = () => {
     }
 
     let cancelled = false;
+
+    console.log(trimmed)
 
     const fetchResults = async () => {
       setIsFetching(true);
@@ -90,8 +95,8 @@ const StockSearch = () => {
 
   // ─── Selection Handler ────────────────────────────────────────────────────
   const handleSelect = useCallback((stock) => {
-    setActiveTicker(stock.symbol);
-    setQuery(stock.symbol.toUpperCase());
+    setActiveTicker(stock.ticker);
+    setQuery(stock.ticker.toUpperCase());
     setIsOpen(false);
     setActiveIndex(-1);
     setResults([]);
@@ -207,7 +212,7 @@ const StockSearch = () => {
           aria-label="Search results"
           ref={listRef}
           className="
-            absolute z-[200] top-full left-0 right-0 mt-1
+            absolute z-50 top-full left-0 right-0 mt-1
             bg-surface border border-card-border rounded-sm
             shadow-[0_8px_32px_rgba(0,0,0,0.6)]
             max-h-[260px] overflow-y-auto
@@ -218,7 +223,7 @@ const StockSearch = () => {
             const isActive = idx === activeIndex;
             return (
               <div
-                key={stock.symbol}
+                key={stock.ticker}
                 id={`stock-result-${idx}`}
                 role="option"
                 aria-selected={isActive}
@@ -243,31 +248,24 @@ const StockSearch = () => {
                   <TrendingUp className="w-3.5 h-3.5" />
                 </div>
 
-                {/* Symbol + Short name */}
+                {/* Ticker + Name */}
                 <div className="flex-1 min-w-0">
                   <p className={`font-mono text-[11px] tracking-[2px] uppercase font-medium ${isActive ? 'text-accent' : 'text-text-main'}`}>
-                    {stock.symbol}
+                    {stock.ticker}
                   </p>
-                  {stock.shortname && (
+                  {stock.name && (
                     <p className="font-body text-[12px] text-text-muted truncate mt-0.5 leading-tight">
-                      {stock.shortname}
+                      {stock.name}
                     </p>
                   )}
                 </div>
 
-                {/* Exchange badge + active indicator */}
-                <div className="flex-shrink-0 flex items-center gap-2">
-                  {stock.exchange && (
-                    <span className="font-mono text-[9px] tracking-[1px] uppercase text-text-muted bg-card-dark px-1.5 py-0.5">
-                      {stock.exchange}
-                    </span>
-                  )}
-                  {isActive && (
-                    <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted">
-                      ↵
-                    </p>
-                  )}
-                </div>
+                {/* Active indicator */}
+                {isActive && (
+                  <p className="flex-shrink-0 font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted">
+                    ↵ Select
+                  </p>
+                )}
               </div>
             );
           })}

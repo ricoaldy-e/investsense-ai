@@ -16,10 +16,10 @@ const RiskAnalysisCard = ({ data, mode }) => {
 
   const conditionSummary = isPro
     ? (rsi >= 70
-        ? `RSI at ${rsi.toFixed(1)} indicates overbought conditions.${peRatio ? ` Elevated P/E (${peRatio}) compounds valuation risk.` : ''} Consider profit-taking or tightening stops.`
+        ? t('risk_card.condition_pro_high', { rsi: rsi.toFixed(1), pe: peRatio ? t('risk_card.pe_elevated', { pe: peRatio }) : '' })
         : rsi <= 30
-          ? `RSI at ${rsi.toFixed(1)} signals oversold territory. If fundamentals hold, this may present a value entry point. Confirm with volume analysis.`
-          : `RSI ${rsi.toFixed(1)}: neutral range.${volatility ? ` Volatility: ${volatility}.` : ''} No extreme conditions detected. Standard position sizing recommended.`)
+          ? t('risk_card.condition_pro_low', { rsi: rsi.toFixed(1) })
+          : t('risk_card.condition_pro_neutral', { rsi: rsi.toFixed(1), volatility: volatility ? t('risk_card.volatility_note', { volatility }) : '' }))
     : (rsi >= 70
         ? t('risk_card.condition_beginner_high')
         : rsi <= 30

@@ -35,7 +35,8 @@
     "analysis_mode": "Mode analisis",
     "clear_title": "Hapus Analisis",
     "clear_desc": "Ini akan mereset dasbor dan menghapus analisis saham saat ini. Anda dapat mencari saham baru kapan saja.",
-    "clear_confirm": "HAPUS"
+    "clear_confirm": "HAPUS",
+    "search_placeholder_ticker": "Cari ticker atau nama perusahaan..."
   },
   "dashboard": {
     "data_as_of": "Data per:",
@@ -89,7 +90,12 @@
     "behavioral_bias": "Sinyal Bias Perilaku",
     "condition_beginner_high": "Saham ini telah naik sangat cepat. Mungkin terlalu mahal sekarang. Pertimbangkan untuk menunggu harganya turun sedikit.",
     "condition_beginner_low": "Saham ini baru-baru ini turun banyak. Bisa jadi peluang, tapi pastikan Anda riset dulu sebelum membeli.",
-    "condition_beginner_neutral": "Semuanya terlihat normal sekarang. Saham tidak terlalu mahal atau terlalu murah."
+    "condition_beginner_neutral": "Semuanya terlihat normal sekarang. Saham tidak terlalu mahal atau terlalu murah.",
+    "condition_pro_high": "RSI di {{rsi}} mengindikasikan kondisi overbought (jenuh beli).{{pe}} Pertimbangkan untuk mengambil keuntungan atau memperketat stop loss.",
+    "condition_pro_low": "RSI di {{rsi}} menandakan wilayah oversold (jenuh jual). Jika fundamental kuat, ini bisa menjadi titik masuk yang baik. Konfirmasi dengan analisis volume.",
+    "condition_pro_neutral": "RSI {{rsi}}: rentang netral.{{volatility}} Tidak terdeteksi kondisi ekstrem. Disarankan ukuran posisi standar.",
+    "pe_elevated": " P/E yang tinggi ({{pe}}) meningkatkan risiko valuasi.",
+    "volatility_note": " Volatilitas: {{volatility}}."
   },
   "sentiment_card": {
     "title_pro": "Distribusi Sentimen",
@@ -106,7 +112,10 @@
     "balanced_outlook": "pandangan seimbang",
     "desc_bullish": "Sebagian besar indikator terlihat menguntungkan.",
     "desc_bearish": "Disarankan untuk berhati-hati.",
-    "desc_neutral": "Pasar belum menentukan arah."
+    "desc_neutral": "Pasar belum menentukan arah.",
+    "aggregated_ratio": "Rasio sentimen agregat:",
+    "dominant_signal": "Sinyal dominan:",
+    "for_ticker": "untuk"
   },
   "ai_insight_card": {
     "title_pro": "Sinyal AI",
@@ -123,7 +132,9 @@
     "title_beginner": "Berita Terbaru",
     "no_news": "Tidak ada berita tersedia untuk saham ini.",
     "read_full": "Baca artikel lengkap",
-    "just_now": "Baru saja"
+    "just_now": "Baru saja",
+    "no_news_found": "Tidak ada berita terbaru ditemukan untuk {{ticker}}.",
+    "select_stock_news": "Pilih saham untuk memuat berita."
   },
   "warning_banner": {
     "fomo_title": "Peringatan FOMO",

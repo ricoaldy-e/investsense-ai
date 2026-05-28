@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, ChevronLeft, ChevronRight, X, Plus, MessageSquare, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import ReactMarkdown from 'react-markdown';
 import { chatService } from '../services/chatService';
 import useDashboardStore from '../store/useDashboardStore';
 
@@ -218,11 +219,25 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
                 <p className="font-mono text-[9px] tracking-[2px] uppercase text-danger">{t('chat_panel.system_notice')}</p>
               </div>
             )}
-            <p className={`font-body text-[13px] leading-relaxed ${
-              msg.type === 'error' ? 'text-danger/80' : msg.role === 'ai' ? 'text-text-secondary' : 'text-text-main'
+            <div className={`font-body text-[13px] leading-relaxed ${
+              msg.type === 'error' ? 'text-danger/80' : msg.role === 'ai' ? 'text-text-secondary prose prose-sm prose-invert max-w-none' : 'text-text-main'
             }`}>
-              {msg.content}
-            </p>
+              {msg.role === 'ai' ? (
+                <ReactMarkdown
+                  components={{
+                    p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                    strong: ({node, ...props}) => <strong className="font-bold text-text-main" {...props} />,
+                    ul: ({node, ...props}) => <ul className="list-disc list-inside mb-2" {...props} />,
+                    ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-2" {...props} />,
+                    li: ({node, ...props}) => <li className="mb-1" {...props} />,
+                  }}
+                >
+                  {msg.content}
+                </ReactMarkdown>
+              ) : (
+                msg.content
+              )}
+            </div>
           </div>
         </div>
       );

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, Loader2, X, TrendingUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import useDebounce from '../hooks/useDebounce';
 import useOnClickOutside from '../hooks/useOnClickOutside';
@@ -15,6 +16,7 @@ import useDashboardStore from '../store/useDashboardStore';
  *  - Writes selected ticker to the global Zustand store
  */
 const StockSearch = () => {
+  const { t } = useTranslation();
   const setActiveTicker = useDashboardStore((s) => s.setActiveTicker);
   console.log("search input")
 
@@ -173,7 +175,7 @@ const StockSearch = () => {
           autoComplete="off"
           spellCheck={false}
           value={query}
-          placeholder="Search ticker or company…"
+          placeholder={t('navbar.search_placeholder_ticker')}
           aria-label="Search stock ticker"
           aria-autocomplete="list"
           aria-expanded={isOpen}

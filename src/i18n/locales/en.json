@@ -35,7 +35,8 @@
     "analysis_mode": "Analysis mode",
     "clear_title": "Clear Analysis",
     "clear_desc": "This will reset the dashboard and remove the current stock analysis from view. You can search for a new stock at any time.",
-    "clear_confirm": "CLEAR"
+    "clear_confirm": "CLEAR",
+    "search_placeholder_ticker": "Search ticker or company..."
   },
   "dashboard": {
     "data_as_of": "Data as of:",
@@ -89,7 +90,12 @@
     "behavioral_bias": "Behavioral Bias Signal",
     "condition_beginner_high": "This stock has been going up very quickly. It might be too expensive right now. Consider waiting for the price to come down a bit.",
     "condition_beginner_low": "This stock has dropped a lot recently. It could be a good deal, but make sure to do your research first before buying.",
-    "condition_beginner_neutral": "Everything looks normal right now. The stock isn't too expensive or too cheap."
+    "condition_beginner_neutral": "Everything looks normal right now. The stock isn't too expensive or too cheap.",
+    "condition_pro_high": "RSI at {{rsi}} indicates overbought conditions.{{pe}} Consider profit-taking or tightening stops.",
+    "condition_pro_low": "RSI at {{rsi}} signals oversold territory. If fundamentals hold, this may present a value entry point. Confirm with volume analysis.",
+    "condition_pro_neutral": "RSI {{rsi}}: neutral range.{{volatility}} No extreme conditions detected. Standard position sizing recommended.",
+    "pe_elevated": " Elevated P/E ({{pe}}) compounds valuation risk.",
+    "volatility_note": " Volatility: {{volatility}}."
   },
   "sentiment_card": {
     "title_pro": "Sentiment Distribution",
@@ -106,7 +112,10 @@
     "balanced_outlook": "balanced outlook",
     "desc_bullish": "Most indicators look favorable.",
     "desc_bearish": "Caution is advised.",
-    "desc_neutral": "The market is undecided."
+    "desc_neutral": "The market is undecided.",
+    "aggregated_ratio": "Aggregated sentiment ratio:",
+    "dominant_signal": "Dominant signal:",
+    "for_ticker": "for"
   },
   "ai_insight_card": {
     "title_pro": "AI Signal",
@@ -123,7 +132,9 @@
     "title_beginner": "Latest News",
     "no_news": "No news available for this stock.",
     "read_full": "Read full article",
-    "just_now": "Just now"
+    "just_now": "Just now",
+    "no_news_found": "No recent news found for {{ticker}}.",
+    "select_stock_news": "Select a stock to load news."
   },
   "warning_banner": {
     "fomo_title": "FOMO Alert",

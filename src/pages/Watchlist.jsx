@@ -410,27 +410,27 @@ const Watchlist = () => {
                     onClick={() => handleViewStock(item.ticker)}
                     className="w-full text-left"
                   >
-                    <div className="flex items-center justify-between pt-3 border-t border-hairline">
-                      <div>
+                    <div className="grid grid-cols-3 gap-2 pt-3 border-t border-hairline">
+                      <div className="flex flex-col">
                         <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mb-1">{t('watchlist.price')}</p>
-                        <p className="font-mono text-[14px] text-text-main">
+                        <p className="font-mono text-[13px] text-text-main">
                           {quote ? formatPrice(quote.currentPrice, quote.currency) : '—'}
                         </p>
                       </div>
-                      <div className="text-right">
+                      <div className="flex flex-col items-center">
                         <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mb-1">{t('watchlist.change')}</p>
                         <ChangeIndicator value={quote?.changePercent} />
                       </div>
-                      <div className="text-right">
+                      <div className="flex flex-col items-end">
                         <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mb-1">{t('watchlist.status')}</p>
                         {quote?.marketState ? (
-                          <span className={`font-mono text-[11px] tracking-[0.5px] ${
+                          <span className={`font-mono text-[10px] tracking-[1px] uppercase ${
                             quote.marketState === 'REGULAR' ? 'text-success' : 'text-text-muted'
                           }`}>
                             {quote.marketState === 'REGULAR' ? t('watchlist.open') : t('watchlist.closed')}
                           </span>
                         ) : (
-                          <span className="font-mono text-[11px] text-text-muted">—</span>
+                          <span className="font-mono text-[10px] text-text-muted">—</span>
                         )}
                       </div>
                     </div>

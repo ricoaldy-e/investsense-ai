@@ -187,7 +187,7 @@ const MarketNewsCard = ({ mode }) => {
           {/* No ticker / no results */}
           {!isLoading && !error && articles.length === 0 && (
             <p className="font-body text-[14px] text-text-muted py-4">
-              {activeTicker ? `No recent news found for ${activeTicker}.` : 'Select a stock to load news.'}
+              {activeTicker ? t('news_card.no_news_found', { ticker: activeTicker }) : t('news_card.select_stock_news')}
             </p>
           )}
 

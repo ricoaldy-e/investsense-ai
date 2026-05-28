@@ -81,7 +81,7 @@ const SentimentAnalysisCard = ({ data, mode }) => {
       <div className="mt-6 pt-5 border-t border-hairline">
         <p className="font-body text-[14px] text-text-secondary leading-relaxed">
           {isPro
-            ? <>Aggregated sentiment ratio: <span className="font-mono text-[12px] text-text-main">{positive}B / {neutral}N / {negative}S</span>. Dominant signal: <span className={dominantStyle}>{dominantLabel}</span> for {data.ticker}.</>
+            ? <>{t('sentiment_card.aggregated_ratio')} <span className="font-mono text-[12px] text-text-main">{positive}B / {neutral}N / {negative}S</span>. {t('sentiment_card.dominant_signal')} <span className={dominantStyle}>{dominantLabel}</span> {t('sentiment_card.for_ticker')} {data.ticker}.</>
             : <>Based on news and market data, {data.ticker} currently has a <span className={dominantStyle}>{dominantLabel}</span>. {descText}</>
           }
         </p>

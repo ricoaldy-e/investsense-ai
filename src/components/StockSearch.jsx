@@ -65,9 +65,39 @@ const StockSearch = () => {
       setIsFetching(true);
       setFetchError(false);
       try {
-        const response = await api.get(`/stocks/search?q=${encodeURIComponent(trimmed)}`);
+        // Append .JK to bias Yahoo Finance results toward IDX stocks
+        const idxQuery = trimmed.endsWith('.JK') ? trimmed : `${trimmed}.JK`;
+        const response = await api.get(`/stocks/search?q=${encodeURIComponent(idxQuery)}`);
         if (!cancelled) {
-          const data = response.data?.data ?? [];
+          const raw = response.data?.data ?? [];
+
+          console.log('[StockSearch] raw API response:', raw);
+
+          // ── Normalize field names ────────────────────────────────────────
+          // Yahoo Finance returns: { symbol, shortname, longname, exchange, ... }
+          // We store everything as { ticker, name } for consistent rendering.
+          // Filter to IDX stocks only (exchange === 'JKT' or symbol ends with '.JK').
+          const normalized = raw
+            .filter((item) => {
+              const sym = item.symbol ?? '';
+              const exc = item.exchange ?? '';
+              return exc === 'JKT' || sym.endsWith('.JK');
+            })
+            .map((item) => ({
+              ticker: item.symbol ?? item.ticker ?? '',
+              name: item.shortname || item.longname || item.name || item.symbol || 'Unknown',
+              exchange: item.exchange ?? '',
+            }));
+
+          // Fallback: if IDX filter yields nothing, show all results (still normalized)
+          const data = normalized.length > 0
+            ? normalized
+            : raw.map((item) => ({
+                ticker: item.symbol ?? item.ticker ?? '',
+                name: item.shortname || item.longname || item.name || item.symbol || 'Unknown',
+                exchange: item.exchange ?? '',
+              }));
+
           setResults(data);
           setIsOpen(data.length > 0);
           setActiveIndex(-1);
@@ -97,8 +127,12 @@ const StockSearch = () => {
 
   // ─── Selection Handler ────────────────────────────────────────────────────
   const handleSelect = useCallback((stock) => {
-    setActiveTicker(stock.ticker);
-    setQuery(stock.ticker.toUpperCase());
+    // stock.ticker is already normalized; strip the .JK suffix for the store
+    // so downstream components receive a clean IDX ticker (e.g. 'BBCA', not 'BBCA.JK')
+    const rawTicker = stock.ticker ?? '';
+    const cleanTicker = rawTicker.replace(/\.JK$/i, '').toUpperCase();
+    setActiveTicker(cleanTicker);
+    setQuery(cleanTicker);
     setIsOpen(false);
     setActiveIndex(-1);
     setResults([]);
@@ -253,13 +287,12 @@ const StockSearch = () => {
                 {/* Ticker + Name */}
                 <div className="flex-1 min-w-0">
                   <p className={`font-mono text-[11px] tracking-[2px] uppercase font-medium ${isActive ? 'text-accent' : 'text-text-main'}`}>
-                    {stock.ticker}
+                    {/* Strip .JK suffix for display — show clean IDX ticker */}
+                    {(stock.ticker || '').replace(/\.JK$/i, '') || '—'}
                   </p>
-                  {stock.name && (
-                    <p className="font-body text-[12px] text-text-muted truncate mt-0.5 leading-tight">
-                      {stock.name}
-                    </p>
-                  )}
+                  <p className="font-body text-[12px] text-text-muted truncate mt-0.5 leading-tight">
+                    {stock.name || stock.ticker || 'Unknown'}
+                  </p>
                 </div>
 
                 {/* Active indicator */}

@@ -211,7 +211,13 @@
     "today": "Today",
     "market_headlines": "Market Headlines",
     "articles": "Articles",
-    "fetching_headlines": "Fetching headlines..."
+    "fetching_headlines": "Fetching headlines...",
+    "loading": "Loading Insights...",
+    "anti_fomo_radar": "Anti-FOMO Radar",
+    "overbought_risk": "High Correction Risk (Overbought)",
+    "oversold_opportunity": "Rebound Potential (Oversold)",
+    "market_mood": "Today's Market Mood",
+    "rsi_level": "RSI"
   },
   "watchlist": {
     "title": "Watchlist",

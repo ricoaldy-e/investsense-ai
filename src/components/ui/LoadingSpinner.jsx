@@ -59,7 +59,7 @@ export const CardOverlayLoader = ({ label }) => (
  */
 export const ActionToast = ({ label, visible }) => (
   <div
-    className={`fixed bottom-6 right-6 z-[200] flex items-center gap-3 px-4 py-3 bg-surface border border-card-border shadow-xl transition-all duration-300 ${
+    className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 px-5 py-3 bg-card-dark border border-card-border shadow-2xl transition-all duration-300 ${
       visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
     }`}
     role="status"

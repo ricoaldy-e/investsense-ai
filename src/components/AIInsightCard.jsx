@@ -1,5 +1,6 @@
 import { Bot } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import ReactMarkdown from 'react-markdown';
 
 const AIInsightCard = ({ data, mode }) => {
   const { t } = useTranslation();
@@ -30,9 +31,21 @@ const AIInsightCard = ({ data, mode }) => {
           <p className="font-mono text-[10px] tracking-[2px] uppercase text-accent mb-2">
             {isPro ? t('ai_insight_card.signal') : t('ai_insight_card.what_we_see')}
           </p>
-          <p className={`${isPro ? 'font-mono text-[12px]' : 'font-body text-[14px]'} text-text-secondary leading-relaxed`}>
-            {observation || 'No observation data available.'}
-          </p>
+          <div className={`${isPro ? 'font-mono text-[12px]' : 'font-body text-[14px]'} text-text-secondary leading-relaxed`}>
+            {observation ? (
+              <ReactMarkdown
+                components={{
+                  p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                  strong: ({node, ...props}) => <span className="text-text-main font-medium" {...props} />,
+                  ul: ({node, ...props}) => <ul className="list-disc list-inside mb-2" {...props} />,
+                  ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-2" {...props} />,
+                  li: ({node, ...props}) => <li className="mb-1" {...props} />,
+                }}
+              >
+                {observation}
+              </ReactMarkdown>
+            ) : 'No observation data available.'}
+          </div>
         </div>
 
         {/* Suggested Plan */}
@@ -40,9 +53,21 @@ const AIInsightCard = ({ data, mode }) => {
           <p className="font-mono text-[10px] tracking-[2px] uppercase text-accent mb-2">
             {isPro ? t('ai_insight_card.action') : t('ai_insight_card.what_you_can_do')}
           </p>
-          <p className={`${isPro ? 'font-mono text-[12px]' : 'font-body text-[14px]'} text-text-secondary leading-relaxed`}>
-            {suggestedPlan || 'No plan data available.'}
-          </p>
+          <div className={`${isPro ? 'font-mono text-[12px]' : 'font-body text-[14px]'} text-text-secondary leading-relaxed`}>
+            {suggestedPlan ? (
+              <ReactMarkdown
+                components={{
+                  p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                  strong: ({node, ...props}) => <span className="text-text-main font-medium" {...props} />,
+                  ul: ({node, ...props}) => <ul className="list-disc list-inside mb-2" {...props} />,
+                  ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-2" {...props} />,
+                  li: ({node, ...props}) => <li className="mb-1" {...props} />,
+                }}
+              >
+                {suggestedPlan}
+              </ReactMarkdown>
+            ) : 'No plan data available.'}
+          </div>
         </div>
       </div>
 

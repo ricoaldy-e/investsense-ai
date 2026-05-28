@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, Plus, Trash2, RefreshCw, Loader2, TrendingUp, TrendingDown, Minus, Search, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -57,11 +57,16 @@ const Watchlist = () => {
   const [addSearchResults, setAddSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [addError, setAddError] = useState('');
-  const [isAdding, setIsAdding] = useState(false);
+  const [addingTicker, setAddingTicker] = useState(null);
 
   // Remove confirmation
   const [removeTarget, setRemoveTarget] = useState(null);
   const [isRemoving, setIsRemoving] = useState(false);
+
+  // Ref to hold the last toast label (prevents flashing during CSS fade-out)
+  const lastToastLabel = React.useRef('');
+  if (isRemoving) lastToastLabel.current = t('watchlist.removing');
+  if (addingTicker) lastToastLabel.current = t('watchlist.adding');
 
   // ─── Fetch watchlist from BE ───
   const fetchWatchlist = useCallback(async () => {
@@ -158,7 +163,7 @@ const Watchlist = () => {
   };
 
   const handleAddTicker = async (ticker) => {
-    setIsAdding(true);
+    setAddingTicker(ticker);
     setAddError('');
     try {
       await watchlistService.addToWatchlist(ticker);
@@ -177,7 +182,7 @@ const Watchlist = () => {
         setAddError(err.response?.data?.message || 'Failed to add stock.');
       }
     } finally {
-      setIsAdding(false);
+      setAddingTicker(null);
     }
   };
 
@@ -511,7 +516,7 @@ const Watchlist = () => {
                         <button
                           key={stock.ticker}
                           onClick={() => !alreadyAdded && handleAddTicker(stock.ticker)}
-                          disabled={alreadyAdded || isAdding}
+                          disabled={alreadyAdded || !!addingTicker}
                           className={`w-full text-left px-6 py-3.5 flex items-center justify-between transition-colors ${
                             alreadyAdded
                               ? 'opacity-50 cursor-not-allowed'
@@ -532,7 +537,7 @@ const Watchlist = () => {
                             </span>
                           ) : (
                             <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-accent flex-shrink-0">
-                              {isAdding ? t('watchlist.adding') : t('watchlist.add_btn')}
+                              {addingTicker === stock.ticker ? t('watchlist.adding') : t('watchlist.add_btn')}
                             </span>
                           )}
                         </button>
@@ -575,10 +580,10 @@ const Watchlist = () => {
         variant="danger"
       />
 
-      {/* Action Toast — non-blocking, bottom-right corner */}
+      {/* Action Toast — non-blocking, bottom-center */}
       <ActionToast
-        visible={isRemoving || isAdding}
-        label={isRemoving ? t('watchlist.removing') : t('watchlist.adding')}
+        visible={isRemoving || !!addingTicker}
+        label={lastToastLabel.current || t('watchlist.adding')}
       />
     </div>
   );

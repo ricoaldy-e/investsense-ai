@@ -31,7 +31,6 @@ const Dashboard = () => {
   const [stockData, setStockData]           = useState(null);
   const [isLoading, setIsLoading]           = useState(hasStock);
   const [error, setError]                   = useState('');
-  const [isRefreshing, setIsRefreshing]     = useState(false);
   const [isInWatchlist, setIsInWatchlist]   = useState(false);
   const [watchlistLoading, setWatchlistLoading] = useState(false);
 
@@ -72,15 +71,6 @@ const Dashboard = () => {
     notifyNavbar(true);
     setIsLoading(false);
   }, [navigate, notifyNavbar, setActiveTicker]);
-
-  // ─── Refresh ──────────────────────────────────────────────────────────────
-  const handleRefresh = useCallback(() => {
-    const refreshTicker = activeTicker || searchParams.get('stock') || localStorage.getItem('lastViewedStock');
-    if (refreshTicker && !isRefreshing) {
-      setIsRefreshing(true);
-      loadStock(refreshTicker).finally(() => setIsRefreshing(false));
-    }
-  }, [activeTicker, searchParams, isRefreshing, loadStock]);
 
   // ─── Watchlist helpers ────────────────────────────────────────────────────
   const checkWatchlistStatus = useCallback(async (ticker) => {
@@ -221,14 +211,6 @@ const Dashboard = () => {
           >
             <Star className={`w-3 h-3 ${isInWatchlist ? 'fill-accent' : ''}`} />
             <span className="hidden sm:inline">{isInWatchlist ? t('dashboard.saved') : t('dashboard.watch')}</span>
-          </button>
-          <button
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase text-accent border border-accent/40 rounded-full px-4 py-2 hover:bg-accent hover:text-bg-dark disabled:opacity-50 transition-all duration-200"
-          >
-            <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-            {t('dashboard.refresh')}
           </button>
         </div>
       </div>

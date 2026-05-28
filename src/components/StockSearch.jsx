@@ -86,9 +86,11 @@ const StockSearch = () => {
           setIsOpen(normalized.length > 0);
           setActiveIndex(-1);
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setFetchError(true);
+          if (err.response?.status !== 404) {
+            setFetchError(true);
+          }
           setResults([]);
           setIsOpen(false);
         }
@@ -193,7 +195,7 @@ const StockSearch = () => {
           autoComplete="off"
           spellCheck={false}
           value={query}
-          placeholder={t('navbar.search_placeholder_ticker')}
+          placeholder="Cari saham yang tersedia di sistem..."
           aria-label="Search stock ticker"
           aria-autocomplete="list"
           aria-expanded={isOpen}

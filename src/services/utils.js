@@ -39,9 +39,11 @@ export const formatRelativeTime = (isoString) => {
 };
 
 /**
- * Map BE sentiment label (Indonesian) to FE sentiment key (English lowercase).
+ * Map BE sentiment label to FE sentiment key (English lowercase).
  *
- * BE returns: "Positif" | "Negatif" | "Netral" | null
+ * Handles two formats:
+ *   - Legacy Indonesian: "Positif" | "Negatif" | "Netral"
+ *   - New English uppercase: "BULLISH" | "BEARISH" | "NEUTRAL"
  * FE expects: "positive" | "negative" | "neutral"
  *
  * @param {string|null} label - Sentiment label from BE
@@ -50,8 +52,13 @@ export const formatRelativeTime = (isoString) => {
 export const mapSentimentLabel = (label) => {
   if (!label) return 'neutral';
   const normalized = label.toLowerCase().trim();
+  // New English-uppercase format (/news/market endpoint)
+  if (normalized === 'bullish') return 'positive';
+  if (normalized === 'bearish') return 'negative';
+  // Legacy Indonesian format (/news/search endpoint)
   if (normalized === 'positif') return 'positive';
   if (normalized === 'negatif') return 'negative';
+  // 'neutral', 'netral', or anything else → neutral
   return 'neutral';
 };
 

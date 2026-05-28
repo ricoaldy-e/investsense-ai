@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { TrendingUp, TrendingDown, Minus, Clock, ExternalLink, Loader2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Clock, ExternalLink } from 'lucide-react';
 import { InlineLoader, PageLoader } from '../components/ui/LoadingSpinner';
 import { useTranslation } from 'react-i18next';
 import api from '../services/api';
@@ -7,23 +7,7 @@ import { formatRelativeTime, mapSentimentLabel } from '../services/utils';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
 
-// ─── Mock Data (Anti-FOMO Market Radar) ───
-
-const mockOverbought = [
-  { ticker: 'BREN.JK', name: 'Barito Renewables Energy Tbk.', rsi_14: 84.5, price: 10200, change: +15.2 },
-  { ticker: 'CUAN.JK', name: 'Petrindo Semesta Kreasi Tbk.', rsi_14: 79.2, price: 7850, change: +8.4 },
-  { ticker: 'AMMN.JK', name: 'Amman Mineral Internasional Tbk.', rsi_14: 76.8, price: 9200, change: +5.1 },
-  { ticker: 'GOTO.JK', name: 'GoTo Gojek Tokopedia Tbk.', rsi_14: 72.1, price: 72, change: +4.3 },
-];
-
-const mockOversold = [
-  { ticker: 'UNVR.JK', name: 'Unilever Indonesia Tbk.', rsi_14: 22.4, price: 2600, change: -2.5 },
-  { ticker: 'KLBF.JK', name: 'Kalbe Farma Tbk.', rsi_14: 25.1, price: 1450, change: -1.2 },
-  { ticker: 'PGAS.JK', name: 'Perusahaan Gas Negara Tbk.', rsi_14: 28.5, price: 1100, change: -0.8 },
-  { ticker: 'MDKA.JK', name: 'Merdeka Copper Gold Tbk.', rsi_14: 29.2, price: 2350, change: -1.5 },
-];
-
-// Fallback mock headlines (used when BE is unavailable or in mock mode)
+// ─── Fallback mock headlines (used when BE is unavailable or in mock mode) ───
 const mockHeadlines = [
   {
     id: 1,
@@ -71,20 +55,6 @@ const mockHeadlines = [
 
 // ─── Helper Components ───
 
-const ChangeIndicator = ({ value, size = 'default' }) => {
-  const isPositive = value > 0;
-  const isNeutral = value === 0;
-  const colorClass = isPositive ? 'text-success' : isNeutral ? 'text-text-muted' : 'text-danger';
-  const textSize = size === 'sm' ? 'text-[11px]' : 'text-[13px]';
-
-  return (
-    <span className={`font-mono ${textSize} ${colorClass} flex items-center gap-1`}>
-      {isPositive ? <TrendingUp className="w-3 h-3" /> : isNeutral ? <Minus className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-      {isPositive ? '+' : ''}{value.toFixed(1)}%
-    </span>
-  );
-};
-
 /**
  * SentimentTag — Maps sentiment labels to UI tags.
  * Handles both mock format ("Bullish"/"Bearish"/"Neutral") and
@@ -116,58 +86,93 @@ const SentimentTag = ({ sentiment }) => {
 
 const MarketInsight = () => {
   const { t, i18n } = useTranslation();
+
+  // ─── News state ────────────────────────────────────────────────────────────
   const [lastUpdated] = useState(new Date());
   const [marketHeadlines, setMarketHeadlines] = useState(USE_MOCK ? mockHeadlines : []);
   const [isLoadingNews, setIsLoadingNews] = useState(!USE_MOCK);
+  const [newsError, setNewsError] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
 
+  // ─── Anti-FOMO Radar state ─────────────────────────────────────────────────
+  const [overbought, setOverbought] = useState([]);
+  const [oversold, setOversold] = useState([]);
+  const [radarLastUpdated, setRadarLastUpdated] = useState(null);
+  const [isLoadingRadar, setIsLoadingRadar] = useState(true);
+  const [radarError, setRadarError] = useState(false);
+
   /**
-   * Fetch market headlines from BE news search endpoint.
-   * Uses keyword "saham indonesia" to get general market news.
-   * Falls back to mock data if the request fails.
+   * Fetch Anti-FOMO Radar data from the backend.
+   * Endpoint: GET /market-insight/radar
+   * Returns top overbought (RSI >= 70) and oversold (RSI <= 30) LQ45 stocks.
+   */
+  const fetchRadar = useCallback(async () => {
+    setIsLoadingRadar(true);
+    setRadarError(false);
+    try {
+      const response = await api.get('/market-insight/radar');
+      const { overbought: ob, oversold: os } = response.data?.data ?? {};
+      setOverbought(Array.isArray(ob) ? ob : []);
+      setOversold(Array.isArray(os) ? os : []);
+      if (response.data?.lastUpdated) {
+        setRadarLastUpdated(new Date(response.data.lastUpdated));
+      }
+    } catch (err) {
+      console.warn(`[InvestSense MarketInsight] Failed to fetch radar data. Details: ${err.message}`);
+      setRadarError(true);
+    } finally {
+      setIsLoadingRadar(false);
+    }
+  }, []);
+
+  /**
+   * Fetch market headlines from the dedicated market news endpoint.
+   * Endpoint: GET /news/market
+   * Returns AI-classified headlines (BULLISH / BEARISH / NEUTRAL) served from Redis cache.
+   * Falls back to mock data if the request fails (graceful degradation).
    */
   const fetchMarketNews = useCallback(async () => {
     if (USE_MOCK) return;
 
     setIsLoadingNews(true);
+    setNewsError(false);
     try {
-      const response = await api.get('/news/search', { params: { keyword: 'saham indonesia' } });
+      const response = await api.get('/news/market');
       const articles = response.data?.data || [];
 
       if (articles.length > 0) {
-        const mapped = articles.slice(0, 8).map((article, idx) => ({
-          id: article.id || idx,
+        const mapped = articles.map((article, idx) => ({
+          id: idx,
           title: article.title,
-          source: article.source?.name || article.source_name || 'Unknown',
-          time: formatRelativeTime(article.publishedAt || article.published_at),
-          sentiment: mapSentimentLabel(article.sentiment_label),
-          url: article.url,
           description: article.description,
+          url: article.url,
+          // New schema uses source_name (flat string) instead of source.name
+          source: article.source_name || 'Unknown',
+          // published_at is an ISO string from the new endpoint
+          time: formatRelativeTime(article.published_at),
+          // sentiment_label is uppercase English: 'BULLISH' | 'BEARISH' | 'NEUTRAL'
+          sentiment: mapSentimentLabel(article.sentiment_label),
         }));
         setMarketHeadlines(mapped);
       } else {
-        // No results — keep mock data as fallback
+        // Empty response — cache may be warming; fall back to mock
         setMarketHeadlines(mockHeadlines);
       }
     } catch (err) {
-      console.warn(`[InvestSense MarketInsight] Degradation: Failed to fetch live market news. Falling back to cached data. Details: ${err.message}`);
+      console.warn(`[InvestSense MarketInsight] Failed to fetch market headlines. Details: ${err.message}`);
+      setNewsError(true);
       setMarketHeadlines(mockHeadlines);
     } finally {
       setIsLoadingNews(false);
     }
   }, []);
 
-  // Initial load
+  // ─── Initial load: radar + news run in parallel ────────────────────────────
   useEffect(() => {
-    fetchMarketNews().finally(() => {
+    Promise.all([fetchRadar(), fetchMarketNews()]).finally(() => {
       setTimeout(() => setIsPageLoading(false), 400); // Small delay for smoother UX
     });
-  }, [fetchMarketNews]);
-
-  // Format number with locale
-  const formatNumber = (num) => {
-    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  };
+  }, [fetchRadar, fetchMarketNews]);
 
   // Count sentiments for summary
   const bullishCount = marketHeadlines.filter(n => n.sentiment === 'Bullish' || n.sentiment === 'positive').length;
@@ -187,8 +192,9 @@ const MarketInsight = () => {
             {t('market.title')}
           </h1>
           <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted">
-            {t('market.data_as_of')} {lastUpdated.toLocaleTimeString(i18n.language === 'id' ? 'id-ID' : 'en-US', { hour: '2-digit', minute: '2-digit' })} |{' '}
-            {lastUpdated.toLocaleDateString(i18n.language === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            {t('market.data_as_of')}{' '}
+            {(radarLastUpdated ?? lastUpdated).toLocaleTimeString(i18n.language === 'id' ? 'id-ID' : 'en-US', { hour: '2-digit', minute: '2-digit' })} |{' '}
+            {(radarLastUpdated ?? lastUpdated).toLocaleDateString(i18n.language === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
       </div>
@@ -238,92 +244,125 @@ const MarketInsight = () => {
       <div className="grid gap-4 md:gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(380px, 100%), 1fr))' }}>
         {/* Left Column — Anti-FOMO Radars stacked */}
         <div className="flex flex-col gap-4 md:gap-6">
-          {/* Overbought Radar */}
+
+          {/* ── Overbought Radar ── */}
           <div className="bg-card-dark border border-card-border">
             <div className="px-5 py-4 border-b border-card-border flex items-center justify-between bg-danger-soft/20">
               <h2 className="font-display text-[11px] tracking-[2px] uppercase text-danger">
                 {t('market.overbought_risk')}
               </h2>
               <span className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase">
-                {mockOverbought.length} {t('watchlist.ticker')}
+                {isLoadingRadar ? '—' : `${overbought.length} ${t('watchlist.ticker')}`}
               </span>
             </div>
-            <div className="divide-y divide-hairline">
-              {mockOverbought.map((stock) => (
-                <div key={stock.ticker} className="px-5 py-3.5 flex items-center justify-between hover:bg-surface/30 transition-colors duration-150">
-                  <div className="min-w-0 pr-4">
-                    <p className="font-mono text-[12px] text-text-main tracking-[0.5px]">
-                      {stock.ticker}
-                    </p>
-                    <p className="font-body text-[11px] text-text-muted mt-0.5 truncate max-w-[120px] sm:max-w-[180px]">
-                      {stock.name}
-                    </p>
-                  </div>
-                  <div className="text-right flex items-center gap-4 flex-shrink-0">
-                    <div className="text-right hidden sm:block">
-                      <p className="font-mono text-[13px] text-text-main">
-                        {formatNumber(stock.price)}
+
+            {/* Loading skeleton */}
+            {isLoadingRadar && (
+              <div className="flex items-center justify-center py-8">
+                <InlineLoader label={t('market.loading')} />
+              </div>
+            )}
+
+            {/* Error state */}
+            {!isLoadingRadar && radarError && (
+              <div className="px-5 py-6 text-center">
+                <p className="font-mono text-[10px] tracking-[1px] uppercase text-danger mb-1">{t('dashboard.error_title')}</p>
+                <p className="font-body text-[12px] text-text-muted">Gagal memuat data radar. Coba refresh halaman.</p>
+              </div>
+            )}
+
+            {/* Empty state */}
+            {!isLoadingRadar && !radarError && overbought.length === 0 && (
+              <div className="px-5 py-6 text-center">
+                <p className="font-mono text-[10px] tracking-[1px] uppercase text-text-muted">Tidak ada saham overbought saat ini</p>
+              </div>
+            )}
+
+            {/* Data rows */}
+            {!isLoadingRadar && !radarError && overbought.length > 0 && (
+              <div className="divide-y divide-hairline">
+                {overbought.map((stock) => (
+                  <div key={stock.ticker} className="px-5 py-3.5 flex items-center justify-between hover:bg-surface/30 transition-colors duration-150">
+                    <div className="min-w-0 pr-4">
+                      <p className="font-mono text-[12px] text-text-main tracking-[0.5px]">
+                        {stock.ticker}
                       </p>
-                      <div className="flex items-center justify-end gap-2 mt-0.5">
-                        <ChangeIndicator value={stock.change} size="sm" />
-                      </div>
+                      <p className="font-body text-[11px] text-text-muted mt-0.5 truncate max-w-[160px] sm:max-w-[220px]">
+                        {stock.company_name}
+                      </p>
                     </div>
-                    <div className="text-right border-l border-card-border pl-4">
+                    <div className="text-right border-l border-card-border pl-4 flex-shrink-0">
                       <p className="font-mono text-[14px] text-danger">
-                        {stock.rsi_14.toFixed(1)}
+                        {Number(stock.rsi).toFixed(1)}
                       </p>
                       <p className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase mt-0.5">
                         {t('market.rsi_level')}
                       </p>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Oversold Radar */}
+          {/* ── Oversold Radar ── */}
           <div className="bg-card-dark border border-card-border">
             <div className="px-5 py-4 border-b border-card-border flex items-center justify-between bg-success-soft/20">
               <h2 className="font-display text-[11px] tracking-[2px] uppercase text-success">
                 {t('market.oversold_opportunity')}
               </h2>
               <span className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase">
-                {mockOversold.length} {t('watchlist.ticker')}
+                {isLoadingRadar ? '—' : `${oversold.length} ${t('watchlist.ticker')}`}
               </span>
             </div>
-            <div className="divide-y divide-hairline">
-              {mockOversold.map((stock) => (
-                <div key={stock.ticker} className="px-5 py-3.5 flex items-center justify-between hover:bg-surface/30 transition-colors duration-150">
-                  <div className="min-w-0 pr-4">
-                    <p className="font-mono text-[12px] text-text-main tracking-[0.5px]">
-                      {stock.ticker}
-                    </p>
-                    <p className="font-body text-[11px] text-text-muted mt-0.5 truncate max-w-[120px] sm:max-w-[180px]">
-                      {stock.name}
-                    </p>
-                  </div>
-                  <div className="text-right flex items-center gap-4 flex-shrink-0">
-                    <div className="text-right hidden sm:block">
-                      <p className="font-mono text-[13px] text-text-main">
-                        {formatNumber(stock.price)}
+
+            {/* Loading skeleton */}
+            {isLoadingRadar && (
+              <div className="flex items-center justify-center py-8">
+                <InlineLoader label={t('market.loading')} />
+              </div>
+            )}
+
+            {/* Error state */}
+            {!isLoadingRadar && radarError && (
+              <div className="px-5 py-6 text-center">
+                <p className="font-mono text-[10px] tracking-[1px] uppercase text-danger mb-1">{t('dashboard.error_title')}</p>
+                <p className="font-body text-[12px] text-text-muted">Gagal memuat data radar. Coba refresh halaman.</p>
+              </div>
+            )}
+
+            {/* Empty state */}
+            {!isLoadingRadar && !radarError && oversold.length === 0 && (
+              <div className="px-5 py-6 text-center">
+                <p className="font-mono text-[10px] tracking-[1px] uppercase text-text-muted">Tidak ada saham oversold saat ini</p>
+              </div>
+            )}
+
+            {/* Data rows */}
+            {!isLoadingRadar && !radarError && oversold.length > 0 && (
+              <div className="divide-y divide-hairline">
+                {oversold.map((stock) => (
+                  <div key={stock.ticker} className="px-5 py-3.5 flex items-center justify-between hover:bg-surface/30 transition-colors duration-150">
+                    <div className="min-w-0 pr-4">
+                      <p className="font-mono text-[12px] text-text-main tracking-[0.5px]">
+                        {stock.ticker}
                       </p>
-                      <div className="flex items-center justify-end gap-2 mt-0.5">
-                        <ChangeIndicator value={stock.change} size="sm" />
-                      </div>
+                      <p className="font-body text-[11px] text-text-muted mt-0.5 truncate max-w-[160px] sm:max-w-[220px]">
+                        {stock.company_name}
+                      </p>
                     </div>
-                    <div className="text-right border-l border-card-border pl-4">
+                    <div className="text-right border-l border-card-border pl-4 flex-shrink-0">
                       <p className="font-mono text-[14px] text-success">
-                        {stock.rsi_14.toFixed(1)}
+                        {Number(stock.rsi).toFixed(1)}
                       </p>
                       <p className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase mt-0.5">
                         {t('market.rsi_level')}
                       </p>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -343,10 +382,15 @@ const MarketInsight = () => {
               <div className="flex-1 flex items-center justify-center py-6">
                 <InlineLoader label={t('market.fetching_headlines')} />
               </div>
+            ) : newsError ? (
+              <div className="flex-1 flex flex-col items-center justify-center py-10 px-5 text-center">
+                <p className="font-mono text-[10px] tracking-[1px] uppercase text-danger mb-1">{t('dashboard.error_title')}</p>
+                <p className="font-body text-[12px] text-text-muted">Gagal memuat berita pasar. Data cadangan ditampilkan.</p>
+              </div>
             ) : (
               <div className="divide-y divide-hairline flex-1">
-                {marketHeadlines.map((news) => (
-                  <div key={news.id} className="px-5 py-4 hover:bg-surface/30 transition-colors duration-150 group cursor-pointer">
+                {marketHeadlines.map((news, idx) => (
+                  <div key={news.id ?? idx} className="px-5 py-4 hover:bg-surface/30 transition-colors duration-150 group cursor-pointer">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         {news.url ? (

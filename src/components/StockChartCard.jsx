@@ -129,19 +129,28 @@ const StockChartCard = ({ data, mode }) => {
         // Map to lightweight-charts OHLC format.
         // time MUST be 'YYYY-MM-DD' — lightweight-charts rejects full ISO strings.
         const candles = raw
-          .map((item) => ({
-            time:  item.date.split('T')[0], // "2026-04-27T02:00:00.000Z" → "2026-04-27"
-            open:  Number(item.open),
-            high:  Number(item.high),
-            low:   Number(item.low),
-            close: Number(item.close),
-          }))
+          .map((item) => {
+            const dateStr = item.record_date || item.date;
+            return {
+              time:  dateStr.split('T')[0], // "2026-04-27T02:00:00.000Z" → "2026-04-27"
+              open:  Number(item.open),
+              high:  Number(item.high),
+              low:   Number(item.low),
+              close: Number(item.close),
+            };
+          })
           .sort((a, b) => new Date(a.time) - new Date(b.time)); // oldest → newest
 
         seriesRef.current.setData(candles);
         chartRef.current?.timeScale().fitContent();
-      } catch {
-        if (!cancelled) setChartError('Failed to load chart data.');
+      } catch (err) {
+        if (!cancelled) {
+          if (err.response?.status === 404) {
+            setChartError('Saham tidak ditemukan atau belum didukung oleh sistem.');
+          } else {
+            setChartError('Failed to load chart data.');
+          }
+        }
       } finally {
         if (!cancelled) setIsFetchingHistory(false);
       }

@@ -44,7 +44,11 @@ class StockService {
 
     // ── Quote (required — if this fails, we can't show anything meaningful) ──
     if (quoteResult.status === 'rejected') {
-      const errMsg = quoteResult.reason?.response?.data?.message || quoteResult.reason?.message;
+      const errResponse = quoteResult.reason?.response;
+      if (errResponse?.status === 404) {
+        throw new Error('Saham tidak ditemukan atau belum didukung oleh sistem.');
+      }
+      const errMsg = errResponse?.data?.message || quoteResult.reason?.message;
       throw new Error(errMsg || i18n.t('service.failed_fetch_quote', { ticker: upperTicker }));
     }
 
@@ -65,21 +69,26 @@ class StockService {
     // ── Compute aggregated sentiment from individual articles ────────────────
     const sentiment = computeSentimentPercentages(news);
 
+    // Map new DB columns if present, fallback to older formats
+    const currentPrice = quote.current_price ?? quote.currentPrice ?? 0;
+    const changePercent = quote.change_percent ?? quote.changePercent ?? 0;
+    const companyName = quote.company_name ?? quote.companyName ?? upperTicker;
+
     // ── Derive trend direction from changePercent and trendStatus ────────────
-    const trend = deriveTrend(quote.changePercent, trendStatus);
+    const trend = deriveTrend(changePercent, trendStatus);
 
     // ── Derive price change (absolute) from currentPrice and changePercent ───
-    const priceChange = quote.currentPrice && quote.changePercent
-      ? (quote.currentPrice * quote.changePercent) / (100 + quote.changePercent)
+    const priceChange = currentPrice && changePercent
+      ? (currentPrice * changePercent) / (100 + changePercent)
       : 0;
 
     // ── Build the unified stock data object ──────────────────────────────────
     return {
       ticker: quote.ticker || upperTicker,
-      name: quote.companyName || upperTicker,
-      currentPrice: quote.currentPrice ?? 0,
+      name: companyName,
+      currentPrice: currentPrice,
       priceChange: priceChange,
-      percentChange: quote.changePercent ?? 0,
+      percentChange: changePercent,
       trend: trend,
       chartData: [],   // StockChartCard now self-fetches via /stocks/history
       metrics: {

@@ -96,7 +96,14 @@ const Watchlist = () => {
     const quotePromises = items.map(async (item) => {
       try {
         const res = await api.get(`/stocks/quote/${item.ticker}`);
-        return { ticker: item.ticker, data: res.data?.data, error: null };
+        const data = res.data?.data;
+        if (data) {
+          // Normalize DB column names to camelCase for the UI
+          data.currentPrice = data.current_price ?? data.currentPrice;
+          data.changePercent = data.change_percent ?? data.changePercent;
+          data.companyName = data.company_name ?? data.companyName;
+        }
+        return { ticker: item.ticker, data, error: null };
       } catch {
         return { ticker: item.ticker, data: null, error: 'unavailable' };
       }

@@ -1,83 +1,72 @@
-# InvestSense AI — Market Insight Page Design Specification
+# InvestSense AI — Market Insight (Backend Documentation)
 
-This document defines the layout, behavior, and data structure for the new Market Insight page (`/market-insight`).
+This document defines the data structures and API requirements for the newly revamped **Market Insight (Anti-FOMO Radar)** page.
+
+## 1. Page Philosophy (Anti-FOMO Radar)
+The Market Insight page has pivoted from a generic "Global Dashboard" to a highly actionable **Anti-FOMO Radar**. It scans the entire Indonesian stock market (IHSG) to find stocks that are statistically over-extended based on their 14-day RSI (Relative Strength Index).
+
+The goal is to warn users when the market is too greedy (Overbought) and alert them when the market is panicking (Oversold).
 
 ---
 
-## 1. Page Purpose
-While the **Dashboard** focuses on analyzing a *specific individual stock* (Mikro), the **Market Insight** page focuses on the *overall market conditions* (Makro). It gives the user a bird's-eye view of the financial world before they dive into specific stocks.
+## 2. Required API Endpoint
 
----
+### `GET /api/v1/market-insight/radar`
 
-## 2. Layout Structure
+**Description:**
+Returns a curated list of extreme stocks based on technical indicators (RSI) across the entire tracked market. This endpoint should ideally be calculated via a batch cron job (e.g., at 20:00 WIB daily) rather than calculated on-the-fly to ensure fast response times.
 
-The page will use a CSS Grid layout, similar to the Dashboard, to maintain consistency.
+**Response Structure (JSON):**
 
-```text
-┌──────────────────────────────────────────────────────────────┐
-│  Page Header: "MARKET INSIGHT"                               │
-│  Data as of: [Current Time]                                  │
-├──────────────────────────────────────────────────────────────┤
-│                                                              │
-│  ┌───────────────────────┐ ┌───────────────────────────────┐ │
-│  │                       │ │                               │ │
-│  │  1. Global Indices    │ │   3. Top Market News          │ │
-│  │  (IHSG, S&P500, etc)  │ │   (List of headlines with     │ │
-│  │                       │ │    sentiment tags)            │ │
-│  └───────────────────────┘ │                               │ │
-│  ┌───────────────────────┐ │                               │ │
-│  │                       │ │                               │ │
-│  │  2. Sector            │ │                               │ │
-│  │     Performance       │ │                               │ │
-│  │  (Banking, Tech, etc) │ │                               │ │
-│  │                       │ │                               │ │
-│  └───────────────────────┘ └───────────────────────────────┘ │
-└──────────────────────────────────────────────────────────────┘
+```json
+{
+  "status": "success",
+  "data": {
+    "lastUpdated": "2026-05-28T20:00:00Z",
+    "overbought": [
+      {
+        "ticker": "BBCA",
+        "name": "Bank Central Asia Tbk.",
+        "price": 10500,
+        "change": 1.5,
+        "rsi": 78.5
+      },
+      // ... max 5 items
+    ],
+    "oversold": [
+      {
+        "ticker": "GOTO",
+        "name": "GoTo Gojek Tokopedia Tbk.",
+        "price": 50,
+        "change": -2.5,
+        "rsi": 22.1
+      },
+      // ... max 5 items
+    ]
+  }
+}
 ```
 
----
+### 3. Business Logic Requirements
 
-## 3. Core Components
+#### A. Overbought Array (Risiko Koreksi Tinggi)
+- **Condition:** Stocks with `RSI_14 >= 70`.
+- **Sorting:** Descending by RSI (highest RSI at the top).
+- **Limit:** Top 5 stocks max.
+- **Frontend Usage:** Displayed in the red/danger section to warn users of high FOMO risk.
 
-### 3.1 Global Indices Card (Top Left)
-- **Title**: `GLOBAL MARKETS`
-- **Content**: A grid or list showing major indices.
-- **Mock Data needed**: 
-  - IDX Composite (IHSG): 7,200 (+0.4%)
-  - S&P 500: 5,100 (-0.1%)
-  - Nikkei 225: 39,000 (+1.2%)
-- **Visuals**: Green for positive, Red for negative (using `text-success` and `text-danger`).
+#### B. Oversold Array (Potensi Rebound)
+- **Condition:** Stocks with `RSI_14 <= 30`.
+- **Sorting:** Ascending by RSI (lowest RSI at the top).
+- **Limit:** Top 5 stocks max.
+- **Frontend Usage:** Displayed in the green/success section to highlight potential discount opportunities.
 
-### 3.2 Sector Performance Card (Bottom Left)
-- **Title**: `SECTOR MOVERS`
-- **Content**: Shows which industry sectors are leading or lagging today.
-- **Mock Data needed**:
-  - Financials (Banking): +1.5% (Leading)
-  - Consumer Goods: +0.2% (Neutral)
-  - Technology: -0.8% (Lagging)
-- **Visuals**: Simple horizontal progress bars or just numbers formatted cleanly.
-
-### 3.3 Top Market News Card (Right Column)
-- **Title**: `MARKET HEADLINES`
-- **Content**: A curated feed of the latest financial news affecting the market.
-- **Data Structure**:
-  - Headline Title
-  - Timestamp (e.g., "2 hours ago")
-  - Source (e.g., "Bloomberg", "CNBC")
-  - Sentiment Tag: A small pill/badge indicating if the news is `Bullish`, `Bearish`, or `Neutral`.
+#### C. Market News (Existing)
+- The right column continues to use the existing `/api/v1/news/search?keyword=IHSG` endpoint to fetch general market news and sentiment. No changes required here.
 
 ---
 
-## 4. Design Guidelines (Cold Surgical)
-- Must follow `DESIGN.md` strictly.
-- **Cards**: `bg-card-dark`, `border-card-border`, `rounded-none`, no shadows.
-- **Typography**: 
-  - Card Titles: `font-display uppercase tracking-[2px] text-text-muted`
-  - Numbers/Tickers: `font-mono`
-  - News Titles: `font-body text-text-main`
-- **Responsiveness**: On mobile, the grid collapses into a single column (Indices -> Sectors -> News).
+## 4. Frontend Integration Note
+Currently, the frontend (`src/pages/MarketInsight.jsx`) is using hardcoded `mockOverbought` and `mockOversold` data arrays. 
 
----
-
-## 5. Implementation Strategy (For Next Chat)
-Since we don't have a backend yet, the `MarketInsight.jsx` page will initially use **hardcoded mock data** directly inside the file (similar to how `Dashboard` currently mocks data when no backend is present). This allows us to build the UI perfectly first.
+Once this endpoint is live, the Frontend team will replace the mock variables with an axios call to `api.get('/market-insight/radar')`.

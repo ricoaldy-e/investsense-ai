@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Loader2, X, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import useDebounce from '../hooks/useDebounce';
 import useOnClickOutside from '../hooks/useOnClickOutside';
-import useDashboardStore from '../store/useDashboardStore';
 
 /**
  * StockSearch — Autocomplete search bar for stock tickers.
@@ -17,10 +17,7 @@ import useDashboardStore from '../store/useDashboardStore';
  */
 const StockSearch = () => {
   const { t } = useTranslation();
-  const setActiveTicker = useDashboardStore((s) => s.setActiveTicker);
-  console.log("search input")
-
-  console.log(setActiveTicker, "setActiveTicker")
+  const navigate = useNavigate();
 
   // ─── Local State ──────────────────────────────────────────────────────────
   const [query, setQuery] = useState('');
@@ -59,8 +56,6 @@ const StockSearch = () => {
 
     let cancelled = false;
 
-    console.log(trimmed)
-
     const fetchResults = async () => {
       setIsFetching(true);
       setFetchError(false);
@@ -71,12 +66,10 @@ const StockSearch = () => {
         if (!cancelled) {
           const raw = response.data?.data ?? [];
 
-          console.log('[StockSearch] raw API response:', raw);
-
-          // ── Normalize field names ────────────────────────────────────────
+          // ── Normalize & filter to IDX-only ──────────────────────────────
           // Yahoo Finance returns: { symbol, shortname, longname, exchange, ... }
-          // We store everything as { ticker, name } for consistent rendering.
-          // Filter to IDX stocks only (exchange === 'JKT' or symbol ends with '.JK').
+          // We keep ONLY Jakarta Exchange stocks (exchange === 'JKT' or symbol ends with '.JK').
+          // No fallback — if nothing matches, the dropdown stays closed.
           const normalized = raw
             .filter((item) => {
               const sym = item.symbol ?? '';
@@ -89,17 +82,8 @@ const StockSearch = () => {
               exchange: item.exchange ?? '',
             }));
 
-          // Fallback: if IDX filter yields nothing, show all results (still normalized)
-          const data = normalized.length > 0
-            ? normalized
-            : raw.map((item) => ({
-                ticker: item.symbol ?? item.ticker ?? '',
-                name: item.shortname || item.longname || item.name || item.symbol || 'Unknown',
-                exchange: item.exchange ?? '',
-              }));
-
-          setResults(data);
-          setIsOpen(data.length > 0);
+          setResults(normalized);
+          setIsOpen(normalized.length > 0);
           setActiveIndex(-1);
         }
       } catch {
@@ -127,17 +111,17 @@ const StockSearch = () => {
 
   // ─── Selection Handler ────────────────────────────────────────────────────
   const handleSelect = useCallback((stock) => {
-    // stock.ticker is already normalized; strip the .JK suffix for the store
-    // so downstream components receive a clean IDX ticker (e.g. 'BBCA', not 'BBCA.JK')
-    const rawTicker = stock.ticker ?? '';
-    const cleanTicker = rawTicker.replace(/\.JK$/i, '').toUpperCase();
-    setActiveTicker(cleanTicker);
-    setQuery(cleanTicker);
+    // Navigate to the dashboard with the full .JK ticker in the URL.
+    // The URL is the single source of truth — Dashboard reads from ?stock=.
+    const rawTicker = (stock.ticker ?? '').toUpperCase();
+    const displayTicker = rawTicker.replace(/\.JK$/i, '');
+    setQuery(displayTicker);
     setIsOpen(false);
     setActiveIndex(-1);
     setResults([]);
     inputRef.current?.blur();
-  }, [setActiveTicker]);
+    navigate(`/dashboard?stock=${rawTicker}`);
+  }, [navigate]);
 
   // ─── Keyboard Navigation ──────────────────────────────────────────────────
   const handleKeyDown = useCallback((e) => {

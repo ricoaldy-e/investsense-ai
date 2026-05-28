@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { Loader2, Search, ArrowLeft, RefreshCw, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -34,12 +34,6 @@ const Dashboard = () => {
   const [isRefreshing, setIsRefreshing]     = useState(false);
   const [isInWatchlist, setIsInWatchlist]   = useState(false);
   const [watchlistLoading, setWatchlistLoading] = useState(false);
-
-  // ─── Ref to skip the Zustand effect on the very first render ─────────────
-  // The URL-param effect already handles the initial load from ?stock= or localStorage.
-  // We only want the Zustand effect to fire on SUBSEQUENT activeTicker changes
-  // (i.e., when the user searches from the Navbar after the page has mounted).
-  const isFirstRender = useRef(true);
 
   // ─── Navbar communication via CustomEvent ─────────────────────────────────
   const notifyNavbar = useCallback((isEmpty) => {
@@ -143,19 +137,7 @@ const Dashboard = () => {
     };
   }, [searchParams, loadStock, handleClearDashboard, notifyNavbar]);
 
-  // ─── Effect 2: Zustand activeTicker → load data (skips first render) ──────
-  // Fires when the user selects a stock from the Navbar's StockSearch.
-  // The first render is skipped to avoid double-loading with Effect 1.
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    if (!activeTicker) return;
-    loadStock(activeTicker);
-  }, [activeTicker]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ─── Render: Loading ──────────────────────────────────────────────────────
   if (isLoading) {
     return <PageLoader label={t('dashboard.loading')} />;
   }

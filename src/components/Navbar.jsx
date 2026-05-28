@@ -1,22 +1,13 @@
 import { User, Menu, X, BotMessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import ConfirmModal from './ui/ConfirmModal';
 import StockSearch from './StockSearch';
 
 const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeChange, onToggleAIPanel, isPanelOpen, isMobile }) => {
-  const [username] = useState(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        const userObj = JSON.parse(userStr);
-        return userObj.username || 'Guest';
-      } catch (e) {
-        console.error("Failed to parse user", e);
-      }
-    }
-    return 'Guest';
-  });
+  const { user } = useAuth();
+  const username = user?.username || 'Trader';
   const [isDashboardEmpty, setIsDashboardEmpty] = useState(true);
   const [showClearModal, setShowClearModal] = useState(false);
 

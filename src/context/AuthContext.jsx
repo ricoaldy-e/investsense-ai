@@ -35,6 +35,13 @@ const storeTokens = (accessToken) => {
 };
 
 /**
+ * Persist the username to localStorage so it survives hard refreshes.
+ */
+const storeUsername = (username) => {
+  if (username) localStorage.setItem("username", username);
+};
+
+/**
  * Remove the accessToken from localStorage on logout.
  * The httpOnly cookie will be cleared by the server's Set-Cookie response
  * on the /auth/logout call.
@@ -43,11 +50,39 @@ const clearTokens = () => {
   localStorage.removeItem("accessToken");
 };
 
+/**
+ * Remove the username from localStorage on logout.
+ */
+const clearUsername = () => {
+  localStorage.removeItem("username");
+};
+
 // ─── Reducer ──────────────────────────────────────────────────────────────
-const initialState = {
-  isAuthenticated: false,
-  user: null,
-  isLoading: true, // true on first render until hydration completes
+
+/**
+ * Synchronously read localStorage to build the initial auth state.
+ * This runs once before the first render, ensuring ProtectedRoute never
+ * sees isAuthenticated:false for a user who has a stored token — even
+ * before the background /auth/refresh call completes.
+ *
+ * isLoading remains true so the background refresh still runs and rotates
+ * the token; the spinner shows briefly but there is no redirect flash.
+ */
+const getInitialState = () => {
+  const accessToken = localStorage.getItem("accessToken");
+  const storedUsername = localStorage.getItem("username");
+  if (accessToken) {
+    const decoded = decodeUser(accessToken);
+    return {
+      isAuthenticated: true,
+      user: {
+        ...decoded,
+        username: storedUsername || decoded?.username || 'Trader',
+      },
+      isLoading: true, // background refresh still runs to rotate the token
+    };
+  }
+  return { isAuthenticated: false, user: null, isLoading: true };
 };
 
 const AUTH_ACTIONS = {
@@ -86,7 +121,9 @@ const authReducer = (state, action) => {
 
 // ─── Provider ─────────────────────────────────────────────────────────────
 export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, initialState);
+  // Pass getInitialState as the lazy initializer (3rd arg) so it runs
+  // synchronously exactly once, before the first render.
+  const [state, dispatch] = useReducer(authReducer, undefined, getInitialState);
 
   // ── App-Load Hydration: silently verify stored tokens on every page refresh
   useEffect(() => {
@@ -112,18 +149,34 @@ export const AuthProvider = ({ children }) => {
         // Backend response envelope: responseData = { success, data: { accessToken } }
         const newAccessToken = responseData.data.accessToken;
         storeTokens(newAccessToken);
-        const user = decodeUser(newAccessToken);
+        const decoded = decodeUser(newAccessToken);
+        const storedUsername = localStorage.getItem("username");
+        const user = {
+          ...decoded,
+          username: storedUsername || decoded?.username || 'Trader',
+        };
 
         dispatch({
           type: AUTH_ACTIONS.HYDRATION_COMPLETE,
           payload: { isAuthenticated: true, user },
         });
-      } catch {
-        // Refresh failed — both tokens are invalid/expired, clear everything
-        clearTokens();
+      } catch (err) {
+        // The /auth/refresh call failed — most common causes:
+        //   • Backend CORS: sameSite cookie blocked cross-origin (needs sameSite:'None' + secure:true on server)
+        //   • Server cold-start / transient network error
+        //   • Genuine session expiry (api.js interceptor will handle subsequent 401s)
+        //
+        // We do NOT evict the user here. The optimistic state seeded from localStorage
+        // remains intact. The user stays on the page they refreshed. If their session
+        // is truly expired, the next protected API call will 401, the interceptor will
+        // retry the refresh, fail, clear the token, and redirect to /login correctly.
+        console.warn("[AuthContext] Background refresh failed — preserving optimistic state.", err?.message);
         dispatch({
           type: AUTH_ACTIONS.HYDRATION_COMPLETE,
-          payload: { isAuthenticated: false, user: null },
+          // Re-read the current reducer state snapshot captured at hydration start.
+          // This is safe: getInitialState() already seeded isAuthenticated/user from
+          // localStorage synchronously, so these values are stable and correct.
+          payload: { isAuthenticated: state.isAuthenticated, user: state.user },
         });
       }
     };
@@ -133,15 +186,13 @@ export const AuthProvider = ({ children }) => {
 
   // ── Login Action
   const login = useCallback(async (email, password) => {
-    console.log("1. Mulai proses login ke authService...");
     const responseData = await authService.login(email, password);
-    
-    
-    // TAMBAHKAN .data DI SINI 👇
-    const token = responseData.data.accessToken; 
-    
-    storeTokens(token);
-    const user = decodeUser(token);
+
+    const { accessToken, username } = responseData.data;
+    storeTokens(accessToken);
+    const decodedUser = decodeUser(accessToken);
+    const user = { ...decodedUser, username: username || decodedUser?.username || 'Trader' };
+    storeUsername(user.username);
 
     dispatch({ type: AUTH_ACTIONS.LOGIN_SUCCESS, payload: { user } });
   }, []);
@@ -151,11 +202,11 @@ export const AuthProvider = ({ children }) => {
     await authService.register(email, username, password);
     const responseData = await authService.login(email, password);
 
-    // TAMBAHKAN .data DI SINI 👇                         
-    const token = responseData.data.accessToken; 
-
-    storeTokens(token);
-    const user = decodeUser(token);
+    const { accessToken, username: returnedUsername } = responseData.data;
+    storeTokens(accessToken);
+    const decodedUser = decodeUser(accessToken);
+    const user = { ...decodedUser, username: returnedUsername || username || decodedUser?.username || 'Trader' };
+    storeUsername(user.username);
 
     dispatch({ type: AUTH_ACTIONS.LOGIN_SUCCESS, payload: { user } });
   }, []);
@@ -170,6 +221,7 @@ export const AuthProvider = ({ children }) => {
       // Server logout failed (e.g. token already expired) — silently continue
     } finally {
       clearTokens();
+      clearUsername();
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
     }
   }, []);

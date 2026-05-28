@@ -150,8 +150,8 @@ const MarketNewsCard = ({ mode }) => {
           <div className="flex items-center gap-3">
             {/* Keyword badge */}
             {activeTicker && !isLoading && (
-              <span className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase hidden sm:block">
-                /{getNewsKeyword(activeTicker).split(' OR ')[0]}/
+              <span className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase hidden sm:block border border-card-border px-2 py-1">
+                {getNewsKeyword(activeTicker).split(' OR ')[0]}
               </span>
             )}
             {/* See All button */}

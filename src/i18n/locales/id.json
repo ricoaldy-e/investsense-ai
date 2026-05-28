@@ -211,7 +211,13 @@
     "today": "Hari Ini",
     "market_headlines": "Berita Pasar Utama",
     "articles": "Artikel",
-    "fetching_headlines": "Mengambil berita..."
+    "fetching_headlines": "Mengambil berita...",
+    "loading": "Memuat Wawasan...",
+    "anti_fomo_radar": "Radar Anti-FOMO",
+    "overbought_risk": "Risiko Koreksi Tinggi (Overbought)",
+    "oversold_opportunity": "Potensi Rebound (Oversold)",
+    "market_mood": "Market Mood Hari Ini",
+    "rsi_level": "RSI"
   },
   "watchlist": {
     "title": "Daftar Pantauan",

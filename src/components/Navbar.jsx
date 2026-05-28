@@ -1,6 +1,6 @@
 import { User, Menu, X, BotMessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import ConfirmModal from './ui/ConfirmModal';
@@ -15,6 +15,8 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
   const [showClearModal, setShowClearModal] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const isDashboardRoute = location.pathname === '/' || location.pathname === '/dashboard';
 
   useEffect(() => {
     const handleDashboardState = (e) => setIsDashboardEmpty(e.detail.isEmpty);
@@ -41,8 +43,8 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
 
       {/* Right Actions */}
       <div className="flex items-center space-x-3 md:space-x-4">
-        {/* Tools & Mode Toggle — Hidden in Zero State */}
-        {!isDashboardEmpty && (
+        {/* Tools & Mode Toggle — Only visible on Dashboard and if not empty */}
+        {isDashboardRoute && !isDashboardEmpty && (
           <div className="hidden sm:flex items-center gap-3 transition-opacity duration-500">
             <button 
               onClick={() => setShowClearModal(true)}

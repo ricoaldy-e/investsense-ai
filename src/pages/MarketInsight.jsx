@@ -1,29 +1,26 @@
 import { useState, useEffect, useCallback } from 'react';
-import { TrendingUp, TrendingDown, Minus, Clock, ExternalLink, RefreshCw, Loader2 } from 'lucide-react';
-import { InlineLoader } from '../components/ui/LoadingSpinner';
+import { TrendingUp, TrendingDown, Minus, Clock, ExternalLink, Loader2 } from 'lucide-react';
+import { InlineLoader, PageLoader } from '../components/ui/LoadingSpinner';
 import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import { formatRelativeTime, mapSentimentLabel } from '../services/utils';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
 
-// ─── Mock Data (Global Indices & Sectors — no BE endpoint available) ───
+// ─── Mock Data (Anti-FOMO Market Radar) ───
 
-const globalIndices = [
-  { name: 'IDX Composite', ticker: 'IHSG', value: 7200.45, change: +0.4, points: '+28.80' },
-  { name: 'S&P 500', ticker: 'SPX', value: 5100.32, change: -0.1, points: '-5.10' },
-  { name: 'Nikkei 225', ticker: 'N225', value: 39012.50, change: +1.2, points: '+468.15' },
-  { name: 'Hang Seng', ticker: 'HSI', value: 18430.20, change: -0.3, points: '-55.29' },
-  { name: 'FTSE 100', ticker: 'FTSE', value: 8275.60, change: +0.6, points: '+49.65' },
+const mockOverbought = [
+  { ticker: 'BREN.JK', name: 'Barito Renewables Energy Tbk.', rsi_14: 84.5, price: 10200, change: +15.2 },
+  { ticker: 'CUAN.JK', name: 'Petrindo Semesta Kreasi Tbk.', rsi_14: 79.2, price: 7850, change: +8.4 },
+  { ticker: 'AMMN.JK', name: 'Amman Mineral Internasional Tbk.', rsi_14: 76.8, price: 9200, change: +5.1 },
+  { ticker: 'GOTO.JK', name: 'GoTo Gojek Tokopedia Tbk.', rsi_14: 72.1, price: 72, change: +4.3 },
 ];
 
-const sectorData = [
-  { name: 'Financials (Banking)', change: +1.5, status: 'Leading' },
-  { name: 'Energy', change: +0.9, status: 'Leading' },
-  { name: 'Consumer Goods', change: +0.2, status: 'Neutral' },
-  { name: 'Healthcare', change: +0.1, status: 'Neutral' },
-  { name: 'Technology', change: -0.8, status: 'Lagging' },
-  { name: 'Real Estate', change: -1.2, status: 'Lagging' },
+const mockOversold = [
+  { ticker: 'UNVR.JK', name: 'Unilever Indonesia Tbk.', rsi_14: 22.4, price: 2600, change: -2.5 },
+  { ticker: 'KLBF.JK', name: 'Kalbe Farma Tbk.', rsi_14: 25.1, price: 1450, change: -1.2 },
+  { ticker: 'PGAS.JK', name: 'Perusahaan Gas Negara Tbk.', rsi_14: 28.5, price: 1100, change: -0.8 },
+  { ticker: 'MDKA.JK', name: 'Merdeka Copper Gold Tbk.', rsi_14: 29.2, price: 2350, change: -1.5 },
 ];
 
 // Fallback mock headlines (used when BE is unavailable or in mock mode)
@@ -119,10 +116,10 @@ const SentimentTag = ({ sentiment }) => {
 
 const MarketInsight = () => {
   const { t, i18n } = useTranslation();
-  const [lastUpdated, setLastUpdated] = useState(new Date());
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdated] = useState(new Date());
   const [marketHeadlines, setMarketHeadlines] = useState(USE_MOCK ? mockHeadlines : []);
   const [isLoadingNews, setIsLoadingNews] = useState(!USE_MOCK);
+  const [isPageLoading, setIsPageLoading] = useState(true);
 
   /**
    * Fetch market headlines from BE news search endpoint.
@@ -162,28 +159,10 @@ const MarketInsight = () => {
 
   // Initial load
   useEffect(() => {
-    fetchMarketNews();
+    fetchMarketNews().finally(() => {
+      setTimeout(() => setIsPageLoading(false), 400); // Small delay for smoother UX
+    });
   }, [fetchMarketNews]);
-
-  // Refresh handler
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    setLastUpdated(new Date());
-
-    if (!USE_MOCK) {
-      fetchMarketNews().finally(() => setIsRefreshing(false));
-    } else {
-      setTimeout(() => setIsRefreshing(false), 800);
-    }
-  };
-
-  // Auto-refresh timestamp every 60 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLastUpdated(new Date());
-    }, 60000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Format number with locale
   const formatNumber = (num) => {
@@ -194,6 +173,10 @@ const MarketInsight = () => {
   const bullishCount = marketHeadlines.filter(n => n.sentiment === 'Bullish' || n.sentiment === 'positive').length;
   const bearishCount = marketHeadlines.filter(n => n.sentiment === 'Bearish' || n.sentiment === 'negative').length;
   const neutralCount = marketHeadlines.filter(n => n.sentiment === 'Neutral' || n.sentiment === 'neutral').length;
+
+  if (isPageLoading) {
+    return <PageLoader label={t('market.loading')} />;
+  }
 
   return (
     <div className="pb-24 md:pb-0">
@@ -208,73 +191,90 @@ const MarketInsight = () => {
             {lastUpdated.toLocaleDateString(i18n.language === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
-        <button
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          className="flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase text-accent border border-accent/40 rounded-full px-4 py-2 hover:bg-accent hover:text-bg-dark disabled:opacity-50 transition-all duration-200 self-start sm:self-auto"
-        >
-          <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-          {t('market.refresh')}
-        </button>
       </div>
 
-      <div className="bg-card-dark border border-card-border p-4 flex flex-wrap items-center gap-4 md:gap-8 mb-4 md:mb-6">
-        <div className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted">
-          {t('market.sentiment_overview')}
+      {/* Market Sentiment Heat */}
+      <div className="bg-card-dark border border-card-border p-5 mb-4 md:mb-6 flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-[11px] tracking-[2px] uppercase text-text-muted">
+            {t('market.market_mood')}
+          </h2>
+          <span className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase">
+            {bullishCount + bearishCount + neutralCount} {t('market.articles')}
+          </span>
         </div>
-        <div className="flex items-center gap-6">
+        
+        {/* Progress Bar */}
+        <div className="w-full h-2 flex rounded-none overflow-hidden">
+          {bullishCount + bearishCount + neutralCount > 0 ? (
+            <>
+              <div style={{ width: `${(bullishCount / (bullishCount + bearishCount + neutralCount)) * 100}%` }} className="bg-success transition-all duration-500" />
+              <div style={{ width: `${(neutralCount / (bullishCount + bearishCount + neutralCount)) * 100}%` }} className="bg-text-muted transition-all duration-500" />
+              <div style={{ width: `${(bearishCount / (bullishCount + bearishCount + neutralCount)) * 100}%` }} className="bg-danger transition-all duration-500" />
+            </>
+          ) : (
+            <div className="w-full h-full bg-surface" />
+          )}
+        </div>
+
+        {/* Legend */}
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 bg-success" />
-            <span className="font-mono text-[11px] text-success">{bullishCount}</span>
+            <span className="font-mono text-[12px] text-success">{bullishCount}</span>
             <span className="font-mono text-[9px] tracking-[1px] uppercase text-text-muted">{t('market.bullish')}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 bg-danger" />
-            <span className="font-mono text-[11px] text-danger">{bearishCount}</span>
-            <span className="font-mono text-[9px] tracking-[1px] uppercase text-text-muted">{t('market.bearish')}</span>
+            <span className="font-mono text-[12px] text-text-muted">{neutralCount}</span>
+            <span className="font-mono text-[9px] tracking-[1px] uppercase text-text-muted">{t('market.neutral')}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 bg-text-muted" />
-            <span className="font-mono text-[11px] text-text-muted">{neutralCount}</span>
-            <span className="font-mono text-[9px] tracking-[1px] uppercase text-text-muted">{t('market.neutral')}</span>
+            <span className="font-mono text-[12px] text-danger">{bearishCount}</span>
+            <span className="font-mono text-[9px] tracking-[1px] uppercase text-text-muted">{t('market.bearish')}</span>
           </div>
         </div>
       </div>
 
       {/* Main Grid — fluid auto-fit to work with AI panel resize */}
       <div className="grid gap-4 md:gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(380px, 100%), 1fr))' }}>
-        {/* Left Column — Indices + Sectors stacked */}
+        {/* Left Column — Anti-FOMO Radars stacked */}
         <div className="flex flex-col gap-4 md:gap-6">
-          {/* Global Markets Card */}
+          {/* Overbought Radar */}
           <div className="bg-card-dark border border-card-border">
-            <div className="px-5 py-4 border-b border-card-border flex items-center justify-between">
-              <h2 className="font-display text-[11px] tracking-[2px] uppercase text-text-muted">
-                {t('market.global_markets')}
+            <div className="px-5 py-4 border-b border-card-border flex items-center justify-between bg-danger-soft/20">
+              <h2 className="font-display text-[11px] tracking-[2px] uppercase text-danger">
+                {t('market.overbought_risk')}
               </h2>
               <span className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase">
-                {globalIndices.length} {t('market.indices')}
+                {mockOverbought.length} {t('watchlist.ticker')}
               </span>
             </div>
             <div className="divide-y divide-hairline">
-              {globalIndices.map((index) => (
-                <div key={index.ticker} className="px-5 py-3.5 flex items-center justify-between hover:bg-surface/30 transition-colors duration-150">
-                  <div>
+              {mockOverbought.map((stock) => (
+                <div key={stock.ticker} className="px-5 py-3.5 flex items-center justify-between hover:bg-surface/30 transition-colors duration-150">
+                  <div className="min-w-0 pr-4">
                     <p className="font-mono text-[12px] text-text-main tracking-[0.5px]">
-                      {index.ticker}
+                      {stock.ticker}
                     </p>
-                    <p className="font-body text-[11px] text-text-muted mt-0.5">
-                      {index.name}
+                    <p className="font-body text-[11px] text-text-muted mt-0.5 truncate max-w-[120px] sm:max-w-[180px]">
+                      {stock.name}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-mono text-[13px] text-text-main">
-                      {formatNumber(index.value)}
-                    </p>
-                    <div className="flex items-center justify-end gap-2 mt-0.5">
-                      <span className={`font-mono text-[10px] ${index.change >= 0 ? 'text-success' : 'text-danger'}`}>
-                        {index.points}
-                      </span>
-                      <ChangeIndicator value={index.change} size="sm" />
+                  <div className="text-right flex items-center gap-4 flex-shrink-0">
+                    <div className="text-right hidden sm:block">
+                      <p className="font-mono text-[13px] text-text-main">
+                        {formatNumber(stock.price)}
+                      </p>
+                      <div className="flex items-center justify-end gap-2 mt-0.5">
+                        <ChangeIndicator value={stock.change} size="sm" />
+                      </div>
+                    </div>
+                    <div className="text-right border-l border-card-border pl-4">
+                      <p className="font-mono text-[14px] text-danger">
+                        {stock.rsi_14.toFixed(1)}
+                      </p>
+                      <p className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase mt-0.5">
+                        {t('market.rsi_level')}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -282,35 +282,45 @@ const MarketInsight = () => {
             </div>
           </div>
 
-          {/* Sector Movers Card */}
+          {/* Oversold Radar */}
           <div className="bg-card-dark border border-card-border">
-            <div className="px-5 py-4 border-b border-card-border flex items-center justify-between">
-              <h2 className="font-display text-[11px] tracking-[2px] uppercase text-text-muted">
-                {t('market.sector_movers')}
+            <div className="px-5 py-4 border-b border-card-border flex items-center justify-between bg-success-soft/20">
+              <h2 className="font-display text-[11px] tracking-[2px] uppercase text-success">
+                {t('market.oversold_opportunity')}
               </h2>
               <span className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase">
-                {t('market.today')}
+                {mockOversold.length} {t('watchlist.ticker')}
               </span>
             </div>
             <div className="divide-y divide-hairline">
-              {sectorData.map((sector) => (
-                <div key={sector.name} className="px-5 py-3.5 hover:bg-surface/30 transition-colors duration-150">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="font-body text-[13px] text-text-main">
-                      {sector.name}
+              {mockOversold.map((stock) => (
+                <div key={stock.ticker} className="px-5 py-3.5 flex items-center justify-between hover:bg-surface/30 transition-colors duration-150">
+                  <div className="min-w-0 pr-4">
+                    <p className="font-mono text-[12px] text-text-main tracking-[0.5px]">
+                      {stock.ticker}
                     </p>
-                    <ChangeIndicator value={sector.change} />
+                    <p className="font-body text-[11px] text-text-muted mt-0.5 truncate max-w-[120px] sm:max-w-[180px]">
+                      {stock.name}
+                    </p>
                   </div>
-                  {/* Progress bar visualization */}
-                  <div className="w-full h-1 bg-surface overflow-hidden">
-                    <div
-                      className={`h-full transition-all duration-500 ${sector.change >= 0 ? 'bg-success/60' : 'bg-danger/60'}`}
-                      style={{ width: `${Math.min(Math.abs(sector.change) * 30, 100)}%` }}
-                    />
+                  <div className="text-right flex items-center gap-4 flex-shrink-0">
+                    <div className="text-right hidden sm:block">
+                      <p className="font-mono text-[13px] text-text-main">
+                        {formatNumber(stock.price)}
+                      </p>
+                      <div className="flex items-center justify-end gap-2 mt-0.5">
+                        <ChangeIndicator value={stock.change} size="sm" />
+                      </div>
+                    </div>
+                    <div className="text-right border-l border-card-border pl-4">
+                      <p className="font-mono text-[14px] text-success">
+                        {stock.rsi_14.toFixed(1)}
+                      </p>
+                      <p className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase mt-0.5">
+                        {t('market.rsi_level')}
+                      </p>
+                    </div>
                   </div>
-                  <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mt-1.5">
-                    {sector.status}
-                  </p>
                 </div>
               ))}
             </div>

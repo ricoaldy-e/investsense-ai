@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { Loader2, Search, ArrowLeft, RefreshCw, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { PageLoader } from '../components/ui/LoadingSpinner';
 import { stockService } from '../services/stockService';
 import { watchlistService } from '../services/watchlistService';
 import WarningBanner from '../components/WarningBanner';
@@ -156,14 +157,7 @@ const Dashboard = () => {
 
   // ─── Render: Loading ──────────────────────────────────────────────────────
   if (isLoading) {
-    return (
-      <div className="pb-24 md:pb-0 flex flex-col items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-6 h-6 text-accent animate-spin mb-4" />
-        <p className="font-mono text-[11px] tracking-[2px] uppercase text-text-muted">
-          {t('dashboard.loading')}
-        </p>
-      </div>
-    );
+    return <PageLoader label={t('dashboard.loading')} />;
   }
 
   // ─── Render: Error ────────────────────────────────────────────────────────

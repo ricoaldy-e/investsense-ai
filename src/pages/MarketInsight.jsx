@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { TrendingUp, TrendingDown, Minus, Clock, ExternalLink, RefreshCw, Loader2 } from 'lucide-react';
+import { InlineLoader } from '../components/ui/LoadingSpinner';
 import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import { formatRelativeTime, mapSentimentLabel } from '../services/utils';
@@ -93,13 +94,12 @@ const ChangeIndicator = ({ value, size = 'default' }) => {
  * BE-derived format ("positive"/"negative"/"neutral").
  */
 const SentimentTag = ({ sentiment }) => {
-  // Normalize to display label
-  const normalizedMap = {
-    'Bullish': t('market.bullish'), 'positive': t('market.bullish'),
-    'Bearish': t('market.bearish'), 'negative': t('market.bearish'),
-    'Neutral': t('market.neutral'), 'neutral': t('market.neutral'),
-  };
-  const displayLabel = normalizedMap[sentiment] || t('market.neutral');
+  const { t } = useTranslation();
+
+  const displayLabel =
+    sentiment === 'Bullish' || sentiment === 'positive' ? t('market.bullish') :
+    sentiment === 'Bearish' || sentiment === 'negative' ? t('market.bearish') :
+    t('market.neutral');
 
   const colors = {
     [t('market.bullish')]: 'text-success border-success/30 bg-success-soft',
@@ -108,10 +108,11 @@ const SentimentTag = ({ sentiment }) => {
   };
 
   return (
-    <span className={`font-mono text-[9px] tracking-[1.5px] uppercase px-2.5 py-1 border rounded-full ${colors[displayLabel]}`}>
+    <span className={`font-mono text-[9px] tracking-[1.5px] uppercase px-2.5 py-1 border rounded-full ${colors[displayLabel] ?? 'text-text-muted border-card-border bg-surface'}`}>
       {displayLabel}
     </span>
   );
+
 };
 
 // ─── Main Page ───
@@ -329,13 +330,8 @@ const MarketInsight = () => {
             </div>
 
             {isLoadingNews ? (
-              <div className="flex-1 flex items-center justify-center py-12">
-                <div className="text-center">
-                  <Loader2 className="w-5 h-5 text-accent animate-spin mx-auto mb-3" />
-                  <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted">
-                    {t('market.fetching_headlines')}
-                  </p>
-                </div>
+              <div className="flex-1 flex items-center justify-center py-6">
+                <InlineLoader label={t('market.fetching_headlines')} />
               </div>
             ) : (
               <div className="divide-y divide-hairline flex-1">

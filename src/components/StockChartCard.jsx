@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Info, Loader2, AlertCircle } from 'lucide-react';
+import { CardOverlayLoader } from './ui/LoadingSpinner';
 import { createChart, CrosshairMode, CandlestickSeries } from 'lightweight-charts';
 import { useTranslation } from 'react-i18next';
 import api from '../services/api';
@@ -253,12 +254,7 @@ const StockChartCard = ({ data, mode }) => {
 
         {/* Loading overlay */}
         {isFetchingHistory && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-card-dark/80 backdrop-blur-[2px]">
-            <Loader2 className="w-5 h-5 text-accent animate-spin mb-2" />
-            <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted">
-              Loading chart…
-            </p>
-          </div>
+          <CardOverlayLoader label="Loading chart…" />
         )}
 
         {/* Chart fetch error */}

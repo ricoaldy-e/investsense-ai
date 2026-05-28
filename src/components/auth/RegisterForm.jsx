@@ -104,10 +104,12 @@ const RegisterForm = () => {
 
     setIsLoading(true);
     try {
-      // AuthContext.register(): registers → auto-login → stores tokens
       await register(email, username, password);
-      // Navigate directly to dashboard (auto-logged in)
-      navigate('/dashboard');
+      // Redirect to login so the user logs in manually after registering
+      navigate('/login', {
+        state: { successMessage: 'Account created successfully. Please log in.' },
+        replace: true,
+      });
     } catch (err) {
       // Prefer the structured backend message; fall back to generic
       const message =

@@ -24,9 +24,9 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
   const [conversations, setConversations] = useState(() => {
     const initialTicker = useDashboardStore.getState().activeTicker;
     const initialMsgs = initialTicker
-      ? [{ id: Date.now(), role: 'system', content: t('chat_panel.stock_context', { stock: initialTicker }) }]
+      ? [{ id: Date.now(), role: 'system', type: 'context', stock: initialTicker }]
       : [];
-    return [{ id: Date.now(), title: t('chat_panel.new_analysis'), messages: initialMsgs }];
+    return [{ id: Date.now(), isNew: true, messages: initialMsgs }];
   });
   const [activeConvId, setActiveConvId] = useState(() => conversations[0]?.id);
   const [showHistory, setShowHistory] = useState(false);
@@ -63,7 +63,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       if (lastStock && isOpen) {
         setConversations(prev => prev.map(c =>
           c.id === activeConvId
-            ? { ...c, messages: [...c.messages, { id: Date.now(), role: 'system', content: t('chat_panel.stock_updated', { stock: lastStock }) }] }
+            ? { ...c, messages: [...c.messages, { id: Date.now(), role: 'system', type: 'updated', stock: lastStock }] }
             : c
         ));
       }
@@ -104,9 +104,9 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
   const handleNewChat = useCallback(() => {
     const newId = Date.now();
     const initialMsgs = activeTicker
-      ? [{ id: newId + 1, role: 'system', content: t('chat_panel.stock_context', { stock: activeTicker }) }]
+      ? [{ id: newId + 1, role: 'system', type: 'context', stock: activeTicker }]
       : [];
-    setConversations(prev => [{ id: newId, title: t('chat_panel.new_analysis'), messages: initialMsgs }, ...prev]);
+    setConversations(prev => [{ id: newId, isNew: true, messages: initialMsgs }, ...prev]);
     setActiveConvId(newId);
     setInputMessage('');
     setShowHistory(false);
@@ -119,9 +119,9 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       if (filtered.length === 0) {
         const newId = Date.now();
         const initialMsgs = activeTicker
-          ? [{ id: newId + 1, role: 'system', content: t('chat_panel.stock_context', { stock: activeTicker }) }]
+          ? [{ id: newId + 1, role: 'system', type: 'context', stock: activeTicker }]
           : [];
-        const newConv = { id: newId, title: t('chat_panel.new_analysis'), messages: initialMsgs };
+        const newConv = { id: newId, isNew: true, messages: initialMsgs };
         setActiveConvId(newId);
         return [newConv];
       }
@@ -141,7 +141,8 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       if (c.id !== activeConvId) return c;
       const updated = { ...c, messages: [...c.messages, userMsg] };
       // Update title from first user message
-      if (!c.messages.some(m => m.role === 'user')) {
+      if (c.isNew) {
+        updated.isNew = false;
         updated.title = generateTitle([...c.messages, userMsg]);
       }
       return updated;
@@ -160,7 +161,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
     } catch {
       setConversations(prev => prev.map(c =>
         c.id === activeConvId
-          ? { ...c, messages: [...c.messages, { id: Date.now(), role: 'ai', type: 'error', content: t('chat_panel.error_unavailable') }] }
+          ? { ...c, messages: [...c.messages, { id: Date.now(), role: 'ai', type: 'error', contentKey: 'chat_panel.error_unavailable' }] }
           : c
       ));
     } finally {
@@ -200,11 +201,17 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
 
     return messages.map((msg) => {
       if (msg.role === 'system') {
+        const text = msg.type === 'context'
+          ? t('chat_panel.stock_context', { stock: msg.stock })
+          : msg.type === 'updated'
+            ? t('chat_panel.stock_updated', { stock: msg.stock })
+            : msg.content;
+
         return (
           <div key={msg.id} className="flex justify-center">
             <div className="px-3 py-1.5 border border-card-border">
               <p className="font-mono text-[10px] tracking-[1.5px] uppercase text-accent text-center">
-                {msg.content}
+                {text}
               </p>
             </div>
           </div>
@@ -222,7 +229,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
             <div className={`font-body text-[13px] leading-relaxed ${
               msg.type === 'error' ? 'text-danger/80' : msg.role === 'ai' ? 'text-text-secondary prose prose-sm prose-invert max-w-none' : 'text-text-main'
             }`}>
-              {msg.role === 'ai' ? (
+              {msg.role === 'ai' && !msg.type ? (
                 <ReactMarkdown
                   components={{
                     p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
@@ -234,9 +241,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
                 >
                   {msg.content}
                 </ReactMarkdown>
-              ) : (
-                msg.content
-              )}
+              ) : msg.contentKey ? t(msg.contentKey) : msg.content}
             </div>
           </div>
         </div>
@@ -329,7 +334,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
               >
                 <MessageSquare className="w-3.5 h-3.5 flex-shrink-0 text-text-muted" />
                 <span className="font-mono text-[11px] tracking-[0.5px] truncate">
-                  {conv.title}
+                  {conv.isNew ? t('chat_panel.new_analysis') : conv.title}
                 </span>
               </button>
               {conversations.length > 1 && (
@@ -364,7 +369,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
           </button>
           {/* Active conversation title */}
           <span className="font-mono text-[11px] tracking-[1px] uppercase text-text-main truncate">
-            {activeConv?.title || 'AI Assistant'}
+            {activeConv?.isNew ? t('chat_panel.new_analysis') : (activeConv?.title || 'AI Assistant')}
           </span>
         </div>
         <div className="flex items-center gap-1">

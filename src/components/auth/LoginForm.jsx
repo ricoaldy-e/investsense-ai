@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import InputField from '../ui/InputField';
 
@@ -15,6 +15,8 @@ const LoginForm = () => {
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const successMessage = location.state?.successMessage ?? null;
 
   const handleKeyDown = (e, field) => {
     if (e.key === 'Enter') {
@@ -112,6 +114,14 @@ const LoginForm = () => {
       </p>
 
       <form className="space-y-6" onSubmit={handleLogin}>
+        {/* Success message from register redirect */}
+        {successMessage && (
+          <div className="bg-success/10 border border-success/30 text-success p-3 text-[13px] font-body flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 flex-shrink-0" />
+            {successMessage}
+          </div>
+        )}
+
         {errors.global && (
           <div className="bg-danger/10 border border-danger/20 text-danger p-3 text-[13px] font-body rounded-sm flex items-center">
             {errors.global}

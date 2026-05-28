@@ -6,6 +6,7 @@ import { watchlistService } from '../services/watchlistService';
 import { stockService } from '../services/stockService';
 import api from '../services/api';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { PageLoader, ActionToast } from '../components/ui/LoadingSpinner';
 
 // ─── Helper: format relative time for "added_at" ───
 const formatAddedDate = (isoString) => {
@@ -200,14 +201,7 @@ const Watchlist = () => {
 
   // ─── Loading State ───
   if (isLoading) {
-    return (
-      <div className="pb-24 md:pb-0 flex flex-col items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-6 h-6 text-accent animate-spin mb-4" />
-        <p className="font-mono text-[11px] tracking-[2px] uppercase text-text-muted">
-          {t('watchlist.loading')}
-        </p>
-      </div>
-    );
+    return <PageLoader label={t('watchlist.loading')} />;
   }
 
   // ─── Error State ───
@@ -289,12 +283,12 @@ const Watchlist = () => {
           {/* ─── Watchlist Table — Desktop ─── */}
           <div className="hidden md:block bg-card-dark border border-card-border">
             {/* Table Header */}
-            <div className="grid grid-cols-[1fr_120px_140px_100px_100px_48px] gap-4 px-6 py-3.5 border-b border-card-border">
-              <span className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted">{t('watchlist.ticker')}</span>
-              <span className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted text-right">{t('watchlist.price')}</span>
-              <span className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted text-right">{t('watchlist.change')}</span>
-              <span className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted text-right">{t('watchlist.market')}</span>
-              <span className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted text-right">{t('watchlist.added')}</span>
+            <div className="grid grid-cols-[1.5fr_1fr_1.2fr_0.8fr_1fr_32px] gap-2 lg:gap-4 px-4 lg:px-6 py-3.5 border-b border-card-border">
+              <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted truncate">{t('watchlist.ticker')}</span>
+              <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted text-right truncate">{t('watchlist.price')}</span>
+              <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted text-right truncate">{t('watchlist.change')}</span>
+              <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted text-right truncate">{t('watchlist.market')}</span>
+              <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted text-right truncate">{t('watchlist.added')}</span>
               <span className="sr-only">Actions</span>
             </div>
 
@@ -305,7 +299,7 @@ const Watchlist = () => {
                 return (
                   <div
                     key={item.id || item.ticker}
-                    className="grid grid-cols-[1fr_120px_140px_100px_100px_48px] gap-4 px-6 py-4 hover:bg-surface/30 transition-colors duration-150 group cursor-pointer"
+                    className="grid grid-cols-[1.5fr_1fr_1.2fr_0.8fr_1fr_32px] gap-2 lg:gap-4 px-4 lg:px-6 py-4 hover:bg-surface/30 transition-colors duration-150 group cursor-pointer"
                     onClick={() => handleViewStock(item.ticker)}
                   >
                     {/* Ticker & Company */}
@@ -410,28 +404,34 @@ const Watchlist = () => {
                     onClick={() => handleViewStock(item.ticker)}
                     className="w-full text-left"
                   >
-                    <div className="grid grid-cols-3 gap-2 pt-3 border-t border-hairline">
+                    <div className="grid grid-cols-2 gap-y-4 gap-x-2 pt-3 border-t border-hairline">
                       <div className="flex flex-col">
                         <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mb-1">{t('watchlist.price')}</p>
                         <p className="font-mono text-[13px] text-text-main">
                           {quote ? formatPrice(quote.currentPrice, quote.currency) : '—'}
                         </p>
                       </div>
-                      <div className="flex flex-col items-center">
+                      <div className="flex flex-col items-end">
                         <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mb-1">{t('watchlist.change')}</p>
                         <ChangeIndicator value={quote?.changePercent} />
                       </div>
-                      <div className="flex flex-col items-end">
-                        <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mb-1">{t('watchlist.status')}</p>
+                      <div className="flex flex-col">
+                        <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mb-1">{t('watchlist.market')}</p>
                         {quote?.marketState ? (
                           <span className={`font-mono text-[10px] tracking-[1px] uppercase ${
                             quote.marketState === 'REGULAR' ? 'text-success' : 'text-text-muted'
                           }`}>
-                            {quote.marketState === 'REGULAR' ? t('watchlist.open') : t('watchlist.closed')}
+                            {quote.marketState === 'REGULAR' ? t('watchlist.open') : quote.marketState === 'CLOSED' ? t('watchlist.closed') : quote.marketState}
                           </span>
                         ) : (
                           <span className="font-mono text-[10px] text-text-muted">—</span>
                         )}
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mb-1">{t('watchlist.added')}</p>
+                        <span className="font-mono text-[10px] text-text-muted tracking-[0.5px]">
+                          {formatAddedDate(item.added_at)}
+                        </span>
                       </div>
                     </div>
                   </button>
@@ -571,8 +571,14 @@ const Watchlist = () => {
         onConfirm={handleRemoveTicker}
         title={t('watchlist.remove_title')}
         description={t('watchlist.remove_desc', { ticker: removeTarget })}
-        confirmLabel={isRemoving ? t('watchlist.removing') : t('watchlist.remove_confirm')}
+        confirmLabel={t('watchlist.remove_confirm')}
         variant="danger"
+      />
+
+      {/* Action Toast — non-blocking, bottom-right corner */}
+      <ActionToast
+        visible={isRemoving || isAdding}
+        label={isRemoving ? t('watchlist.removing') : t('watchlist.adding')}
       />
     </div>
   );

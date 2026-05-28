@@ -115,7 +115,9 @@
     "desc_neutral": "Pasar belum menentukan arah.",
     "aggregated_ratio": "Rasio sentimen agregat:",
     "dominant_signal": "Sinyal dominan:",
-    "for_ticker": "untuk"
+    "for_ticker": "untuk",
+    "beginner_desc_prefix": "Berdasarkan berita dan data pasar, ",
+    "beginner_desc_suffix": " saat ini memiliki "
   },
   "ai_insight_card": {
     "title_pro": "Sinyal AI",
@@ -134,7 +136,8 @@
     "read_full": "Baca artikel lengkap",
     "just_now": "Baru saja",
     "no_news_found": "Tidak ada berita terbaru ditemukan untuk {{ticker}}.",
-    "select_stock_news": "Pilih saham untuk memuat berita."
+    "select_stock_news": "Pilih saham untuk memuat berita.",
+    "ai_disclaimer": "Dikurasi AI hanya untuk konteks. Verifikasi dengan sumber utama."
   },
   "warning_banner": {
     "fomo_title": "Peringatan FOMO",
@@ -152,7 +155,10 @@
     "history": "Riwayat",
     "new_chat": "Chat Baru",
     "new_analysis": "Analisis Baru",
-    "error_unavailable": "Mesin analisis sementara tidak tersedia."
+    "error_unavailable": "Mesin analisis sementara tidak tersedia.",
+    "stock_context": "Konteks saham: {{stock}}. Tanyakan apa saja tentang saham ini.",
+    "stock_updated": "Konteks saham diperbarui: {{stock}}",
+    "system_notice": "Pemberitahuan Sistem"
   },
 
   "auth": {
@@ -231,7 +237,7 @@
     "search_placeholder": "Cari ticker (contoh: BBCA, AAPL)...",
     "already_added": "Sudah Ada",
     "add_btn": "+ Tambah",
-    "adding": "...",
+    "adding": "Menambahkan...",
     "no_results": "Tidak ada hasil ditemukan",
     "type_to_search": "Ketik simbol ticker untuk mencari",
     "close": "Tutup",

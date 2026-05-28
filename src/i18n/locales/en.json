@@ -115,7 +115,9 @@
     "desc_neutral": "The market is undecided.",
     "aggregated_ratio": "Aggregated sentiment ratio:",
     "dominant_signal": "Dominant signal:",
-    "for_ticker": "for"
+    "for_ticker": "for",
+    "beginner_desc_prefix": "Based on news and market data, ",
+    "beginner_desc_suffix": " currently has a "
   },
   "ai_insight_card": {
     "title_pro": "AI Signal",
@@ -134,7 +136,8 @@
     "read_full": "Read full article",
     "just_now": "Just now",
     "no_news_found": "No recent news found for {{ticker}}.",
-    "select_stock_news": "Select a stock to load news."
+    "select_stock_news": "Select a stock to load news.",
+    "ai_disclaimer": "AI-curated for context only. Verify with primary sources."
   },
   "warning_banner": {
     "fomo_title": "FOMO Alert",
@@ -234,7 +237,7 @@
     "search_placeholder": "Search ticker (e.g., BBCA, AAPL)...",
     "already_added": "Added",
     "add_btn": "+ Add",
-    "adding": "...",
+    "adding": "Adding...",
     "no_results": "No results found",
     "type_to_search": "Type a ticker symbol to search",
     "close": "Close",

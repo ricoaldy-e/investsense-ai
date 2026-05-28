@@ -67,3 +67,69 @@ h1, h2, h3 {
   background: rgba(168, 181, 200, 0.25);
   color: #fafafa;
 }
+
+/* ─── Loading Shimmer Animation ─── */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
+.shimmer-bar {
+  position: relative;
+  overflow: hidden;
+  background: rgba(168, 181, 200, 0.08);
+}
+
+.shimmer-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(168, 181, 200, 0.18) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* ─── App-level top progress bar animation ─── */
+@keyframes appbar {
+  0%   { transform: translateX(-100%); opacity: 0.6; }
+  50%  { opacity: 1; }
+  100% { transform: translateX(200%); opacity: 0.6; }
+}
+
+/* ─── NProgress — themed to match InvestSense palette ─── */
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  background: var(--color-accent);
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+}
+
+/* Glowing tip at the leading edge */
+#nprogress .peg {
+  display: block;
+  position: absolute;
+  right: 0px;
+  width: 100px;
+  height: 100%;
+  box-shadow:
+    0 0 10px var(--color-accent),
+    0 0 5px  var(--color-accent);
+  opacity: 0.8;
+  transform: rotate(3deg) translate(0px, -4px);
+}
+
+/* Hide the default spinner completely */
+#nprogress .spinner {
+  display: none !important;
+}

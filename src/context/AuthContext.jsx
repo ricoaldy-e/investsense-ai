@@ -197,18 +197,11 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: AUTH_ACTIONS.LOGIN_SUCCESS, payload: { user } });
   }, []);
 
-  // ── Register Action
+  // ── Register Action (register only — no auto-login)
   const register = useCallback(async (email, username, password) => {
     await authService.register(email, username, password);
-    const responseData = await authService.login(email, password);
-
-    const { accessToken, username: returnedUsername } = responseData.data;
-    storeTokens(accessToken);
-    const decodedUser = decodeUser(accessToken);
-    const user = { ...decodedUser, username: returnedUsername || username || decodedUser?.username || 'Trader' };
-    storeUsername(user.username);
-
-    dispatch({ type: AUTH_ACTIONS.LOGIN_SUCCESS, payload: { user } });
+    // Do NOT auto-login here. The RegisterForm will redirect to /login
+    // so the user can log in manually with their new credentials.
   }, []);
 
   // ── Logout Action

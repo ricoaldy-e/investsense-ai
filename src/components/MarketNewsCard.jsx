@@ -204,7 +204,7 @@ const MarketNewsCard = ({ mode }) => {
         {/* Footer disclaimer */}
         {!isLoading && articles.length > 0 && (
           <p className="font-body text-[10px] text-text-muted italic mt-4 pt-4 border-t border-hairline">
-            AI-curated for context only. Verify with primary sources.
+            {t('news_card.ai_disclaimer')}
           </p>
         )}
       </div>

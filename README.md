@@ -1,122 +1,82 @@
-# InvestSense AI 🚀
+# InvestSense AI
 
-InvestSense AI is a web-based decision support system designed to help beginner investors make smarter and more rational stock investment decisions.
+InvestSense AI is a web-based decision support system built as a Capstone Project for the MBKM program. It is designed to help beginner investors make rational stock investment decisions by stripping away speculative noise and neutralizing cognitive biases (like FOMO). 
 
-The application addresses the common issue of **FOMO (Fear of Missing Out)** by combining technical analysis and AI-driven news sentiment into a simple and user-friendly interface.
+The platform integrates traditional technical analysis (RSI, price trends) with AI-driven market sentiment analysis to provide a balanced and data-driven perspective on the stock market.
 
----
+## Key Features
 
-## ✨ Features
+- **Technical Analysis Dashboard**: Real-time stock quotes, candlestick charts, and RSI indicators.
+- **AI Assistant**: An integrated side panel that provides contextual explanations and personalized investment insights without leaving the workspace.
+- **Market Insight**: A dedicated macro-level overview displaying aggregated market sentiment, trending news, and anti-FOMO radars (Overbought/Oversold alerts).
+- **Reality Check Mechanisms**: Intercepts impulsive actions and encourages users to evaluate their decisions logically before adding stocks to their watchlist.
+- **Cold Surgical Design System**: A strictly defined UI/UX focusing on typography and grid systems, avoiding the generic "glowing AI SaaS" aesthetics.
 
-* **Technical Analysis**
-  Provides stock insights using indicators such as RSI and price trends
+## Tech Stack
 
-* **News Sentiment Analysis**
-  Classifies financial news into positive, neutral, or negative sentiment
+This repository contains the **Frontend** of the application.
 
-* **AI Assistant (Integrated Panel)**
-  A right-side collapsible panel embedded within the Dashboard that delivers contextual explanations and investment insights without leaving the analysis workspace
+- **Framework**: React (Vite)
+- **Styling**: Tailwind CSS
+- **State Management**: Zustand
+- **Routing**: React Router v6
+- **HTTP Client**: Axios
+- **Icons**: Lucide React
+- **Internationalization**: i18next (ID/EN)
 
-* **Market Insight Page**
-  A dedicated page providing macro-level market overviews including aggregated sentiment, financial news, and sector performance
+## Project Structure
 
-* **Anti-FOMO Mechanisms**
-
-  * Reality Check → helps users evaluate decisions logically
-  * Interceptor → warns users before making impulsive actions
-
-* **User Mode Toggle**
-  Beginner Mode (simplified view) and Pro Mode (detailed analysis)
-
----
-
-## 🏗️ System Overview
-
-This repository contains the **frontend application** built with React.
-It communicates with backend services and AI models through REST APIs.
-
----
-
-## 🛠 Tech Stack
-
-* React (Vite)
-* Tailwind CSS
-* Axios
-
----
-
-## 📁 Project Structure
-
-```
+```text
 src/
-├── components/
-│   ├── auth/              ← Authentication components
-│   ├── chatbot/           ← AI Assistant panel components
-│   ├── landing/           ← Landing page sections
-│   └── ui/                ← Shared UI components
-├── layouts/
-│   └── DashboardLayout.jsx ← Sidebar + Navbar + AI Panel + Outlet
-├── pages/
-│   ├── Landing.jsx
-│   ├── Auth.jsx
-│   ├── Dashboard.jsx
-│   └── MarketInsight.jsx
-├── services/
-├── mocks/
-├── App.jsx
-├── main.jsx
-└── index.css
+├── components/      # Reusable UI components and complex widgets (Charts, AI Panel)
+├── context/         # React Context providers (AuthContext)
+├── hooks/           # Custom React hooks (useDebounce, useOnClickOutside)
+├── i18n/            # Localization files and configurations
+├── layouts/         # Page layouts (DashboardLayout)
+├── pages/           # Main route components (Dashboard, MarketInsight, Watchlist)
+├── services/        # API integration and utility functions
+└── store/           # Zustand global state (useDashboardStore)
 ```
+
+## Getting Started
+
+### Prerequisites
+- Node.js (v18 or higher recommended)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ricoaldy-e/investsense-ai.git
+   cd investsense-ai
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Configure Environment Variables:
+   Create a `.env` file in the root directory and configure the API endpoint:
+   ```env
+   VITE_API_BASE_URL=https://investsense-ai-investsense-backend.hf.space/api/v1
+   ```
+
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+5. Build for production:
+   ```bash
+   npm run build
+   ```
+
+## Status
+
+**Currently in development.** 
+This is the frontend implementation for the MBKM Capstone Project. The backend repository and API endpoints are hosted separately.
 
 ---
-
-## 🚀 Getting Started
-
-### Clone repository
-
-```
-git clone https://github.com/ricoaldy-e/investsense-ai.git
-cd investsense-ai
-```
-
-### Install dependencies
-
-```
-npm install
-```
-
-### Run the application
-
-```
-npm run dev
-```
-
----
-
-## 📌 Status
-
-Currently in development (Frontend Capstone Project)
-
----
-
-## 🎯 Objective
-
-To provide a clean and intuitive interface that helps users understand stock insights and make rational investment decisions.
-
----
-
-## 🤖 AI Agent Onboarding Guide
-
-If you are an AI Assistant / Agent assigned to work on this repository, you MUST read and internalize the following documentation before suggesting any changes or refactoring:
-
-1. **[DESIGN.md](./DESIGN.md)**: This is the single most important visual document. We use a strictly defined **"Cold Surgical"** design system. You must understand the 3-font typography trinity, the absolute ban on rounded corners (except pill buttons), and the prohibition of generic "AI SaaS" glowing/shadow effects.
-2. **[SRS.md](./SRS.md)**: Understand the core product philosophy. This is an **Anti-FOMO** decision support tool, NOT a trading execution bot.
-3. **[USERFLOW.md](./USERFLOW.md)**: Reference for how the user navigates between the Landing Page, Dashboard (with AI Assistant Panel), and Market Insight page.
-4. **[DATABASE.md](./DATABASE.md)**: Reference for future backend integration context.
-5. **[DASHBOARD-CHATBOT.md](./DASHBOARD-CHATBOT.md)**: Detailed design and layout specification for the integrated AI Assistant Panel inside the Dashboard.
-
-**Golden Rule for AI Agents**: DO NOT redesign the UI, DO NOT add unnecessary abstractions, and ALWAYS respect the Cold Surgical design guidelines.
-
----
-
-**InvestSense AI — helping you invest based on data, not emotion.**
+*InvestSense AI — helping you invest based on data, not emotion.*

@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+﻿import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import LoginForm from '../components/auth/LoginForm';
 import RegisterForm from '../components/auth/RegisterForm';
@@ -13,10 +13,10 @@ const Auth = () => {
   return (
     <div className="min-h-screen relative w-full overflow-hidden bg-bg-dark text-text-main flex flex-col lg:block">
 
-      {/* MOBILE ONLY: Forms with AnimatePresence */}
+      
       <div className="lg:hidden flex-1 flex flex-col min-h-0 overflow-y-auto">
         <div className="flex-1 flex flex-col items-center justify-center p-5 py-8 relative">
-          {/* Logo above card */}
+          
           <div className="w-full max-w-[420px] mb-8 flex flex-col items-center text-center">
             <Link to="/" className="font-mono text-[13px] text-text-main tracking-[3px] uppercase hover:text-accent transition-colors duration-300">
               INVESTSENSE AI
@@ -57,20 +57,20 @@ const Auth = () => {
         </div>
       </div>
 
-      {/* DESKTOP SPLIT LAYOUT (Large Screens Only) */}
+      
       <div className="hidden lg:block relative w-full h-screen overflow-hidden">
         
-        {/* LOGIN FORM (Static on Left) */}
+        
         <div className="absolute top-0 left-0 w-1/2 h-full flex items-center justify-center p-12 z-10">
            <LoginForm />
         </div>
 
-        {/* REGISTER FORM (Static on Right) */}
+        
         <div className="absolute top-0 right-0 w-1/2 h-full flex items-center justify-center p-12 z-10">
            <RegisterForm />
         </div>
 
-        {/* THE SLIDING BRANDING OVERLAY */}
+        
         <motion.div 
           className="absolute top-0 w-1/2 h-full z-20 border-card-border"
           initial={false}

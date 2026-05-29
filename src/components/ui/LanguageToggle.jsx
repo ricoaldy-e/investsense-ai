@@ -1,15 +1,5 @@
-import { useTranslation } from 'react-i18next';
+﻿import { useTranslation } from 'react-i18next';
 
-/**
- * LanguageToggle — Professional ID/EN language switcher.
- *
- * Two variants:
- * - 'inline'  : Matches Beginner/Pro toggle exactly — border wrapper + same button padding.
- *               Used in Navbar (desktop) and Sidebar mobile.
- * - 'sidebar' : Full-width pill pair for sidebar bottom section (legacy, kept for flexibility).
- *
- * Persists selection to localStorage for cross-session memory.
- */
 const LanguageToggle = ({ variant = 'inline' }) => {
   const { i18n } = useTranslation();
   const currentLang = i18n.language?.slice(0, 2) || 'id';
@@ -21,7 +11,6 @@ const LanguageToggle = ({ variant = 'inline' }) => {
   };
 
   if (variant === 'sidebar') {
-    // Full-width in sidebar — matches mode toggle exactly
     return (
       <div
         className="flex items-center gap-1 border border-card-border p-1 bg-surface"
@@ -56,7 +45,6 @@ const LanguageToggle = ({ variant = 'inline' }) => {
     );
   }
 
-  // 'inline' variant — matches Beginner/Pro toggle: border wrapper + p-1 + same button style
   return (
     <div
       className="flex items-center gap-1 border border-card-border p-1"

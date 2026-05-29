@@ -1,4 +1,4 @@
-import { BarChart3 } from 'lucide-react';
+﻿import { BarChart3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const SentimentAnalysisCard = ({ data, mode }) => {
@@ -46,7 +46,7 @@ const SentimentAnalysisCard = ({ data, mode }) => {
       </div>
 
       <div className="space-y-5 flex-1">
-        {/* Positive */}
+        
         <div className="flex items-center justify-between gap-4">
           <span className="font-mono text-[11px] tracking-[1px] uppercase text-text-muted w-16">
             {isPro ? t('sentiment_card.bull') : t('sentiment_card.positive')}
@@ -57,7 +57,7 @@ const SentimentAnalysisCard = ({ data, mode }) => {
           <span className="font-mono text-[11px] text-text-muted w-8 text-right">{positive}%</span>
         </div>
 
-        {/* Neutral */}
+        
         <div className="flex items-center justify-between gap-4">
           <span className="font-mono text-[11px] tracking-[1px] uppercase text-text-main w-16">{t('sentiment_card.neutral')}</span>
           <div className="flex-1 h-1.5 bg-surface overflow-hidden">
@@ -66,7 +66,7 @@ const SentimentAnalysisCard = ({ data, mode }) => {
           <span className="font-mono text-[11px] text-text-muted w-8 text-right">{neutral}%</span>
         </div>
 
-        {/* Negative */}
+        
         <div className="flex items-center justify-between gap-4">
           <span className="font-mono text-[11px] tracking-[1px] uppercase text-text-muted w-16">
             {isPro ? t('sentiment_card.bear') : t('sentiment_card.negative')}

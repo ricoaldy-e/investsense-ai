@@ -1,22 +1,22 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import TopographicWave from './TopographicWave';
 
 const HeroSection = () => {
   return (
     <section className="relative min-h-screen flex flex-col justify-center overflow-hidden">
-      {/* 3D Topographic Wave — background layer */}
+      
       <div className="absolute inset-0 z-0">
         <TopographicWave />
       </div>
 
-      {/* Minimal ambient overlay */}
+      
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-accent/[0.02] blur-[150px] rounded-full pointer-events-none z-[1]"></div>
 
-      {/* Content — staggered entrance on page load */}
+      
       <div className="max-w-4xl mx-auto px-6 lg:px-8 relative z-10 text-center pt-42 pb-32">
 
-        {/* Main headline — Outfit Light */}
+        
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -27,7 +27,7 @@ const HeroSection = () => {
           IN MARKET TURBULENCE
         </motion.h1>
 
-        {/* Body — Source Serif 4 */}
+        
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -37,7 +37,7 @@ const HeroSection = () => {
           An advanced cognitive overlay and risk engine engineered to strip speculative noise, neutralize behavioral biases, and deliver objective, multi-dimensional market intelligence.
         </motion.p>
 
-        {/* CTA — outlined pill button */}
+        
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}

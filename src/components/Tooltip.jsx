@@ -1,10 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 
 const Tooltip = ({ children, content }) => {
   const [isVisible, setIsVisible] = useState(false);
   const tooltipRef = useRef(null);
 
-  // Close on outside click (for mobile)
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (tooltipRef.current && !tooltipRef.current.contains(event.target)) {
@@ -31,7 +30,7 @@ const Tooltip = ({ children, content }) => {
             {content}
           </p>
           
-          {/* Arrow pointing down */}
+          
           <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-[1px] border-[5px] border-transparent border-t-card-border"></div>
           <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-[2.5px] border-[5px] border-transparent border-t-surface"></div>
         </div>

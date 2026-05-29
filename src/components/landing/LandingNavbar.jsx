@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const LandingNavbar = () => {
@@ -43,7 +43,7 @@ const LandingNavbar = () => {
     }`}>
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
         <div className="flex items-center h-[72px]">
-          {/* Wordmark — fixed width left */}
+          
           <div className="flex-shrink-0 w-auto md:w-[200px]">
             <button 
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -53,7 +53,7 @@ const LandingNavbar = () => {
             </button>
           </div>
 
-          {/* Center Nav Links — absolute center */}
+          
           <div className="hidden md:flex flex-1 items-center justify-center gap-8">
             {navLinks.map(({ id, label }) => (
               <a 
@@ -70,7 +70,7 @@ const LandingNavbar = () => {
             ))}
           </div>
 
-          {/* Right Actions — fixed width right */}
+          
           <div className="flex items-center justify-end gap-4 sm:gap-6 flex-shrink-0 w-auto md:w-[200px] ml-auto">
             <Link 
               to="/login" 

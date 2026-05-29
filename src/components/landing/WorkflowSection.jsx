@@ -1,4 +1,4 @@
-import { motion, useInView } from 'framer-motion';
+﻿import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 
 const WorkflowSection = () => {
@@ -15,7 +15,7 @@ const WorkflowSection = () => {
   return (
     <section id="workflow" className="py-32 lg:py-40" ref={sectionRef}>
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
-        {/* Section header */}
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -30,7 +30,7 @@ const WorkflowSection = () => {
           </h2>
         </motion.div>
 
-        {/* Steps — staggered left to right */}
+        
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-6">
           {steps.map((step, index) => (
             <motion.div
@@ -44,17 +44,17 @@ const WorkflowSection = () => {
               }}
               className="text-center md:text-left"
             >
-              {/* Step number — mono, outlined circle */}
+              
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full border border-card-border text-accent font-mono text-[13px] tracking-[1px] mb-6">
                 {step.num}
               </div>
 
-              {/* Title — Outfit */}
+              
               <h3 className="font-display text-[18px] font-medium text-text-main tracking-[0.5px] mb-3">
                 {step.title}
               </h3>
 
-              {/* Description — Source Serif */}
+              
               <p className="font-body text-[14px] text-text-secondary leading-relaxed max-w-[220px] mx-auto md:mx-0">
                 {step.desc}
               </p>

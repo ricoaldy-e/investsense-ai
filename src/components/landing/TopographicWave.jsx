@@ -1,28 +1,20 @@
-import { useRef, useMemo, useCallback } from 'react';
+﻿import { useRef, useMemo, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-/* ─────────────────────────────────────────────────────────────
-   WaveMesh — the actual 3D wireframe plane geometry
-   • Low-poly grid (56×32 segments — wider, fewer depth rows)
-   • Custom vertex displacement via overlapping sin/cos waves  
-   • Wireframe rendering with ultra-thin slate-blue lines
-   ───────────────────────────────────────────────────────────── */
 const WaveMesh = () => {
   const geometryRef = useRef();
 
-  // Cache original vertex positions once
   const { positions, count } = useMemo(() => {
     const geo = new THREE.PlaneGeometry(40, 20, 80, 40);
     const pos = geo.attributes.position.array.slice();
     return { positions: pos, count: geo.attributes.position.count };
   }, []);
 
-  // Animate: displace z-axis every frame
   useFrame(({ clock }) => {
     if (!geometryRef.current) return;
 
-    const time = clock.getElapsedTime() * 0.3; // Speed increased per user request
+    const time = clock.getElapsedTime() * 0.3;
     const posArray = geometryRef.current.attributes.position.array;
 
     for (let i = 0; i < count; i++) {
@@ -33,7 +25,6 @@ const WaveMesh = () => {
       const ox = positions[ix];
       const oy = positions[iy];
 
-      // 3 overlapping sine waves — creates natural terrain undulation
       const w1 = Math.sin(ox * 0.45 + time) * 0.3;
       const w2 = Math.sin(oy * 0.6 + time * 0.55) * 0.2;
       const w3 = Math.cos(ox * 0.3 + oy * 0.4 + time * 0.35) * 0.15;
@@ -46,26 +37,20 @@ const WaveMesh = () => {
 
   return (
     <mesh
-      rotation={[-Math.PI * 0.55, 0, 0]}    // Steeper angle — more top-down
-      position={[0, -3.5, 0]}                  // Adjusted for orthographic - moved down per user request
+      rotation={[-Math.PI * 0.55, 0, 0]}
+      position={[0, -3.5, 0]}
     >
       <planeGeometry ref={geometryRef} args={[40, 20, 80, 40]} />
       <meshBasicMaterial
         color="#a8b5c8"
         wireframe
         transparent
-        opacity={0.085}                       // Brighter again per request
+        opacity={0.085}
       />
     </mesh>
   );
 };
 
-/* ─────────────────────────────────────────────────────────────
-   TopographicWave — the outer Canvas wrapper
-   • Positioned absolutely behind hero content
-   • Gradient mask fades wave at top, stronger fade at bottom
-   • Pointer-events disabled so text stays interactive
-   ───────────────────────────────────────────────────────────── */
 const TopographicWave = () => {
   const handleCreated = useCallback(({ gl }) => {
     gl.domElement.style.pointerEvents = 'none';

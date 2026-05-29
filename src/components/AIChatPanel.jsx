@@ -1,11 +1,9 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+﻿import { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, ChevronLeft, ChevronRight, X, Plus, MessageSquare, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import { chatService } from '../services/chatService';
 import useDashboardStore from '../store/useDashboardStore';
-
-// ─── Generate conversation title from first user message ───
 const generateTitle = (messages) => {
   const firstUser = messages.find(m => m.role === 'user');
   if (!firstUser) return 'New Analysis';
@@ -13,14 +11,11 @@ const generateTitle = (messages) => {
   return text.length > 35 ? text.slice(0, 35) + '…' : text;
 };
 
-// Stable empty array for fallback to prevent dependency changes on every render
 const EMPTY_MESSAGES = [];
 
 const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) => {
   const { t } = useTranslation();
   const activeTicker = useDashboardStore(s => s.activeTicker);
-
-  // ─── Conversation management ───
   const [conversations, setConversations] = useState(() => {
     const initialTicker = useDashboardStore.getState().activeTicker;
     const initialMsgs = initialTicker
@@ -39,24 +34,17 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
   const dragStartX = useRef(0);
   const dragStartWidth = useRef(0);
 
-  // Get active conversation
   const activeConv = conversations.find(c => c.id === activeConvId) || conversations[0];
   const messages = activeConv?.messages || EMPTY_MESSAGES;
-
-  // ─── Auto-scroll ───
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
-
-  // ─── Auto-resize textarea (Antigravity-style: grows up to ~120px) ───
   useEffect(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     textarea.style.height = 'auto';
     textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
   }, [inputMessage]);
-
-  // ─── Stock change listener ───
   useEffect(() => {
     const handleStockChange = () => {
       const lastStock = localStorage.getItem('lastViewedStock');
@@ -71,8 +59,6 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
     window.addEventListener('stockChanged', handleStockChange);
     return () => window.removeEventListener('stockChanged', handleStockChange);
   }, [isOpen, activeConvId, t]);
-
-  // ─── Drag resize (desktop) ───
   const handleDragStart = useCallback((e) => {
     if (isMobile) return;
     e.preventDefault();
@@ -99,8 +85,6 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       document.body.style.cursor = '';
     };
   }, [isDragging, onWidthChange]);
-
-  // ─── New chat ───
   const handleNewChat = useCallback(() => {
     const newId = Date.now();
     const initialMsgs = activeTicker
@@ -111,8 +95,6 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
     setInputMessage('');
     setShowHistory(false);
   }, [activeTicker, t]);
-
-  // ─── Delete conversation ───
   const handleDeleteConv = useCallback((convId) => {
     setConversations(prev => {
       const filtered = prev.filter(c => c.id !== convId);
@@ -131,8 +113,6 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       return filtered;
     });
   }, [activeConvId, activeTicker]);
-
-  // ─── Send message ───
   const handleSend = useCallback(async (text) => {
     if (!text.trim()) return;
     const userMsg = { id: Date.now(), role: 'user', content: text.trim() };
@@ -140,7 +120,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
     setConversations(prev => prev.map(c => {
       if (c.id !== activeConvId) return c;
       const updated = { ...c, messages: [...c.messages, userMsg] };
-      // Update title from first user message
+
       if (c.isNew) {
         updated.isNew = false;
         updated.title = generateTitle([...c.messages, userMsg]);
@@ -180,8 +160,6 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       handleSend(inputMessage);
     }
   };
-
-  // ─── Render: Messages area ───
   function renderMessages() {
     if (messages.length === 0) {
       return (
@@ -229,7 +207,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
             <div className={`font-body text-[13px] leading-relaxed ${
               msg.type === 'error' ? 'text-danger/80' : msg.role === 'ai' ? 'text-text-secondary prose prose-sm prose-invert max-w-none' : 'text-text-main'
             }`}>
-              {msg.role === 'ai' && !msg.type ? (
+              {msg.role === 'ai' && msg.type !== 'error' ? (
                 <ReactMarkdown
                   components={{
                     p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
@@ -248,8 +226,6 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       );
     });
   }
-
-  // ─── Render: Typing indicator ───
   function renderTypingIndicator() {
     if (!isTyping) return null;
     return (
@@ -261,8 +237,6 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       </div>
     );
   }
-
-  // ─── Render: Input area (Antigravity-style auto-growing textarea) ───
   function renderInput() {
     return (
       <div className="border-t border-hairline flex-shrink-0 p-4">
@@ -295,12 +269,10 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       </div>
     );
   }
-
-  // ─── Render: Chat history sidebar ───
   function renderHistoryPanel() {
     return (
       <div className="flex flex-col h-full">
-        {/* History header */}
+        
         <div className="h-14 flex items-center justify-between px-4 border-b border-card-border flex-shrink-0">
           <span className="font-mono text-[11px] tracking-[2px] uppercase text-text-main">{t('chat_panel.history')}</span>
           <button onClick={() => setShowHistory(false)} className="p-1 text-text-muted hover:text-text-main transition-colors">
@@ -308,7 +280,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
           </button>
         </div>
 
-        {/* New chat button */}
+        
         <div className="p-3 border-b border-card-border">
           <button
             onClick={handleNewChat}
@@ -319,7 +291,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
           </button>
         </div>
 
-        {/* Conversation list */}
+        
         <div className="flex-1 overflow-y-auto">
           {conversations.map((conv) => (
             <div
@@ -352,13 +324,11 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       </div>
     );
   }
-
-  // ─── Render: Panel header with title + actions ───
   function renderHeader({ showClose = false }) {
     return (
       <div className="h-14 flex items-center justify-between px-4 border-b border-card-border flex-shrink-0">
         <div className="flex items-center gap-2 min-w-0">
-          {/* History toggle */}
+          
           <button
             onClick={() => setShowHistory(!showHistory)}
             className="p-1.5 text-text-muted hover:text-text-main transition-colors"
@@ -367,13 +337,13 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
           >
             <MessageSquare className="w-4 h-4" />
           </button>
-          {/* Active conversation title */}
+          
           <span className="font-mono text-[11px] tracking-[1px] uppercase text-text-main truncate">
             {activeConv?.isNew ? t('chat_panel.new_analysis') : (activeConv?.title || 'AI Assistant')}
           </span>
         </div>
         <div className="flex items-center gap-1">
-          {/* New chat */}
+          
           <button
             onClick={handleNewChat}
             className="p-1.5 text-text-muted hover:text-accent transition-colors"
@@ -391,8 +361,6 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       </div>
     );
   }
-
-  // ─── MOBILE ───
   if (isMobile) {
     return (
       <>
@@ -413,11 +381,9 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
       </>
     );
   }
-
-  // ─── DESKTOP ───
   return (
     <div className="relative flex-shrink-0" style={{ width: isOpen ? `${panelWidth}px` : '0px' }}>
-      {/* Toggle — clean, outside the panel border */}
+      
       <button
         onClick={onToggle}
         className="absolute -left-6 top-1/2 -translate-y-1/2 z-30 w-6 h-6 bg-bg-dark border border-card-border flex items-center justify-center text-text-muted hover:text-accent hover:border-accent/50 transition-colors duration-200"
@@ -427,7 +393,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
         {isOpen ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
       </button>
 
-      {/* Drag handle */}
+      
       {isOpen && (
         <div
           className="absolute top-0 bottom-0 left-0 w-1 cursor-col-resize z-20 hover:bg-accent/30 active:bg-accent/50 transition-colors"
@@ -435,7 +401,7 @@ const AIChatPanel = ({ isOpen, onToggle, panelWidth, onWidthChange, isMobile }) 
         />
       )}
 
-      {/* Panel content */}
+      
       <div
         className={`h-full bg-bg-dark border-l border-card-border flex flex-col overflow-hidden ${isDragging ? '' : 'transition-all duration-300'}`}
         style={{ width: isOpen ? `${panelWidth}px` : '0px' }}

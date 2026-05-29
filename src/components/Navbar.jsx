@@ -1,4 +1,4 @@
-import { User, Menu, X, BotMessageSquare, LayoutGrid } from 'lucide-react';
+﻿import { User, Menu, X, BotMessageSquare, LayoutGrid } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +26,7 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
   return (
     <>
     <header className="h-16 flex-shrink-0 bg-bg-dark border-b border-card-border flex items-center justify-between px-4 md:px-6 lg:px-8 gap-4 z-50">
-      {/* Mobile Menu Button */}
+      
       <button 
         onClick={isSidebarOpen ? onCloseSidebar : onMenuClick} 
         className="md:hidden p-2 -ml-2 text-text-muted hover:text-text-main transition-colors z-50" 
@@ -35,7 +35,7 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
         {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
-      {/* Katalog Saham — replaces global search bar */}
+      
       <div className="flex-1 max-w-lg">
         <NavLink
           to="/stocks"
@@ -52,9 +52,9 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
         </NavLink>
       </div>
 
-      {/* Right Actions */}
+      
       <div className="flex items-center space-x-3 md:space-x-4">
-        {/* Tools & Mode Toggle — Only visible on Dashboard and if not empty */}
+        
         {isDashboardRoute && !isDashboardEmpty && (
           <div className="hidden sm:flex items-center gap-3 transition-opacity duration-500">
             <button 
@@ -87,12 +87,12 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
           </div>
         )}
 
-        {/* ─── Language Toggle — always visible in header on sm+ ─── */}
+        {}
         <div className="hidden sm:block">
           <LanguageToggle variant="inline" />
         </div>
 
-        {/* Mobile AI Panel Toggle */}
+        
         {isMobile && onToggleAIPanel && (
           <button
             onClick={onToggleAIPanel}
@@ -105,7 +105,7 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
           </button>
         )}
 
-        {/* User Profile — Hidden on mobile */}
+        
         <div className="hidden sm:flex items-center gap-3 pl-3 md:pl-4 border-l border-card-border">
           <div className="w-8 h-8 rounded-full border border-card-border flex items-center justify-center text-text-muted">
             <User className="w-3.5 h-3.5" />
@@ -117,7 +117,7 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
       </div>
     </header>
 
-    {/* Clear Dashboard Confirmation Modal */}
+    
     <ConfirmModal
       isOpen={showClearModal}
       onClose={() => setShowClearModal(false)}

@@ -3,14 +3,12 @@ import { initReactI18next } from 'react-i18next';
 import en from './locales/en.json';
 import id from './locales/id.json';
 
-// ─── Detect initial language ─────────────────────────────────────────────────
-// Priority: localStorage → browser language → fallback 'en' (English default)
 const detectLanguage = () => {
   const saved = localStorage.getItem('lang');
   if (saved === 'en' || saved === 'id') return saved;
   const browser = navigator.language?.slice(0, 2);
   if (browser === 'id') return 'id';
-  return 'en'; // Default to English
+  return 'en';
 };
 
 i18n
@@ -23,10 +21,8 @@ i18n
     lng: detectLanguage(),
     fallbackLng: 'en',
     interpolation: {
-      // React already escapes values by default
       escapeValue: false,
     },
-    // Disable missing key warnings in production
     saveMissing: false,
     missingKeyHandler: () => {},
   });

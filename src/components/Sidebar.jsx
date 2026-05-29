@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { LayoutDashboard as LayoutDashboardIcon, TrendingUp as TrendingUpIcon, Star as StarIcon, LogOut as LogOutIcon, Info, LayoutGrid } from 'lucide-react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -12,21 +12,12 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
   const { logout } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  /**
-   * Delegates entirely to AuthContext.logout(), which:
-   *  1. Calls authService.logout() → asks the server to invalidate the
-   *     refreshToken in the DB and clear the httpOnly cookie.
-   *  2. In the finally block, removes 'accessToken' and 'username' from
-   *     localStorage regardless of whether the server call succeeded.
-   *  3. Dispatches LOGOUT to the reducer, setting isAuthenticated → false.
-   * After that we navigate to /login.
-   */
+  
   const handleLogout = async () => {
     try {
       await logout();
     } catch (error) {
-      // logout() itself is already try/catch/finally guarded inside AuthContext.
-      // This outer catch is a last-resort safety net for unexpected throws.
+
       console.error('[Sidebar] Unexpected error during logout:', error);
     } finally {
       navigate('/login');
@@ -41,7 +32,7 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
 
   return (
     <>
-      {/* Mobile Overlay */}
+      
       {isOpen && (
         <div
           className="fixed top-16 inset-x-0 bottom-0 bg-black/60 z-30 md:hidden transition-opacity"
@@ -50,7 +41,7 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
       )}
 
       <aside className={`fixed md:static top-16 md:top-0 bottom-0 left-0 z-40 md:z-50 w-64 bg-bg-dark border-r border-card-border flex flex-col transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-        {/* Brand Logo - hidden on mobile, shown on desktop */}
+        
         <div className="h-16 hidden md:flex flex-shrink-0 items-center justify-between px-6 border-b border-card-border">
           <Link
             to="/"
@@ -62,14 +53,14 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
 
         <div className="flex-1 flex flex-col justify-between py-6 overflow-y-auto">
           <div>
-            {/* Section Title */}
+            
             <div className="px-6 mb-5">
               <p className="font-mono text-[10px] text-accent tracking-[2px] uppercase">
                 {t('nav.intelligence')}
               </p>
             </div>
 
-            {/* Navigation Links */}
+            
             <nav className="space-y-1" aria-label="Main navigation">
               <NavLink to="/dashboard" className={navLinkClass}>
                 <LayoutDashboardIcon className="w-4 h-4 mr-3" />
@@ -93,9 +84,9 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
             </nav>
           </div>
 
-          {/* Bottom Section */}
+          
           <div className="px-4 space-y-3">
-            {/* Mobile: Mode Toggle (hidden on desktop — shown in Navbar) */}
+            
             <div className="sm:hidden">
               <p className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted mb-2 px-1">
                 {t('navbar.analysis_mode')}
@@ -120,7 +111,7 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
               </div>
             </div>
 
-            {/* Mobile: Language Toggle (hidden on desktop — shown in Navbar header) */}
+            
             <div className="sm:hidden">
               <p className="font-mono text-[9px] tracking-[2px] uppercase text-text-muted mb-2 px-1">
                 Language / Bahasa
@@ -128,7 +119,7 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
               <LanguageToggle variant="sidebar" />
             </div>
 
-            {/* Mode Info Card */}
+            
             <div className="bg-surface border border-card-border p-4 flex gap-3">
               <Info className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
               <p className="font-body text-[13px] text-text-secondary leading-relaxed">
@@ -141,7 +132,7 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
           </div>
         </div>
 
-        {/* Logout — Fixed at the absolute bottom */}
+        
         <div className="mt-auto pb-4">
           <button
             onClick={() => setShowLogoutModal(true)}
@@ -153,7 +144,7 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
         </div>
       </aside>
 
-      {/* Logout Confirmation Modal */}
+      
       <ConfirmModal
         isOpen={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}

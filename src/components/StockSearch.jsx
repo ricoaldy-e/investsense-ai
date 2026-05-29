@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+﻿import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Loader2, X, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -6,44 +6,25 @@ import api from '../services/api';
 import useDebounce from '../hooks/useDebounce';
 import useOnClickOutside from '../hooks/useOnClickOutside';
 
-/**
- * StockSearch — Autocomplete search bar for stock tickers.
- *
- * Features:
- *  - 500ms debounced API calls to GET /stocks/search?q={query}
- *  - Keyboard navigation (ArrowUp / ArrowDown / Enter / Escape)
- *  - Click-outside closes the dropdown
- *  - Writes selected ticker to the global Zustand store
- */
 const StockSearch = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-
-  // ─── Local State ──────────────────────────────────────────────────────────
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [fetchError, setFetchError] = useState(false);
-
-  // ─── Refs ─────────────────────────────────────────────────────────────────
   const wrapperRef = useRef(null);
   const inputRef = useRef(null);
   const listRef = useRef(null);
-
-  // ─── Debounce ─────────────────────────────────────────────────────────────
   const debouncedQuery = useDebounce(query, 500);
-
-  // ─── Click Outside ────────────────────────────────────────────────────────
   const handleClose = useCallback(() => {
     setIsOpen(false);
     setActiveIndex(-1);
   }, []);
 
   useOnClickOutside(wrapperRef, handleClose);
-
-  // ─── API Fetch ────────────────────────────────────────────────────────────
   useEffect(() => {
     const trimmed = debouncedQuery.trim();
 
@@ -60,16 +41,12 @@ const StockSearch = () => {
       setIsFetching(true);
       setFetchError(false);
       try {
-        // Append .JK to bias Yahoo Finance results toward IDX stocks
+
         const idxQuery = trimmed.endsWith('.JK') ? trimmed : `${trimmed}.JK`;
         const response = await api.get(`/stocks/search?q=${encodeURIComponent(idxQuery)}`);
         if (!cancelled) {
           const raw = response.data?.data ?? [];
 
-          // ── Normalize & filter to IDX-only ──────────────────────────────
-          // Yahoo Finance returns: { symbol, shortname, longname, exchange, ... }
-          // We keep ONLY Jakarta Exchange stocks (exchange === 'JKT' or symbol ends with '.JK').
-          // No fallback — if nothing matches, the dropdown stays closed.
           const normalized = raw
             .filter((item) => {
               const sym = item.symbol ?? '';
@@ -103,18 +80,13 @@ const StockSearch = () => {
 
     return () => { cancelled = true; };
   }, [debouncedQuery]);
-
-  // ─── Scroll active item into view ─────────────────────────────────────────
   useEffect(() => {
     if (activeIndex < 0 || !listRef.current) return;
     const items = listRef.current.querySelectorAll('[data-result-item]');
     items[activeIndex]?.scrollIntoView({ block: 'nearest' });
   }, [activeIndex]);
-
-  // ─── Selection Handler ────────────────────────────────────────────────────
   const handleSelect = useCallback((stock) => {
-    // Navigate to the dashboard with the full .JK ticker in the URL.
-    // The URL is the single source of truth — Dashboard reads from ?stock=.
+
     const rawTicker = (stock.ticker ?? '').toUpperCase();
     const displayTicker = rawTicker.replace(/\.JK$/i, '');
     setQuery(displayTicker);
@@ -124,8 +96,6 @@ const StockSearch = () => {
     inputRef.current?.blur();
     navigate(`/dashboard?stock=${rawTicker}`);
   }, [navigate]);
-
-  // ─── Keyboard Navigation ──────────────────────────────────────────────────
   const handleKeyDown = useCallback((e) => {
     if (!isOpen && e.key !== 'Escape') return;
 
@@ -153,8 +123,6 @@ const StockSearch = () => {
         break;
     }
   }, [isOpen, results, activeIndex, handleSelect, handleClose]);
-
-  // ─── Clear Input ──────────────────────────────────────────────────────────
   const handleClear = useCallback(() => {
     setQuery('');
     setResults([]);
@@ -163,11 +131,8 @@ const StockSearch = () => {
     setFetchError(false);
     inputRef.current?.focus();
   }, []);
-
-  // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div ref={wrapperRef} className="relative w-full max-w-md" id="stock-search-wrapper">
-      {/* ── Input Field ── */}
       <div
         className={`
           flex items-center gap-2.5 px-3.5 py-2.5
@@ -179,7 +144,7 @@ const StockSearch = () => {
           }
         `}
       >
-        {/* Search / Loading Icon */}
+        
         <div className="flex-shrink-0 w-4 h-4">
           {isFetching ? (
             <Loader2 className="w-4 h-4 text-accent animate-spin" />
@@ -214,7 +179,7 @@ const StockSearch = () => {
           "
         />
 
-        {/* Clear Button */}
+        
         {query.length > 0 && (
           <button
             onClick={handleClear}
@@ -225,8 +190,6 @@ const StockSearch = () => {
           </button>
         )}
       </div>
-
-      {/* ── Dropdown ── */}
       {isOpen && (
         <div
           id="stock-search-listbox"
@@ -251,7 +214,7 @@ const StockSearch = () => {
                 aria-selected={isActive}
                 data-result-item
                 onMouseDown={(e) => {
-                  // Use mousedown so it fires before the input's onBlur
+
                   e.preventDefault();
                   handleSelect(stock);
                 }}
@@ -265,15 +228,15 @@ const StockSearch = () => {
                   }
                 `}
               >
-                {/* Icon */}
+                
                 <div className={`flex-shrink-0 ${isActive ? 'text-accent' : 'text-text-muted'}`}>
                   <TrendingUp className="w-3.5 h-3.5" />
                 </div>
 
-                {/* Ticker + Name */}
+                
                 <div className="flex-1 min-w-0">
                   <p className={`font-mono text-[11px] tracking-[2px] uppercase font-medium ${isActive ? 'text-accent' : 'text-text-main'}`}>
-                    {/* Strip .JK suffix for display — show clean IDX ticker */}
+                    
                     {(stock.ticker || '').replace(/\.JK$/i, '') || '—'}
                   </p>
                   <p className="font-body text-[12px] text-text-muted truncate mt-0.5 leading-tight">
@@ -281,7 +244,7 @@ const StockSearch = () => {
                   </p>
                 </div>
 
-                {/* Active indicator */}
+                
                 {isActive && (
                   <p className="flex-shrink-0 font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted">
                     ↵ Select
@@ -292,8 +255,6 @@ const StockSearch = () => {
           })}
         </div>
       )}
-
-      {/* ── Fetch Error Hint ── */}
       {fetchError && query.trim().length > 0 && !isFetching && (
         <p className="absolute top-full left-0 mt-1.5 font-mono text-[10px] tracking-[1px] uppercase text-danger">
           Search unavailable. Try again.

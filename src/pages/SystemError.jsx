@@ -1,16 +1,6 @@
-import { ArrowLeft, RefreshCw } from 'lucide-react';
+﻿import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-/**
- * SystemError — Generic application-level fallback page.
- * 
- * Used by ErrorBoundary when an unexpected runtime crash occurs.
- * Visually consistent with NotFound.jsx — same Cold Surgical layout,
- * same typography hierarchy, same pill button CTA.
- * 
- * NOT a specific HTTP status code page (no 500, 502, 503).
- * Just a single, clean, professional fallback.
- */
 const SystemError = ({ onReset }) => {
   const { t } = useTranslation();
   const handleReturn = () => {
@@ -19,25 +9,25 @@ const SystemError = ({ onReset }) => {
 
   return (
     <div className="min-h-screen bg-bg-dark flex flex-col items-center justify-center px-6 text-center">
-      {/* Overline */}
+      
       <p className="font-mono text-[10px] tracking-[3px] uppercase text-text-muted mb-6">
         {t('error.system_error')}
       </p>
 
-      {/* Error label — clinical, not a status code */}
+      
       <h1 className="font-display text-[36px] md:text-[48px] font-light text-text-main tracking-[2px] uppercase leading-none mb-4">
         {t('error.something_went_wrong')}
       </h1>
 
-      {/* Hairline separator */}
+      
       <div className="w-16 h-px bg-card-border mb-8" />
 
-      {/* Editorial body copy */}
+      
       <p className="font-body text-[16px] md:text-[18px] text-text-secondary leading-relaxed max-w-md mb-12">
         {t('error.unexpected_condition')}
       </p>
 
-      {/* CTAs */}
+      
       <div className="flex flex-col sm:flex-row gap-4">
         {onReset && (
           <button

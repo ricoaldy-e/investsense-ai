@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, Plus, Trash2, RefreshCw, Loader2, TrendingUp, TrendingDown, Minus, Search, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -7,15 +7,11 @@ import { stockService } from '../services/stockService';
 import api from '../services/api';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { PageLoader, ActionToast } from '../components/ui/LoadingSpinner';
-
-// ─── Helper: format relative time for "added_at" ───
 const formatAddedDate = (isoString) => {
   if (!isoString) return '';
   const d = new Date(isoString);
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
-
-// ─── Change Indicator ───
 const ChangeIndicator = ({ value }) => {
   if (value == null) return <span className="font-mono text-[12px] text-text-muted">—</span>;
   const isPositive = value > 0;
@@ -29,21 +25,15 @@ const ChangeIndicator = ({ value }) => {
     </span>
   );
 };
-
-// ─── Price display helper ───
 const formatPrice = (value, currency) => {
   if (value == null) return '—';
   if (currency === 'IDR') return `Rp${value.toLocaleString('id-ID')}`;
   return `$${value.toFixed(2)}`;
 };
-
-// ─── Main Page ───
-
 const Watchlist = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  // State
   const [watchlistItems, setWatchlistItems] = useState([]);
   const [enrichedData, setEnrichedData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -51,7 +41,6 @@ const Watchlist = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState('');
 
-  // Add ticker modal
   const [showAddModal, setShowAddModal] = useState(false);
   const [addQuery, setAddQuery] = useState('');
   const [addSearchResults, setAddSearchResults] = useState([]);
@@ -59,18 +48,13 @@ const Watchlist = () => {
   const [addError, setAddError] = useState('');
   const [addingTicker, setAddingTicker] = useState(null);
 
-  // Remove confirmation
   const [removeTarget, setRemoveTarget] = useState(null);
   const [isRemoving, setIsRemoving] = useState(false);
 
-  // Ref to hold the last toast label (prevents flashing during CSS fade-out)
   const lastToastLabel = React.useRef('');
   if (isRemoving) lastToastLabel.current = t('watchlist.removing');
   if (addingTicker) lastToastLabel.current = t('watchlist.adding');
-
-  // ─── Fetch watchlist from BE ───
   const fetchWatchlist = useCallback(async () => {
-    console.log("masuk sini")
     try {
       setError('');
       const items = await watchlistService.getWatchlist();
@@ -86,19 +70,16 @@ const Watchlist = () => {
       return [];
     }
   }, []);
-
-  // ─── Enrich watchlist items with live quote data ───
   const enrichWithQuotes = useCallback(async (items) => {
     if (!items || items.length === 0) return;
     setIsEnriching(true);
 
-    // Fetch quotes in parallel (max 10 concurrent)
     const quotePromises = items.map(async (item) => {
       try {
         const res = await api.get(`/stocks/quote/${item.ticker}`);
         const data = res.data?.data;
         if (data) {
-          // Normalize DB column names to camelCase for the UI
+
           data.currentPrice = data.current_price ?? data.currentPrice;
           data.changePercent = data.change_percent ?? data.changePercent;
           data.companyName = data.company_name ?? data.companyName;
@@ -122,8 +103,6 @@ const Watchlist = () => {
     setEnrichedData(enriched);
     setIsEnriching(false);
   }, []);
-
-  // ─── Initial load ───
   useEffect(() => {
     const init = async () => {
       setIsLoading(true);
@@ -133,8 +112,6 @@ const Watchlist = () => {
     };
     init();
   }, [fetchWatchlist, enrichWithQuotes]);
-
-  // ─── Refresh handler ───
   const handleRefresh = async () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
@@ -142,13 +119,9 @@ const Watchlist = () => {
     await enrichWithQuotes(items);
     setIsRefreshing(false);
   };
-
-  // ─── Navigate to dashboard for a stock ───
   const handleViewStock = (ticker) => {
     navigate(`/dashboard?stock=${ticker}`);
   };
-
-  // ─── Add to watchlist ───
   const handleAddSearch = async (query) => {
     setAddQuery(query);
     setAddError('');
@@ -177,7 +150,7 @@ const Watchlist = () => {
       setShowAddModal(false);
       setAddQuery('');
       setAddSearchResults([]);
-      // Refresh watchlist
+
       const items = await fetchWatchlist();
       await enrichWithQuotes(items);
     } catch (err) {
@@ -192,15 +165,13 @@ const Watchlist = () => {
       setAddingTicker(null);
     }
   };
-
-  // ─── Remove from watchlist ───
   const handleRemoveTicker = async () => {
     if (!removeTarget) return;
     setIsRemoving(true);
     try {
       await watchlistService.removeFromWatchlist(removeTarget);
       setRemoveTarget(null);
-      // Refresh watchlist
+
       const items = await fetchWatchlist();
       await enrichWithQuotes(items);
     } catch (err) {
@@ -210,13 +181,9 @@ const Watchlist = () => {
       setIsRemoving(false);
     }
   };
-
-  // ─── Loading State ───
   if (isLoading) {
     return <PageLoader label={t('watchlist.loading')} />;
   }
-
-  // ─── Error State ───
   if (error && watchlistItems.length === 0) {
     return (
       <div className="pb-24 md:pb-0 flex flex-col items-center justify-center min-h-[60vh]">
@@ -240,7 +207,7 @@ const Watchlist = () => {
 
   return (
     <div className="pb-24 md:pb-0">
-      {/* Page Header */}
+      
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6 md:mb-8">
         <div>
           <h1 className="font-display text-[20px] md:text-[24px] font-light text-text-main tracking-[3px] uppercase mb-1">
@@ -270,7 +237,7 @@ const Watchlist = () => {
         </div>
       </div>
 
-      {/* Empty State */}
+      
       {watchlistItems.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[50vh]">
           <div className="w-16 h-16 border border-card-border flex items-center justify-center mb-6">
@@ -292,9 +259,9 @@ const Watchlist = () => {
         </div>
       ) : (
         <>
-          {/* ─── Watchlist Table — Desktop ─── */}
+          {}
           <div className="hidden md:block bg-card-dark border border-card-border">
-            {/* Table Header */}
+            
             <div className="grid grid-cols-[1.5fr_1fr_1.2fr_0.8fr_1fr_32px] gap-2 lg:gap-4 px-4 lg:px-6 py-3.5 border-b border-card-border">
               <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted truncate">{t('watchlist.ticker')}</span>
               <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted text-right truncate">{t('watchlist.price')}</span>
@@ -304,7 +271,7 @@ const Watchlist = () => {
               <span className="sr-only">Actions</span>
             </div>
 
-            {/* Table Rows */}
+            
             <div className="divide-y divide-hairline">
               {watchlistItems.map((item) => {
                 const quote = enrichedData[item.ticker];
@@ -314,7 +281,7 @@ const Watchlist = () => {
                     className="grid grid-cols-[1.5fr_1fr_1.2fr_0.8fr_1fr_32px] gap-2 lg:gap-4 px-4 lg:px-6 py-4 hover:bg-surface/30 transition-colors duration-150 group cursor-pointer"
                     onClick={() => handleViewStock(item.ticker)}
                   >
-                    {/* Ticker & Company */}
+                    
                     <div className="min-w-0">
                       <p className="font-mono text-[13px] text-text-main tracking-[0.5px] group-hover:text-accent transition-colors">
                         {item.ticker}
@@ -326,19 +293,19 @@ const Watchlist = () => {
                       )}
                     </div>
 
-                    {/* Price */}
+                    
                     <div className="text-right flex items-center justify-end">
                       <span className="font-mono text-[13px] text-text-main">
                         {quote ? formatPrice(quote.currentPrice, quote.currency) : '—'}
                       </span>
                     </div>
 
-                    {/* Change */}
+                    
                     <div className="text-right flex items-center justify-end">
                       <ChangeIndicator value={quote?.changePercent} />
                     </div>
 
-                    {/* Market State */}
+                    
                     <div className="text-right flex items-center justify-end">
                       {quote?.marketState ? (
                         <span className={`font-mono text-[10px] tracking-[1px] uppercase ${
@@ -351,14 +318,14 @@ const Watchlist = () => {
                       )}
                     </div>
 
-                    {/* Added Date */}
+                    
                     <div className="text-right flex items-center justify-end">
                       <span className="font-mono text-[10px] text-text-muted tracking-[0.5px]">
                         {formatAddedDate(item.added_at)}
                       </span>
                     </div>
 
-                    {/* Remove Button */}
+                    
                     <div className="flex items-center justify-end" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => setRemoveTarget(item.ticker)}
@@ -375,7 +342,7 @@ const Watchlist = () => {
             </div>
           </div>
 
-          {/* ─── Watchlist Cards — Mobile ─── */}
+          {}
           <div className="md:hidden space-y-3">
             {watchlistItems.map((item) => {
               const quote = enrichedData[item.ticker];
@@ -452,7 +419,7 @@ const Watchlist = () => {
             })}
           </div>
 
-          {/* Watchlist footer disclaimer */}
+          
           <div className="mt-6 text-center">
             <p className="font-body text-[11px] text-text-muted italic">
               {t('watchlist.footer_disclaimer')}
@@ -461,7 +428,7 @@ const Watchlist = () => {
         </>
       )}
 
-      {/* ─── Add Stock Modal ─── */}
+      {}
       {showAddModal && (
         <>
           <div
@@ -477,7 +444,7 @@ const Watchlist = () => {
               aria-labelledby="add-stock-title"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Modal Header */}
+              
               <div className="px-6 py-5 border-b border-card-border flex-shrink-0">
                 <h2 id="add-stock-title" className="font-mono text-[11px] tracking-[2px] uppercase text-accent mb-1">
                   {t('watchlist.modal_title')}
@@ -487,7 +454,7 @@ const Watchlist = () => {
                 </p>
               </div>
 
-              {/* Search Input */}
+              
               <div className="px-6 py-4 border-b border-card-border flex-shrink-0">
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
@@ -511,7 +478,7 @@ const Watchlist = () => {
                 )}
               </div>
 
-              {/* Search Results */}
+              
               <div className="flex-1 overflow-y-auto">
                 {addQuery.trim() && addSearchResults.length > 0 ? (
                   <div className="divide-y divide-hairline">
@@ -562,7 +529,7 @@ const Watchlist = () => {
                 ) : null}
               </div>
 
-              {/* Modal Footer */}
+              
               <div className="px-6 py-4 border-t border-card-border flex justify-end flex-shrink-0">
                 <button
                   onClick={() => setShowAddModal(false)}
@@ -576,7 +543,7 @@ const Watchlist = () => {
         </>
       )}
 
-      {/* ─── Remove Confirmation Modal ─── */}
+      {}
       <ConfirmModal
         isOpen={!!removeTarget}
         onClose={() => setRemoveTarget(null)}
@@ -587,7 +554,7 @@ const Watchlist = () => {
         variant="danger"
       />
 
-      {/* Action Toast — non-blocking, bottom-center */}
+      
       <ActionToast
         visible={isRemoving || !!addingTicker}
         label={lastToastLabel.current || t('watchlist.adding')}

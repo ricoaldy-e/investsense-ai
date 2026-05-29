@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 
@@ -24,7 +24,6 @@ const Footer = () => {
 
       if (window.scrollY < 100) current = '';
 
-      // Also highlight 'about' if we are at the very bottom of the page
       if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
         current = 'about';
       }
@@ -53,7 +52,7 @@ const Footer = () => {
     >
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
-          {/* Brand */}
+          
           <div className="max-w-sm">
             <Link 
               to="/" 
@@ -66,7 +65,7 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Navigation */}
+          
           <div className="md:text-right">
             <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted mb-5">
               NAVIGATION
@@ -90,7 +89,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom */}
+        
         <div className="pt-8 border-t border-card-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="font-mono text-[10px] tracking-[1.5px] text-text-muted uppercase">
             © {new Date().getFullYear()} InvestSense AI. All rights reserved.

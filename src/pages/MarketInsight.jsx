@@ -5,61 +5,6 @@ import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import { formatRelativeTime, mapSentimentLabel } from '../services/utils';
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
-
-// ─── Fallback mock headlines (used when BE is unavailable or in mock mode) ───
-const mockHeadlines = [
-  {
-    id: 1,
-    title: 'Bank Indonesia Holds Key Rate Steady at 5.75% Amid Global Uncertainty',
-    source: 'Bloomberg',
-    time: '35 min ago',
-    sentiment: 'Neutral',
-  },
-  {
-    id: 2,
-    title: 'S&P 500 Dips as Fed Signals Prolonged Higher Rates Through 2026',
-    source: 'Reuters',
-    time: '1h ago',
-    sentiment: 'Bearish',
-  },
-  {
-    id: 3,
-    title: 'Indonesian Banking Sector Posts Record Quarterly Profits, Led by BBCA',
-    source: 'CNBC Indonesia',
-    time: '2h ago',
-    sentiment: 'Bullish',
-  },
-  {
-    id: 4,
-    title: 'Nikkei 225 Surges Past 39,000 on Weak Yen and Export Optimism',
-    source: 'Nikkei Asia',
-    time: '3h ago',
-    sentiment: 'Bullish',
-  },
-  {
-    id: 5,
-    title: 'Global Tech Stocks Face Pressure from Rising Bond Yields',
-    source: 'Financial Times',
-    time: '4h ago',
-    sentiment: 'Bearish',
-  },
-  {
-    id: 6,
-    title: 'Indonesia Consumer Confidence Index Remains Stable at 124.3',
-    source: 'Kompas',
-    time: '5h ago',
-    sentiment: 'Neutral',
-  },
-];
-
-// ─── Helper Components ───
-
-/**
- * SentimentTag — Maps sentiment labels to UI tags.
- * Handles both mock format ("Bullish"/"Bearish"/"Neutral") and
- * BE-derived format ("positive"/"negative"/"neutral").
- */
 const SentimentTag = ({ sentiment }) => {
   const { t } = useTranslation();
 
@@ -82,30 +27,20 @@ const SentimentTag = ({ sentiment }) => {
 
 };
 
-// ─── Main Page ───
-
 const MarketInsight = () => {
   const { t, i18n } = useTranslation();
-
-  // ─── News state ────────────────────────────────────────────────────────────
   const [lastUpdated] = useState(new Date());
-  const [marketHeadlines, setMarketHeadlines] = useState(USE_MOCK ? mockHeadlines : []);
-  const [isLoadingNews, setIsLoadingNews] = useState(!USE_MOCK);
+  const [marketHeadlines, setMarketHeadlines] = useState([]);
+  const [isLoadingNews, setIsLoadingNews] = useState(true);
   const [newsError, setNewsError] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
-
-  // ─── Anti-FOMO Radar state ─────────────────────────────────────────────────
   const [overbought, setOverbought] = useState([]);
   const [oversold, setOversold] = useState([]);
   const [radarLastUpdated, setRadarLastUpdated] = useState(null);
   const [isLoadingRadar, setIsLoadingRadar] = useState(true);
   const [radarError, setRadarError] = useState(false);
 
-  /**
-   * Fetch Anti-FOMO Radar data from the backend.
-   * Endpoint: GET /market-insight/radar
-   * Returns top overbought (RSI >= 70) and oversold (RSI <= 30) LQ45 stocks.
-   */
+  
   const fetchRadar = useCallback(async () => {
     setIsLoadingRadar(true);
     setRadarError(false);
@@ -118,22 +53,15 @@ const MarketInsight = () => {
         setRadarLastUpdated(new Date(response.data.lastUpdated));
       }
     } catch (err) {
-      console.warn(`[InvestSense MarketInsight] Failed to fetch radar data. Details: ${err.message}`);
+      console.warn(`[MarketInsight] Failed to fetch radar data. Details: ${err.message}`);
       setRadarError(true);
     } finally {
       setIsLoadingRadar(false);
     }
   }, []);
 
-  /**
-   * Fetch market headlines from the dedicated market news endpoint.
-   * Endpoint: GET /news/market
-   * Returns AI-classified headlines (BULLISH / BEARISH / NEUTRAL) served from Redis cache.
-   * Falls back to mock data if the request fails (graceful degradation).
-   */
+  
   const fetchMarketNews = useCallback(async () => {
-    if (USE_MOCK) return;
-
     setIsLoadingNews(true);
     setNewsError(false);
     try {
@@ -146,35 +74,29 @@ const MarketInsight = () => {
           title: article.title,
           description: article.description,
           url: article.url,
-          // New schema uses source_name (flat string) instead of source.name
           source: article.source_name || 'Unknown',
-          // published_at is an ISO string from the new endpoint
           time: formatRelativeTime(article.published_at),
-          // sentiment_label is uppercase English: 'BULLISH' | 'BEARISH' | 'NEUTRAL'
           sentiment: mapSentimentLabel(article.sentiment_label),
         }));
         setMarketHeadlines(mapped);
       } else {
-        // Empty response — cache may be warming; fall back to mock
-        setMarketHeadlines(mockHeadlines);
+        setMarketHeadlines([]);
       }
     } catch (err) {
-      console.warn(`[InvestSense MarketInsight] Failed to fetch market headlines. Details: ${err.message}`);
+      console.warn(`[MarketInsight] Failed to fetch market headlines. Details: ${err.message}`);
       setNewsError(true);
-      setMarketHeadlines(mockHeadlines);
+      setMarketHeadlines([]);
     } finally {
       setIsLoadingNews(false);
     }
   }, []);
 
-  // ─── Initial load: radar + news run in parallel ────────────────────────────
   useEffect(() => {
     Promise.all([fetchRadar(), fetchMarketNews()]).finally(() => {
-      setTimeout(() => setIsPageLoading(false), 400); // Small delay for smoother UX
+      setTimeout(() => setIsPageLoading(false), 400); 
     });
   }, [fetchRadar, fetchMarketNews]);
 
-  // Count sentiments for summary
   const bullishCount = marketHeadlines.filter(n => n.sentiment === 'Bullish' || n.sentiment === 'positive').length;
   const bearishCount = marketHeadlines.filter(n => n.sentiment === 'Bearish' || n.sentiment === 'negative').length;
   const neutralCount = marketHeadlines.filter(n => n.sentiment === 'Neutral' || n.sentiment === 'neutral').length;
@@ -185,7 +107,6 @@ const MarketInsight = () => {
 
   return (
     <div className="pb-24 md:pb-0">
-      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6 md:mb-8">
         <div>
           <h1 className="font-display text-[20px] md:text-[24px] font-light text-text-main tracking-[3px] uppercase mb-1">
@@ -198,8 +119,6 @@ const MarketInsight = () => {
           </p>
         </div>
       </div>
-
-      {/* Market Sentiment Heat */}
       <div className="bg-card-dark border border-card-border p-5 mb-4 md:mb-6 flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-[11px] tracking-[2px] uppercase text-text-muted">
@@ -209,8 +128,6 @@ const MarketInsight = () => {
             {bullishCount + bearishCount + neutralCount} {t('market.articles')}
           </span>
         </div>
-        
-        {/* Progress Bar */}
         <div className="w-full h-2 flex rounded-none overflow-hidden">
           {bullishCount + bearishCount + neutralCount > 0 ? (
             <>
@@ -222,8 +139,6 @@ const MarketInsight = () => {
             <div className="w-full h-full bg-surface" />
           )}
         </div>
-
-        {/* Legend */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <span className="font-mono text-[12px] text-success">{bullishCount}</span>
@@ -240,12 +155,8 @@ const MarketInsight = () => {
         </div>
       </div>
 
-      {/* Main Grid — fluid auto-fit to work with AI panel resize */}
       <div className="grid gap-4 md:gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(380px, 100%), 1fr))' }}>
-        {/* Left Column — Anti-FOMO Radars stacked */}
         <div className="flex flex-col gap-4 md:gap-6">
-
-          {/* ── Overbought Radar ── */}
           <div className="bg-card-dark border border-card-border">
             <div className="px-5 py-4 border-b border-card-border flex items-center justify-between bg-danger-soft/20">
               <h2 className="font-display text-[11px] tracking-[2px] uppercase text-danger">
@@ -256,14 +167,12 @@ const MarketInsight = () => {
               </span>
             </div>
 
-            {/* Loading skeleton */}
             {isLoadingRadar && (
               <div className="flex items-center justify-center py-8">
                 <InlineLoader label={t('market.loading')} />
               </div>
             )}
 
-            {/* Error state */}
             {!isLoadingRadar && radarError && (
               <div className="px-5 py-6 text-center">
                 <p className="font-mono text-[10px] tracking-[1px] uppercase text-danger mb-1">{t('dashboard.error_title')}</p>
@@ -271,14 +180,12 @@ const MarketInsight = () => {
               </div>
             )}
 
-            {/* Empty state */}
             {!isLoadingRadar && !radarError && overbought.length === 0 && (
               <div className="px-5 py-6 text-center">
                 <p className="font-mono text-[10px] tracking-[1px] uppercase text-text-muted">Tidak ada saham overbought saat ini</p>
               </div>
             )}
 
-            {/* Data rows */}
             {!isLoadingRadar && !radarError && overbought.length > 0 && (
               <div className="divide-y divide-hairline">
                 {overbought.map((stock) => (
@@ -304,8 +211,6 @@ const MarketInsight = () => {
               </div>
             )}
           </div>
-
-          {/* ── Oversold Radar ── */}
           <div className="bg-card-dark border border-card-border">
             <div className="px-5 py-4 border-b border-card-border flex items-center justify-between bg-success-soft/20">
               <h2 className="font-display text-[11px] tracking-[2px] uppercase text-success">
@@ -316,14 +221,12 @@ const MarketInsight = () => {
               </span>
             </div>
 
-            {/* Loading skeleton */}
             {isLoadingRadar && (
               <div className="flex items-center justify-center py-8">
                 <InlineLoader label={t('market.loading')} />
               </div>
             )}
 
-            {/* Error state */}
             {!isLoadingRadar && radarError && (
               <div className="px-5 py-6 text-center">
                 <p className="font-mono text-[10px] tracking-[1px] uppercase text-danger mb-1">{t('dashboard.error_title')}</p>
@@ -331,14 +234,12 @@ const MarketInsight = () => {
               </div>
             )}
 
-            {/* Empty state */}
             {!isLoadingRadar && !radarError && oversold.length === 0 && (
               <div className="px-5 py-6 text-center">
                 <p className="font-mono text-[10px] tracking-[1px] uppercase text-text-muted">Tidak ada saham oversold saat ini</p>
               </div>
             )}
 
-            {/* Data rows */}
             {!isLoadingRadar && !radarError && oversold.length > 0 && (
               <div className="divide-y divide-hairline">
                 {oversold.map((stock) => (
@@ -366,7 +267,6 @@ const MarketInsight = () => {
           </div>
         </div>
 
-        {/* Right Column — Market Headlines (integrated with BE news search) */}
         <div>
           <div className="bg-card-dark border border-card-border h-full flex flex-col">
             <div className="px-5 py-4 border-b border-card-border flex items-center justify-between">
@@ -385,7 +285,11 @@ const MarketInsight = () => {
             ) : newsError ? (
               <div className="flex-1 flex flex-col items-center justify-center py-10 px-5 text-center">
                 <p className="font-mono text-[10px] tracking-[1px] uppercase text-danger mb-1">{t('dashboard.error_title')}</p>
-                <p className="font-body text-[12px] text-text-muted">Gagal memuat berita pasar. Data cadangan ditampilkan.</p>
+                <p className="font-body text-[12px] text-text-muted">Gagal memuat berita pasar. Data tidak dapat ditampilkan.</p>
+              </div>
+            ) : marketHeadlines.length === 0 ? (
+               <div className="flex-1 flex flex-col items-center justify-center py-10 px-5 text-center">
+                <p className="font-body text-[12px] text-text-muted">Belum ada berita pasar saat ini.</p>
               </div>
             ) : (
               <div className="divide-y divide-hairline flex-1">

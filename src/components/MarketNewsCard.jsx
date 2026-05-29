@@ -1,17 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { Newspaper, ExternalLink, Loader2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import { getNewsKeyword, formatRelativeTime } from '../services/utils';
 import useDashboardStore from '../store/useDashboardStore';
 
-/**
- * MarketNewsCard — Self-fetching news component.
- *
- * Uses the Smart Dictionary (getNewsKeyword) to translate raw tickers
- * into meaningful search terms before calling GET /news/search?keyword=.
- * Re-fetches automatically whenever the global activeTicker changes.
- */
 const MarketNewsCard = ({ mode }) => {
   const { t } = useTranslation();
   const activeTicker = useDashboardStore((s) => s.activeTicker);
@@ -23,8 +16,6 @@ const MarketNewsCard = ({ mode }) => {
   const closeRef = useRef(null);
 
   const isPro = mode === 'pro';
-
-  // ─── Fetch news on ticker change ──────────────────────────────────────────
   useEffect(() => {
     if (!activeTicker) {
       setArticles([]);
@@ -68,8 +59,6 @@ const MarketNewsCard = ({ mode }) => {
     fetchNews();
     return () => { cancelled = true; };
   }, [activeTicker]);
-
-  // ─── Modal: ESC key + body scroll lock ───────────────────────────────────
   useEffect(() => {
     if (!isModalOpen) return;
     const handleKey = (e) => { if (e.key === 'Escape') setIsModalOpen(false); };
@@ -85,8 +74,6 @@ const MarketNewsCard = ({ mode }) => {
   const previewCount = isPro ? 4 : 3;
   const previewArticles = articles.slice(0, previewCount);
   const hasMore = articles.length > previewCount;
-
-  // ─── Skeleton rows shown while loading ───────────────────────────────────
   const SkeletonRow = () => (
     <div className="py-4 border-b border-hairline last:border-0 animate-pulse">
       <div className="flex justify-between items-center mb-2">
@@ -98,11 +85,9 @@ const MarketNewsCard = ({ mode }) => {
       {isPro && <div className="h-2.5 bg-surface rounded w-3/5" />}
     </div>
   );
-
-  // ─── Single article row ───────────────────────────────────────────────────
   const ArticleRow = ({ item, isLast }) => (
     <div className={`group py-4 ${isLast ? '' : 'border-b border-hairline'}`}>
-      {/* Metadata row */}
+      
       <div className="flex items-center justify-between mb-1.5 gap-2">
         <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-accent truncate">
           {item.sourceName}
@@ -112,7 +97,7 @@ const MarketNewsCard = ({ mode }) => {
         </span>
       </div>
 
-      {/* Title */}
+      
       <a
         href={item.url}
         target="_blank"
@@ -126,7 +111,7 @@ const MarketNewsCard = ({ mode }) => {
         <ExternalLink className="w-3 h-3 text-text-muted group-hover/link:text-accent transition-colors flex-shrink-0 mt-0.5" />
       </a>
 
-      {/* Description — Pro mode only */}
+      
       {isPro && item.description && (
         <p className="font-body text-[11px] text-text-muted mt-1.5 leading-relaxed line-clamp-2">
           {item.description}
@@ -134,13 +119,11 @@ const MarketNewsCard = ({ mode }) => {
       )}
     </div>
   );
-
-  // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <>
       <div className="bg-card-dark border border-card-border p-4 sm:p-6 h-full flex flex-col">
 
-        {/* Header */}
+        
         <div className="flex items-center justify-between mb-4 sm:mb-5">
           <div className="flex items-center gap-2">
             <Newspaper className="w-3.5 h-3.5 text-accent" />
@@ -148,13 +131,13 @@ const MarketNewsCard = ({ mode }) => {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Keyword badge */}
+            
             {activeTicker && !isLoading && (
               <span className="font-mono text-[9px] tracking-[1px] text-text-muted uppercase hidden sm:block border border-card-border px-2 py-1">
                 {getNewsKeyword(activeTicker).split(' OR ')[0]}
               </span>
             )}
-            {/* See All button */}
+            
             {hasMore && (
               <button
                 onClick={() => setIsModalOpen(true)}
@@ -166,17 +149,17 @@ const MarketNewsCard = ({ mode }) => {
           </div>
         </div>
 
-        {/* Body */}
+        
         <div className="flex-1">
 
-          {/* Loading state */}
+          
           {isLoading && (
             <div>
               {[0, 1, 2].map((i) => <SkeletonRow key={i} />)}
             </div>
           )}
 
-          {/* Error state */}
+          
           {!isLoading && error && (
             <div className="flex flex-col items-center justify-center h-32 gap-2">
               <p className="font-mono text-[10px] tracking-[1px] uppercase text-danger">{error}</p>
@@ -184,14 +167,14 @@ const MarketNewsCard = ({ mode }) => {
             </div>
           )}
 
-          {/* No ticker / no results */}
+          
           {!isLoading && !error && articles.length === 0 && (
             <p className="font-body text-[14px] text-text-muted py-4">
               {activeTicker ? t('news_card.no_news_found', { ticker: activeTicker }) : t('news_card.select_stock_news')}
             </p>
           )}
 
-          {/* Article list */}
+          
           {!isLoading && !error && previewArticles.length > 0 && (
             <div>
               {previewArticles.map((item, i) => (
@@ -201,15 +184,13 @@ const MarketNewsCard = ({ mode }) => {
           )}
         </div>
 
-        {/* Footer disclaimer */}
+        
         {!isLoading && articles.length > 0 && (
           <p className="font-body text-[10px] text-text-muted italic mt-4 pt-4 border-t border-hairline">
             {t('news_card.ai_disclaimer')}
           </p>
         )}
       </div>
-
-      {/* ── Full News Modal ── */}
       {isModalOpen && (
         <>
           <div
@@ -217,7 +198,7 @@ const MarketNewsCard = ({ mode }) => {
             onClick={() => setIsModalOpen(false)}
             aria-hidden="true"
           />
-          {/* Panel */}
+          
           <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 sm:p-6">
             <div
               className="w-full max-w-[580px] max-h-[82vh] bg-surface border border-card-border flex flex-col"
@@ -226,7 +207,7 @@ const MarketNewsCard = ({ mode }) => {
               aria-labelledby="news-modal-title"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Modal header */}
+              
               <div className="flex items-center justify-between px-6 py-5 border-b border-card-border flex-shrink-0">
                 <div>
                   <h2
@@ -249,14 +230,14 @@ const MarketNewsCard = ({ mode }) => {
                 </button>
               </div>
 
-              {/* Scrollable list */}
+              
               <div className="flex-1 overflow-y-auto px-6 py-2">
                 {articles.map((item, i) => (
                   <ArticleRow key={item.id} item={item} isLast={i === articles.length - 1} />
                 ))}
               </div>
 
-              {/* Modal footer */}
+              
               <div className="px-6 py-4 border-t border-card-border flex-shrink-0">
                 <p className="font-body text-[11px] text-text-muted italic text-center">
                   {t('ai_insight_card.disclaimer')}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { Info, Loader2, AlertCircle } from 'lucide-react';
 import { CardOverlayLoader } from './ui/LoadingSpinner';
 import { createChart, CrosshairMode, CandlestickSeries } from 'lightweight-charts';
@@ -6,15 +6,11 @@ import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import Tooltip from './Tooltip';
 import useDashboardStore from '../store/useDashboardStore';
-
-// ─── Price formatter ───────────────────────────────────────────────────────
 const formatPrice = (value, currency) => {
   if (value == null) return 'N/A';
   if (currency === 'IDR') return `Rp${value.toLocaleString('id-ID')}`;
   return `$${value.toFixed(2)}`;
 };
-
-// ─── Dark chart theme — matched to design tokens in index.css ─────────────
 const CHART_OPTIONS = {
   layout: {
     background: { color: '#18181b' },
@@ -55,8 +51,6 @@ const CHART_OPTIONS = {
   handleScroll: true,
   handleScale: true,
 };
-
-// ─── Candle colors — success/danger from design tokens ────────────────────
 const CANDLE_OPTIONS = {
   upColor: '#5ba88a',
   downColor: '#e85d5d',
@@ -65,22 +59,14 @@ const CANDLE_OPTIONS = {
   wickUpColor: '#5ba88a',
   wickDownColor: '#e85d5d',
 };
-
-// ─── Component ────────────────────────────────────────────────────────────
 const StockChartCard = ({ data, mode }) => {
   const { t } = useTranslation();
   const activeTicker = useDashboardStore((s) => s.activeTicker);
-
-  // ─── Chart DOM & instance refs ────────────────────────────────────────
   const containerRef = useRef(null);
   const chartRef     = useRef(null);
   const seriesRef    = useRef(null);
-
-  // ─── History fetch state ──────────────────────────────────────────────
   const [isFetchingHistory, setIsFetchingHistory] = useState(false);
   const [chartError, setChartError]               = useState(null);
-
-  // ─── Create chart once on mount; destroy on unmount ──────────────────
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -94,8 +80,6 @@ const StockChartCard = ({ data, mode }) => {
 
     chartRef.current = chart;
     seriesRef.current = series;
-
-    // Responsive: track container width changes
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0];
       if (!entry || !chartRef.current) return;
@@ -110,8 +94,6 @@ const StockChartCard = ({ data, mode }) => {
       seriesRef.current = null;
     };
   }, []);
-
-  // ─── Fetch OHLC history whenever activeTicker changes ────────────────
   useEffect(() => {
     if (!activeTicker || !seriesRef.current) return;
 
@@ -126,20 +108,18 @@ const StockChartCard = ({ data, mode }) => {
 
         const raw = response.data?.data ?? [];
 
-        // Map to lightweight-charts OHLC format.
-        // time MUST be 'YYYY-MM-DD' — lightweight-charts rejects full ISO strings.
         const candles = raw
           .map((item) => {
             const dateStr = item.record_date || item.date;
             return {
-              time:  dateStr.split('T')[0], // "2026-04-27T02:00:00.000Z" → "2026-04-27"
+              time:  dateStr.split('T')[0],
               open:  Number(item.open),
               high:  Number(item.high),
               low:   Number(item.low),
               close: Number(item.close),
             };
           })
-          .sort((a, b) => new Date(a.time) - new Date(b.time)); // oldest → newest
+          .sort((a, b) => new Date(a.time) - new Date(b.time));
 
         seriesRef.current.setData(candles);
         chartRef.current?.timeScale().fitContent();
@@ -159,8 +139,6 @@ const StockChartCard = ({ data, mode }) => {
     fetchHistory();
     return () => { cancelled = true; };
   }, [activeTicker]);
-
-  // ─── Derived indicator values from stockDetail data ───────────────────
   const rsi    = data?.metrics?.rsi14 ?? 0;
   const isPro  = mode === 'pro';
 
@@ -178,21 +156,15 @@ const StockChartCard = ({ data, mode }) => {
   const rsiTooltip = isPro ? t('stock_chart.rsi_tooltip_pro') : t('stock_chart.rsi_tooltip_beginner');
   const trendTooltip = isPro ? t('stock_chart.trend_tooltip_pro') : t('stock_chart.trend_tooltip_beginner');
 
-  // RSI descriptions
   const rsiDesc = isPro
     ? (rsi >= 70 ? t('stock_chart.rsi_desc_pro_high') : rsi <= 30 ? t('stock_chart.rsi_desc_pro_low') : t('stock_chart.rsi_desc_pro_neutral'))
     : (rsi >= 70 ? t('stock_chart.rsi_desc_beginner_high') : rsi <= 30 ? t('stock_chart.rsi_desc_beginner_low') : t('stock_chart.rsi_desc_beginner_neutral'));
 
-  // Trend descriptions
   const trendDesc = isPro
     ? (data?.trend === 'up' ? t('stock_chart.trend_desc_pro_up') : data?.trend === 'down' ? t('stock_chart.trend_desc_pro_down') : t('stock_chart.trend_desc_pro_side'))
     : (data?.trend === 'up' ? t('stock_chart.trend_desc_beginner_up') : data?.trend === 'down' ? t('stock_chart.trend_desc_beginner_down') : t('stock_chart.trend_desc_beginner_side'));
-
-  // ─── Render ───────────────────────────────────────────────────────────
   return (
     <div className="bg-card-dark border border-card-border p-4 sm:p-6 flex flex-col overflow-hidden">
-
-      {/* ── Stock header (rendered when full data arrives) ── */}
       {data && (
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4 sm:mb-6">
           <div className="flex items-center gap-4">
@@ -200,7 +172,7 @@ const StockChartCard = ({ data, mode }) => {
               <span className="font-mono text-[11px] text-text-muted tracking-[1px]">{data.ticker?.[0]}</span>
             </div>
             <div className="min-w-0">
-              <h2 className="font-display text-[20px] font-medium text-text-main tracking-[0.5px] mb-1 truncate">
+              <h2 className="font-display text-[20px] font-medium text-text-main tracking-[0.5px] mb-1 line-clamp-2 leading-tight">
                 {data.name} ({data.ticker})
               </h2>
               <div className="flex items-center gap-3 flex-wrap">
@@ -219,7 +191,7 @@ const StockChartCard = ({ data, mode }) => {
             </div>
           </div>
 
-          {/* Pro mode: extra metrics */}
+          
           {isPro && (
             <div className="flex items-center gap-3 flex-wrap">
               {data.metrics?.peRatio != null && (
@@ -242,8 +214,6 @@ const StockChartCard = ({ data, mode }) => {
           )}
         </div>
       )}
-
-      {/* ── Skeleton header while data loads (ticker known, data pending) ── */}
       {!data && activeTicker && (
         <div className="flex items-center gap-4 mb-4 sm:mb-6">
           <div className="w-10 h-10 bg-surface border border-card-border flex items-center justify-center shrink-0">
@@ -255,18 +225,16 @@ const StockChartCard = ({ data, mode }) => {
           </div>
         </div>
       )}
-
-      {/* ── Candlestick Chart Container ── */}
       <div className="relative w-full mb-6 rounded-sm overflow-hidden" style={{ height: '320px' }}>
-        {/* lightweight-charts mounts directly into this div */}
+        
         <div ref={containerRef} className="w-full h-full" />
 
-        {/* Loading overlay */}
+        
         {isFetchingHistory && (
           <CardOverlayLoader label="Loading chart…" />
         )}
 
-        {/* Chart fetch error */}
+        
         {chartError && !isFetchingHistory && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
             <AlertCircle className="w-5 h-5 text-text-muted" />
@@ -274,7 +242,7 @@ const StockChartCard = ({ data, mode }) => {
           </div>
         )}
 
-        {/* No ticker state — chart empty on initial load */}
+        
         {!activeTicker && !isFetchingHistory && (
           <div className="absolute inset-0 flex items-center justify-center">
             <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted">
@@ -283,12 +251,10 @@ const StockChartCard = ({ data, mode }) => {
           </div>
         )}
       </div>
-
-      {/* ── RSI / Trend Indicators — only when full data is available ── */}
       {data && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 border-t border-card-border pt-6">
 
-          {/* RSI */}
+          
           <div>
             <div className="flex justify-between items-center mb-3 gap-2">
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
@@ -316,7 +282,7 @@ const StockChartCard = ({ data, mode }) => {
             </p>
           </div>
 
-          {/* Price Trend */}
+          
           <div>
             <div className="flex justify-between items-center mb-3 gap-2">
               <div className="flex items-center gap-1.5 flex-1 min-w-0">

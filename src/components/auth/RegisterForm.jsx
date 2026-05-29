@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -105,13 +105,13 @@ const RegisterForm = () => {
     setIsLoading(true);
     try {
       await register(email, username, password);
-      // Redirect to login so the user logs in manually after registering
+
       navigate('/login', {
         state: { successMessage: 'Account created successfully. Please log in.' },
         replace: true,
       });
     } catch (err) {
-      // Prefer the structured backend message; fall back to generic
+
       const message =
         err.response?.data?.message ||
         err.message ||
@@ -136,7 +136,7 @@ const RegisterForm = () => {
           </div>
         )}
 
-        {/* Username */}
+        
         <InputField 
           label="Username"
           type="text"
@@ -151,7 +151,7 @@ const RegisterForm = () => {
           error={errors.username}
         />
 
-        {/* Email */}
+        
         <InputField 
           label="Email Address"
           type="email"
@@ -166,7 +166,7 @@ const RegisterForm = () => {
           error={errors.email}
         />
 
-        {/* Password */}
+        
         <InputField 
           label="Password"
           type="password"
@@ -181,7 +181,7 @@ const RegisterForm = () => {
           error={errors.password}
         />
 
-        {/* Submit */}
+        
         <div className="pt-3">
           <button 
             type="submit" 

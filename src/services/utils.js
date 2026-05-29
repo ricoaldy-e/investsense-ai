@@ -1,20 +1,5 @@
-// src/services/utils.js
-// Shared utilities for service layer — mock simulation and data transformation.
-
-/**
- * Simulate network delay for mock API mode.
- * Will become unused once real backend is fully connected.
- * @param {number} ms - Milliseconds to delay
- */
 export const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-/**
- * Convert an ISO timestamp (or date string) into a human-readable relative time.
- * Examples: "2 hours ago", "1 day ago", "just now"
- *
- * @param {string} isoString - ISO 8601 timestamp from BE (e.g. "2026-05-24T10:00:00Z")
- * @returns {string} Relative time string
- */
 export const formatRelativeTime = (isoString) => {
   if (!isoString) return 'Unknown';
 
@@ -22,7 +7,7 @@ export const formatRelativeTime = (isoString) => {
   const then = new Date(isoString);
   const diffMs = now - then;
 
-  if (diffMs < 0) return 'just now'; // Future date edge case
+  if (diffMs < 0) return 'just now';
 
   const diffMinutes = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
@@ -38,40 +23,16 @@ export const formatRelativeTime = (isoString) => {
   return then.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
-/**
- * Map BE sentiment label to FE sentiment key (English lowercase).
- *
- * Handles two formats:
- *   - Legacy Indonesian: "Positif" | "Negatif" | "Netral"
- *   - New English uppercase: "BULLISH" | "BEARISH" | "NEUTRAL"
- * FE expects: "positive" | "negative" | "neutral"
- *
- * @param {string|null} label - Sentiment label from BE
- * @returns {string} Mapped sentiment string
- */
 export const mapSentimentLabel = (label) => {
   if (!label) return 'neutral';
   const normalized = label.toLowerCase().trim();
-  // New English-uppercase format (/news/market endpoint)
   if (normalized === 'bullish') return 'positive';
   if (normalized === 'bearish') return 'negative';
-  // Legacy Indonesian format (/news/search endpoint)
   if (normalized === 'positif') return 'positive';
   if (normalized === 'negatif') return 'negative';
-  // 'neutral', 'netral', or anything else → neutral
   return 'neutral';
 };
 
-/**
- * Compute aggregated sentiment percentages from an array of news articles.
- *
- * BE provides per-article sentiment. FE SentimentAnalysisCard expects:
- *   { positive: number, neutral: number, negative: number }
- * where values are percentages summing to 100.
- *
- * @param {Array<{sentiment: string}>} newsItems - News items with mapped sentiment
- * @returns {{ positive: number, neutral: number, negative: number }}
- */
 export const computeSentimentPercentages = (newsItems) => {
   if (!newsItems || newsItems.length === 0) {
     return { positive: 0, neutral: 100, negative: 0 };
@@ -92,48 +53,20 @@ export const computeSentimentPercentages = (newsItems) => {
   };
 };
 
-/**
- * Derive a trend direction string from changePercent and BE trend_status.
- *
- * Priority:
- *   1. If BE provides trend_status → map "Overbought"→"up", "Oversold"→"down", "Neutral"→"sideways"
- *   2. Fallback to changePercent sign
- *
- * @param {number|null} changePercent - Daily change percentage
- * @param {string|null} trendStatus - BE trend_status field
- * @returns {"up"|"down"|"sideways"}
- */
 export const deriveTrend = (changePercent, trendStatus) => {
-  // Use trend_status from BE indicators if available
   if (trendStatus) {
     const lower = trendStatus.toLowerCase();
     if (lower === 'overbought') return 'up';
     if (lower === 'oversold') return 'down';
-    // "Neutral" → check changePercent for nuance
   }
 
-  // Fallback to price change direction
   if (changePercent == null) return 'sideways';
   if (changePercent > 0.5) return 'up';
   if (changePercent < -0.5) return 'down';
   return 'sideways';
 };
 
-/**
- * Generate rule-based AI insight text from RSI and trend data.
- *
- * The BE does not have a dedicated "AI insights" endpoint per stock.
- * These are generated client-side from the RSI-14 value and trend_status
- * provided by the indicators endpoint. They serve as placeholder text
- * until the user interacts with the AI chatbot for deeper analysis.
- *
- * @param {number|null} rsi - RSI-14 value
- * @param {string|null} trendStatus - BE trend_status ("Overbought"/"Oversold"/"Neutral")
- * @param {string} ticker - Stock ticker symbol
- * @returns {{ observation: string, suggestedPlan: string, antiFomoWarning: string }}
- */
 export const deriveAIInsights = (rsi, trendStatus, ticker) => {
-  // Default when no data is available
   if (rsi == null) {
     return {
       observation: `Technical indicator data for ${ticker} is currently being processed. Check back shortly for updated analysis.`,
@@ -162,24 +95,12 @@ export const deriveAIInsights = (rsi, trendStatus, ticker) => {
   return { observation, suggestedPlan, antiFomoWarning };
 };
 
-/**
- * getNewsKeyword — Maps a stock ticker to a human-friendly search term for news.
- *
- * Problem: Raw tickers (e.g. "GOTO.JK") yield zero results on news portals.
- * Solution: A curated dictionary maps known tickers to meaningful search phrases.
- *           Unknown tickers fall back to the base symbol (stripped of exchange suffix).
- *
- * @param {string} ticker - Stock ticker (e.g. "GOTO.JK", "AAPL")
- * @returns {string} A search keyword suitable for GET /news/search?keyword=
- */
 export const getNewsKeyword = (ticker) => {
   if (!ticker) return '';
 
   const upper = ticker.toUpperCase();
 
-  // ─── Indonesian IDX stocks ─────────────────────────────────────────────────
   const dictionary = {
-    // Big caps
     'GOTO.JK':  'GoTo OR Gojek OR Tokopedia',
     'TLKM.JK':  'Telkom Indonesia OR IndiHome OR TelkomSel',
     'BBCA.JK':  'Bank BCA OR BCA',
@@ -210,8 +131,6 @@ export const getNewsKeyword = (ticker) => {
     'BRPT.JK':  'Barito Pacific',
     'BUKA.JK':  'Bukalapak',
     'EMTK.JK':  'Elang Mahkota Teknologi',
-
-    // ─── US / Global blue chips ─────────────────────────────────────────────
     'AAPL':   'Apple',
     'MSFT':   'Microsoft',
     'GOOGL':  'Google OR Alphabet',
@@ -232,7 +151,6 @@ export const getNewsKeyword = (ticker) => {
 
   if (dictionary[upper]) return dictionary[upper];
 
-  // ─── Fallback: strip exchange suffix (.JK, .US, .L, etc.) ────────────────
   const base = upper.split('.')[0];
   return base;
 };

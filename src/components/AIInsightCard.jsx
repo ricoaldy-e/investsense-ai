@@ -1,4 +1,4 @@
-import { Bot } from 'lucide-react';
+﻿import { Bot } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 
@@ -26,7 +26,7 @@ const AIInsightCard = ({ data, mode }) => {
       </div>
 
       <div className="space-y-5 flex-1">
-        {/* Observation */}
+        
         <div className="border-l-2 border-accent/40 pl-4 py-1">
           <p className="font-mono text-[10px] tracking-[2px] uppercase text-accent mb-2">
             {isPro ? t('ai_insight_card.signal') : t('ai_insight_card.what_we_see')}
@@ -48,7 +48,7 @@ const AIInsightCard = ({ data, mode }) => {
           </div>
         </div>
 
-        {/* Suggested Plan */}
+        
         <div className="border-l-2 border-accent/40 pl-4 py-1">
           <p className="font-mono text-[10px] tracking-[2px] uppercase text-accent mb-2">
             {isPro ? t('ai_insight_card.action') : t('ai_insight_card.what_you_can_do')}
@@ -71,7 +71,7 @@ const AIInsightCard = ({ data, mode }) => {
         </div>
       </div>
 
-      {/* Beginner: extra explainer */}
+      
       {!isPro && (
         <div className="mt-5 pt-4 border-t border-hairline">
           <p className="font-body text-[12px] text-text-muted italic leading-relaxed">

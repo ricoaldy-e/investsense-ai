@@ -1,11 +1,7 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { TriangleAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-/**
- * WarningBanner — Dynamic risk awareness banner.
- * Mode-aware, i18n-aware.
- */
 const WarningBanner = ({ data, mode }) => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(true);

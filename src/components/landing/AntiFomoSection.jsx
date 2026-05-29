@@ -1,4 +1,4 @@
-import { ShieldAlert, CheckCircle2, TriangleAlert } from 'lucide-react';
+﻿import { ShieldAlert, CheckCircle2, TriangleAlert } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 
@@ -11,7 +11,7 @@ const AntiFomoSection = () => {
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           
-          {/* Left Text — reveals first */}
+          
           <motion.div
             initial={{ opacity: 0, y: 25 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -60,7 +60,7 @@ const AntiFomoSection = () => {
             </div>
           </motion.div>
 
-          {/* Right Card — slides in after left text */}
+          
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -68,7 +68,7 @@ const AntiFomoSection = () => {
             className="mt-8 lg:mt-0"
           >
              <div className="bg-card-dark border border-card-border p-6 md:p-8">
-               {/* Card header */}
+               
                <p className="font-mono text-[10px] tracking-[2px] uppercase text-accent mb-6">
                  RISK ANALYSIS
                </p>

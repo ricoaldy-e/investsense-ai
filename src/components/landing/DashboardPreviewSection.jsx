@@ -1,4 +1,4 @@
-import { motion, useInView } from 'framer-motion';
+﻿import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 
 const DashboardPreviewSection = () => {
@@ -14,7 +14,7 @@ const DashboardPreviewSection = () => {
   return (
     <section className="py-32 lg:py-40" ref={sectionRef}>
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
-        {/* Section header */}
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -32,7 +32,7 @@ const DashboardPreviewSection = () => {
           </p>
         </motion.div>
 
-        {/* Stats row — staggered reveal */}
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-card-border">
           {stats.map((stat, index) => (
             <motion.div

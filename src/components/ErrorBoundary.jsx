@@ -1,19 +1,6 @@
-import { Component } from 'react';
+﻿import { Component } from 'react';
 import SystemError from '../pages/SystemError';
 
-/**
- * ErrorBoundary — React class component that catches JavaScript errors
- * in its child component tree and renders a fallback UI instead of
- * crashing the entire application to a blank white screen.
- * 
- * Usage:
- *   <ErrorBoundary>
- *     <App />
- *   </ErrorBoundary>
- * 
- * Must be a class component — React does not support error boundaries
- * with function components / hooks.
- */
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
@@ -25,7 +12,6 @@ class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // Log to console in development — replace with monitoring service in production
     console.error('[InvestSense ErrorBoundary] Uncaught Exception:', error, errorInfo);
   }
 

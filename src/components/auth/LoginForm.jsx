@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -20,7 +20,7 @@ const LoginForm = () => {
 
   const handleKeyDown = (e, field) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Cegah submit bawaan jika belum siap
+      e.preventDefault();
       
       if (field === 'email') {
         if (!email) {
@@ -31,7 +31,7 @@ const LoginForm = () => {
           return;
         }
         
-        // Format benar, pindah ke password atau submit
+
         if (!password) {
           passwordRef.current?.focus();
         } else {
@@ -46,7 +46,7 @@ const LoginForm = () => {
           return;
         }
         
-        // Format benar, cek email lalu submit
+
         if (!email) {
           emailRef.current?.focus();
         } else {
@@ -62,7 +62,6 @@ const LoginForm = () => {
   };
 
   const handleLogin = async (e) => {
-    console.log("jalan")
     e.preventDefault();
     setErrors({ email: '', password: '', global: '' });
     
@@ -92,10 +91,10 @@ const LoginForm = () => {
 
     setIsLoading(true);
     try {
-      await login(email, password);
+      await login(email, password, rememberMe);
       navigate('/dashboard');
     } catch (err) {
-      // Prefer the structured backend message; fall back to generic
+
       const message =
         err.response?.data?.message ||
         err.message ||
@@ -114,7 +113,6 @@ const LoginForm = () => {
       </p>
 
       <form className="space-y-6" onSubmit={handleLogin}>
-        {/* Success message from register redirect */}
         {successMessage && (
           <div className="bg-success/10 border border-success/30 text-success p-3 text-[13px] font-body flex items-center gap-2">
             <CheckCircle className="w-4 h-4 flex-shrink-0" />
@@ -128,7 +126,7 @@ const LoginForm = () => {
           </div>
         )}
 
-        {/* Email */}
+        
         <InputField 
           label="Email Address"
           type="email"
@@ -143,7 +141,7 @@ const LoginForm = () => {
           error={errors.email}
         />
 
-        {/* Password */}
+        
         <InputField 
           label="Password"
           type="password"
@@ -158,7 +156,7 @@ const LoginForm = () => {
           error={errors.password}
         />
 
-        {/* Remember */}
+        
         <div className="flex items-center gap-3 pt-1">
           <input 
             type="checkbox" 
@@ -170,7 +168,7 @@ const LoginForm = () => {
           <label htmlFor="remember" className="font-body text-[13px] text-text-secondary select-none cursor-pointer">Remember this device for 30 days</label>
         </div>
 
-        {/* Submit */}
+        
         <div className="pt-3">
           <button 
             type="submit" 

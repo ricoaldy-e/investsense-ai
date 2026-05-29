@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { Loader2, Search, ArrowLeft, RefreshCw, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -18,28 +18,20 @@ const Dashboard = () => {
   const { userMode } = useOutletContext();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-
-  // ─── Zustand global state ─────────────────────────────────────────────────
   const activeTicker    = useDashboardStore((s) => s.activeTicker);
   const setActiveTicker = useDashboardStore((s) => s.setActiveTicker);
 
   const stockFromUrl = searchParams.get('stock');
   const lastViewed   = localStorage.getItem('lastViewedStock');
   const hasStock     = !!(stockFromUrl || lastViewed);
-
-  // ─── Local State ──────────────────────────────────────────────────────────
   const [stockData, setStockData]           = useState(null);
   const [isLoading, setIsLoading]           = useState(hasStock);
   const [error, setError]                   = useState('');
   const [isInWatchlist, setIsInWatchlist]   = useState(false);
   const [watchlistLoading, setWatchlistLoading] = useState(false);
-
-  // ─── Navbar communication via CustomEvent ─────────────────────────────────
   const notifyNavbar = useCallback((isEmpty) => {
     window.dispatchEvent(new CustomEvent('dashboardState', { detail: { isEmpty } }));
   }, []);
-
-  // ─── Core data loader ─────────────────────────────────────────────────────
   const loadStock = useCallback(async (ticker) => {
     setIsLoading(true);
     setError('');
@@ -49,7 +41,7 @@ const Dashboard = () => {
       const data = await stockService.getStockDetail(ticker);
       setStockData(data);
       localStorage.setItem('lastViewedStock', ticker.toUpperCase());
-      // Keep Zustand store in sync when loading via URL param / localStorage
+
       setActiveTicker(ticker.toUpperCase());
       checkWatchlistStatus(ticker.toUpperCase());
     } catch (err) {
@@ -60,8 +52,6 @@ const Dashboard = () => {
       setIsLoading(false);
     }
   }, [notifyNavbar, setActiveTicker]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ─── Clear dashboard ──────────────────────────────────────────────────────
   const handleClearDashboard = useCallback(() => {
     localStorage.removeItem('lastViewedStock');
     navigate('/dashboard');
@@ -71,8 +61,6 @@ const Dashboard = () => {
     notifyNavbar(true);
     setIsLoading(false);
   }, [navigate, notifyNavbar, setActiveTicker]);
-
-  // ─── Watchlist helpers ────────────────────────────────────────────────────
   const checkWatchlistStatus = useCallback(async (ticker) => {
     try {
       const items = await watchlistService.getWatchlist();
@@ -95,17 +83,15 @@ const Dashboard = () => {
         setIsInWatchlist(true);
       }
     } catch (err) {
-      // 409 means already added — just update UI state
+
       if (err.response?.status === 409) {
         setIsInWatchlist(true);
       }
-      console.warn(`[InvestSense Dashboard] Action failed: Unable to toggle watchlist status for ${stockData?.ticker || 'unknown'}.`, err.message);
+      console.warn(`[Dashboard] Action failed: Unable to toggle watchlist status for ${stockData?.ticker || 'unknown'}.`, err.message);
     } finally {
       setWatchlistLoading(false);
     }
   }, [stockData?.ticker, isInWatchlist, watchlistLoading]);
-
-  // ─── Effect 1: URL param / localStorage initial load ─────────────────────
   useEffect(() => {
     const handleClearCmd = () => handleClearDashboard();
     window.addEventListener('clearDashboardCommand', handleClearCmd);
@@ -127,12 +113,9 @@ const Dashboard = () => {
     };
   }, [searchParams, loadStock, handleClearDashboard, notifyNavbar]);
 
-
   if (isLoading) {
     return <PageLoader label={t('dashboard.loading')} />;
   }
-
-  // ─── Render: Error ────────────────────────────────────────────────────────
   if (error) {
     const cachedLastViewed = localStorage.getItem('lastViewedStock');
     const hasValidHistory  = cachedLastViewed && cachedLastViewed !== searchParams.get('stock');
@@ -165,8 +148,6 @@ const Dashboard = () => {
     );
   }
 
-  // ─── Render: Zero State ───────────────────────────────────────────────────
-  // Show only when no ticker is active anywhere (Zustand, URL param, localStorage)
   if (!activeTicker && !stockFromUrl && !lastViewed) {
     return (
       <div className="pb-24 md:pb-0 flex flex-col items-center justify-center min-h-[70vh]">
@@ -185,8 +166,6 @@ const Dashboard = () => {
       </div>
     );
   }
-
-  // ─── Render: Data ─────────────────────────────────────────────────────────
   return (
     <div className="pb-24 md:pb-0 relative">
       <WarningBanner key={stockData?.ticker || 'empty'} data={stockData} mode={userMode} />
@@ -215,17 +194,17 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Fluid grid — adapts dynamically to container width (AI panel resize) */}
+      
       <div className="grid gap-4 md:gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))' }}>
-        {/* Chart — always full width, self-fetches history from Zustand activeTicker */}
+        
         <div style={{ gridColumn: '1 / -1' }}>
           <StockChartCard data={stockData} mode={userMode} />
         </div>
 
-        {/* News — self-fetching, renders skeleton while stockData loads */}
+        
         <MarketNewsCard mode={userMode} />
 
-        {/* Analysis cards — only render when full stock data is available */}
+        
         {stockData && (
           <>
             <SentimentAnalysisCard data={stockData} mode={userMode} />

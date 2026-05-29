@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 @theme {
-  /* ─── Cold Surgical Palette ─── */
   --color-accent: #a8b5c8;
   --color-accent-soft: rgba(168, 181, 200, 0.12);
   --color-accent-hover: #c2cdd9;
@@ -20,7 +19,6 @@
   --color-chart-line: #7b8fa8;
   --color-chart-fill: rgba(123, 143, 168, 0.15);
 
-  /* ─── Font Families ─── */
   --font-display: 'Outfit', system-ui, sans-serif;
   --font-body: 'Source Serif 4', Georgia, serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
@@ -35,15 +33,11 @@ body {
   font-family: var(--font-body);
 }
 
-/* ─── Typography utility classes ─── */
-
-/* Display headings — Outfit, light/regular, tracked */
 h1, h2, h3 {
   font-family: var(--font-display);
   font-weight: 300;
 }
 
-/* ─── Custom scrollbar ─── */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -62,13 +56,11 @@ h1, h2, h3 {
   background: #3f3f46;
 }
 
-/* ─── Selection ─── */
 ::selection {
   background: rgba(168, 181, 200, 0.25);
   color: #fafafa;
 }
 
-/* ─── Loading Shimmer Animation ─── */
 @keyframes shimmer {
   0%   { transform: translateX(-100%); }
   100% { transform: translateX(250%); }
@@ -93,14 +85,12 @@ h1, h2, h3 {
   animation: shimmer 1.6s ease-in-out infinite;
 }
 
-/* ─── App-level top progress bar animation ─── */
 @keyframes appbar {
   0%   { transform: translateX(-100%); opacity: 0.6; }
   50%  { opacity: 1; }
   100% { transform: translateX(200%); opacity: 0.6; }
 }
 
-/* ─── NProgress — themed to match InvestSense palette ─── */
 #nprogress {
   pointer-events: none;
 }
@@ -115,7 +105,6 @@ h1, h2, h3 {
   height: 2px;
 }
 
-/* Glowing tip at the leading edge */
 #nprogress .peg {
   display: block;
   position: absolute;
@@ -129,7 +118,6 @@ h1, h2, h3 {
   transform: rotate(3deg) translate(0px, -4px);
 }
 
-/* Hide the default spinner completely */
 #nprogress .spinner {
   display: none !important;
 }

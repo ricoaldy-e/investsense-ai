@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+﻿import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   TrendingUp, TrendingDown, Minus, Plus, Loader2, Search, X,
@@ -8,9 +8,6 @@ import {
 import { watchlistService } from '../services/watchlistService';
 import api from '../services/api';
 import { PageLoader, ActionToast } from '../components/ui/LoadingSpinner';
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
 const formatPrice = (value, currency) => {
   if (value == null) return null;
   if (currency === 'IDR') return `Rp${Number(value).toLocaleString('id-ID')}`;
@@ -29,9 +26,6 @@ const ChangeIndicator = ({ value }) => {
     </span>
   );
 };
-
-// ─── Search Bar ───────────────────────────────────────────────────────────────
-
 const SearchBar = ({ value, onChange, onClear, isSearching }) => (
   <div className="relative group flex-1 max-w-md">
     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -61,9 +55,6 @@ const SearchBar = ({ value, onChange, onClear, isSearching }) => (
     )}
   </div>
 );
-
-// ─── Skeleton Row ─────────────────────────────────────────────────────────────
-
 const SkeletonRow = ({ index }) => (
   <div
     className="grid grid-cols-[1.8fr_1fr_1fr_1.2fr] gap-4 px-5 py-4 border-b border-hairline"
@@ -76,9 +67,6 @@ const SkeletonRow = ({ index }) => (
     ))}
   </div>
 );
-
-// ─── Watchlist Button ─────────────────────────────────────────────────────────
-
 const WatchlistButton = ({ ticker, isWatched, isLoading, onAdd, onRemove }) => {
   if (isLoading) {
     return (
@@ -116,9 +104,6 @@ const WatchlistButton = ({ ticker, isWatched, isLoading, onAdd, onRemove }) => {
     </button>
   );
 };
-
-// ─── Pagination ───────────────────────────────────────────────────────────────
-
 const Pagination = ({ currentPage, totalPages, onPageChange, isLoading }) => {
   const start = Math.max(1, currentPage - 2);
   const end = Math.min(totalPages, currentPage + 2);
@@ -177,47 +162,32 @@ const Pagination = ({ currentPage, totalPages, onPageChange, isLoading }) => {
     </div>
   );
 };
-
-// ─── Main Page ────────────────────────────────────────────────────────────────
-
 const DEBOUNCE_MS = 500;
 
 const StockCatalog = () => {
   const navigate = useNavigate();
   const tableTopRef = useRef(null);
   const debounceTimer = useRef(null);
-
-  // ── Search state
-  const [searchInput, setSearchInput] = useState('');   // raw input (instant)
-  const [searchQuery, setSearchQuery] = useState('');   // debounced (triggers fetch)
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [isDebouncing, setIsDebouncing] = useState(false);
-
-  // ── Data state
   const [stocks, setStocks] = useState([]);
   const [pagination, setPagination] = useState({ totalItems: 0, totalPages: 1, currentPage: 1, limit: 10 });
   const [currentPage, setCurrentPage] = useState(1);
   const [watchedTickers, setWatchedTickers] = useState(new Set());
-
-  // ── Loading / error
   const [isLoadingStocks, setIsLoadingStocks] = useState(true);
   const [isLoadingWatchlist, setIsLoadingWatchlist] = useState(true);
   const [stocksError, setStocksError] = useState('');
-
-  // ── Per-button loading (ticker → boolean)
   const [buttonLoading, setButtonLoading] = useState({});
-
-  // ── Toast
   const [toastVisible, setToastVisible] = useState(false);
   const [toastLabel, setToastLabel] = useState('');
-
-  // ─── Search input handler — debounce 500ms ──────────────────────────────────
   const handleSearchChange = (value) => {
     setSearchInput(value);
     setIsDebouncing(true);
     clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => {
       setSearchQuery(value.trim());
-      setCurrentPage(1);       // always reset to page 1 on new search
+      setCurrentPage(1);
       setIsDebouncing(false);
     }, DEBOUNCE_MS);
   };
@@ -230,22 +200,16 @@ const StockCatalog = () => {
     setIsDebouncing(false);
   };
 
-  // Clean up timer on unmount
   useEffect(() => () => clearTimeout(debounceTimer.current), []);
-
-  // ─── Fetch watchlist ────────────────────────────────────────────────────────
   const fetchWatchlist = useCallback(async () => {
     try {
       const items = await watchlistService.getWatchlist();
       setWatchedTickers(new Set(items.map(i => i.ticker.toUpperCase())));
     } catch {
-      // silently fail — watchlist error shouldn't break the catalog
     } finally {
       setIsLoadingWatchlist(false);
     }
   }, []);
-
-  // ─── Fetch stocks page (with optional search) ───────────────────────────────
   const fetchStocks = useCallback(async (page, search) => {
     setIsLoadingStocks(true);
     setStocksError('');
@@ -264,18 +228,12 @@ const StockCatalog = () => {
       setIsLoadingStocks(false);
     }
   }, []);
-
-  // ─── Initial watchlist load ─────────────────────────────────────────────────
   useEffect(() => {
     fetchWatchlist();
   }, [fetchWatchlist]);
-
-  // ─── Re-fetch whenever page or debounced search query changes ───────────────
   useEffect(() => {
     fetchStocks(currentPage, searchQuery);
   }, [currentPage, searchQuery, fetchStocks]);
-
-  // ─── Page change ────────────────────────────────────────────────────────────
   const handlePageChange = (page) => {
     if (page === currentPage) return;
     setCurrentPage(page);
@@ -283,12 +241,8 @@ const StockCatalog = () => {
       tableTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 50);
   };
-
-  // ─── Toast helpers ───────────────────────────────────────────────────────────
   const showToast = (label) => { setToastLabel(label); setToastVisible(true); };
   const hideToast = () => setToastVisible(false);
-
-  // ─── Watchlist actions ───────────────────────────────────────────────────────
   const handleAddToWatchlist = async (ticker) => {
     setButtonLoading(prev => ({ ...prev, [ticker]: true }));
     showToast(`Menambahkan ${ticker}…`);
@@ -320,25 +274,18 @@ const StockCatalog = () => {
       hideToast();
     }
   };
-
-  // ─── Navigation: only if in watchlist ───────────────────────────────────────
   const handleRowClick = (ticker) => {
     if (!watchedTickers.has(ticker.toUpperCase())) return;
     navigate(`/dashboard?stock=${ticker}`);
   };
-
-  // ─── Initial full-page loader ────────────────────────────────────────────────
   if (isLoadingStocks && isLoadingWatchlist && stocks.length === 0 && !searchQuery) {
     return <PageLoader label="Memuat Katalog Saham…" />;
   }
-
-  // ─── Derived display state ───────────────────────────────────────────────────
   const isSearchActive = searchQuery.length > 0;
   const noResultsFound = !isLoadingStocks && !stocksError && stocks.length === 0;
 
   return (
     <div className="pb-24 md:pb-0">
-      {/* ── Page Header ── */}
       <div ref={tableTopRef} className="mb-6 md:mb-8">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-5">
           <div>
@@ -355,7 +302,7 @@ const StockCatalog = () => {
             </p>
           </div>
 
-          {/* Info badge */}
+          
           <div className="flex items-center gap-2 bg-accent-soft border border-accent/20 px-4 py-2.5 max-w-sm flex-shrink-0">
             <Star className="w-3.5 h-3.5 text-accent flex-shrink-0" />
             <p className="font-mono text-[10px] tracking-[0.5px] text-accent/80 leading-relaxed">
@@ -363,8 +310,6 @@ const StockCatalog = () => {
             </p>
           </div>
         </div>
-
-        {/* ── Search Bar ── */}
         <div className="flex items-center gap-3">
           <SearchBar
             value={searchInput}
@@ -382,8 +327,6 @@ const StockCatalog = () => {
           )}
         </div>
       </div>
-
-      {/* ── Error State ── */}
       {stocksError && (
         <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
           <AlertCircle className="w-8 h-8 text-danger" />
@@ -397,8 +340,6 @@ const StockCatalog = () => {
           </button>
         </div>
       )}
-
-      {/* ── No Results ── */}
       {noResultsFound && !stocksError && (
         <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
           <Search className="w-8 h-8 text-text-muted" />
@@ -415,12 +356,10 @@ const StockCatalog = () => {
           )}
         </div>
       )}
-
-      {/* ── Desktop Table ── */}
       {!stocksError && (stocks.length > 0 || isLoadingStocks) && (
         <>
           <div className="hidden md:block bg-card-dark border border-card-border">
-            {/* Table Header */}
+            
             <div className="grid grid-cols-[1.8fr_1fr_1fr_1.2fr] gap-4 px-5 py-3.5 border-b border-card-border">
               <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted">Saham</span>
               <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted text-right">Harga</span>
@@ -428,7 +367,7 @@ const StockCatalog = () => {
               <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted text-right">Aksi</span>
             </div>
 
-            {/* Table Body */}
+            
             <div className="divide-y divide-hairline">
               {isLoadingStocks
                 ? Array.from({ length: 10 }, (_, i) => <SkeletonRow key={i} index={i} />)
@@ -449,7 +388,7 @@ const StockCatalog = () => {
                           canClick ? 'cursor-pointer hover:bg-surface/40' : 'cursor-default'
                         }`}
                       >
-                        {/* Ticker & Company */}
+                        
                         <div className="min-w-0 flex items-center gap-3">
                           <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 transition-all duration-300 ${
                             isWatched ? 'bg-accent' : 'bg-transparent border border-card-border'
@@ -468,7 +407,7 @@ const StockCatalog = () => {
                           </div>
                         </div>
 
-                        {/* Price */}
+                        
                         <div className="flex items-center justify-end">
                           {stock.current_price != null ? (
                             <span className="font-mono text-[13px] text-text-main">
@@ -479,12 +418,12 @@ const StockCatalog = () => {
                           )}
                         </div>
 
-                        {/* Change */}
+                        
                         <div className="flex items-center justify-end">
                           <ChangeIndicator value={stock.change_percent} />
                         </div>
 
-                        {/* Actions */}
+                        
                         <div className="flex items-center justify-end gap-2" onClick={e => e.stopPropagation()}>
                           {isWatched && (
                             <button
@@ -510,8 +449,6 @@ const StockCatalog = () => {
               }
             </div>
           </div>
-
-          {/* ── Mobile Cards ── */}
           <div className="md:hidden space-y-3">
             {isLoadingStocks
               ? Array.from({ length: 8 }, (_, i) => (
@@ -534,7 +471,7 @@ const StockCatalog = () => {
 
                   return (
                     <div key={ticker} className="bg-card-dark border border-card-border p-4">
-                      {/* Header */}
+                      
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <button
                           onClick={() => handleRowClick(ticker)}
@@ -560,7 +497,7 @@ const StockCatalog = () => {
                         />
                       </div>
 
-                      {/* Stats */}
+                      
                       <div className="flex items-center justify-between pt-3 border-t border-hairline">
                         <div>
                           <p className="font-mono text-[9px] tracking-[1.5px] uppercase text-text-muted mb-1">Harga</p>
@@ -591,8 +528,6 @@ const StockCatalog = () => {
                 })
             }
           </div>
-
-          {/* ── Pagination ── */}
           {!isLoadingStocks && pagination.totalPages > 1 && (
             <Pagination
               currentPage={pagination.currentPage}
@@ -602,7 +537,7 @@ const StockCatalog = () => {
             />
           )}
 
-          {/* Page info footer */}
+          
           {!isLoadingStocks && stocks.length > 0 && (
             <p className="text-center font-mono text-[10px] tracking-[1px] uppercase text-text-muted pb-4">
               Halaman {pagination.currentPage} dari {pagination.totalPages}
@@ -611,8 +546,6 @@ const StockCatalog = () => {
           )}
         </>
       )}
-
-      {/* ── Action Toast ── */}
       <ActionToast visible={toastVisible} label={toastLabel} />
     </div>
   );

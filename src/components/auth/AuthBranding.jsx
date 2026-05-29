@@ -1,11 +1,11 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import { ShieldCheck, BrainCircuit } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AuthBranding = ({ isRegister }) => {
   return (
     <div className="relative w-full h-full bg-surface flex flex-col justify-between p-12 xl:p-16 overflow-hidden">
-      {/* Very subtle ambient light */}
+      
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-accent/[0.03] blur-[100px] rounded-full pointer-events-none"></div>
 
       <div className="relative z-10">

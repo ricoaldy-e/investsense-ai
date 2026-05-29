@@ -1,7 +1,5 @@
-import { Navigate, Outlet } from 'react-router-dom';
+﻿import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-
-// ─── Minimal spinner shown during app-load hydration ──────────────────────
 const HydrationLoader = () => (
   <div className="min-h-screen bg-bg-dark flex items-center justify-center">
     <div className="text-center">
@@ -16,14 +14,10 @@ const HydrationLoader = () => (
 const GuestRoute = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  // While the AuthProvider is performing the silent refresh on app load,
-  // don't redirect yet — we don't know the auth state yet.
   if (isLoading) return <HydrationLoader />;
 
-  // Already authenticated → send away from auth pages to dashboard
   if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
-  // Not authenticated → allow access to login / register pages
   return <Outlet />;
 };
 

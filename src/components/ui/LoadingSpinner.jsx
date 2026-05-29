@@ -1,9 +1,5 @@
 import { Loader2 } from 'lucide-react';
 
-/**
- * PageLoader — Full-page loading for main routes (Dashboard, Watchlist, etc.)
- * Uses animated shimmer bars + subtle label.
- */
 export const PageLoader = ({ label = 'Loading...' }) => (
   <div className="flex flex-col items-center justify-center min-h-[60vh] pb-24 md:pb-0 gap-5">
     <div className="flex flex-col gap-2.5 w-40">
@@ -17,10 +13,6 @@ export const PageLoader = ({ label = 'Loading...' }) => (
   </div>
 );
 
-/**
- * InlineLoader — Used inside cards/sections when content is loading.
- * Compact, minimal, consistent.
- */
 export const InlineLoader = ({ label }) => (
   <div className="flex flex-col items-center justify-center py-10 gap-3">
     <div className="relative">
@@ -35,10 +27,6 @@ export const InlineLoader = ({ label }) => (
   </div>
 );
 
-/**
- * CardOverlayLoader — Used as an absolute overlay inside a card or chart.
- * Semi-transparent blur overlay that covers only the card.
- */
 export const CardOverlayLoader = ({ label }) => (
   <div className="absolute inset-0 flex flex-col items-center justify-center bg-card-dark/75 backdrop-blur-[2px] z-10">
     <div className="relative mb-2">
@@ -53,10 +41,6 @@ export const CardOverlayLoader = ({ label }) => (
   </div>
 );
 
-/**
- * ActionToast — Floating toast in bottom-right corner for quick actions
- * like add/remove watchlist. Does NOT block the UI.
- */
 export const ActionToast = ({ label, visible }) => (
   <div
     className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 px-5 py-3 bg-card-dark border border-card-border shadow-2xl transition-all duration-300 ${

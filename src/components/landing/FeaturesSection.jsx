@@ -1,4 +1,4 @@
-import { Sparkles, BarChart3, TriangleAlert, BotMessageSquare } from 'lucide-react';
+﻿import { Sparkles, BarChart3, TriangleAlert, BotMessageSquare } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 
@@ -32,7 +32,7 @@ const FeaturesSection = () => {
   return (
     <section id="features" className="py-32 lg:py-40" ref={sectionRef}>
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
-        {/* Section header */}
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -47,7 +47,7 @@ const FeaturesSection = () => {
           </h2>
         </motion.div>
 
-        {/* Feature grid — staggered reveal */}
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-card-border">
           {features.map((feature, index) => (
             <motion.div
@@ -61,17 +61,17 @@ const FeaturesSection = () => {
               }}
               className="bg-bg-dark p-8 md:p-10 lg:p-12 group"
             >
-              {/* Icon — direct, no container */}
+              
               <div className="text-accent mb-6">
                 {feature.icon}
               </div>
 
-              {/* Title — Outfit medium */}
+              
               <h3 className="font-display text-[20px] font-medium text-text-main tracking-[0.5px] mb-4">
                 {feature.title}
               </h3>
 
-              {/* Body — Source Serif 4 */}
+              
               <p className="font-body text-[15px] text-text-secondary leading-relaxed">
                 {feature.description}
               </p>

@@ -1,11 +1,10 @@
-import { User, Menu, X, BotMessageSquare } from 'lucide-react';
+import { User, Menu, X, BotMessageSquare, LayoutGrid } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import ConfirmModal from './ui/ConfirmModal';
 import LanguageToggle from './ui/LanguageToggle';
-import StockSearch from './StockSearch';
 
 const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeChange, onToggleAIPanel, isPanelOpen, isMobile }) => {
   const { t } = useTranslation();
@@ -36,9 +35,21 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
         {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
-      {/* Search Bar — StockSearch handles debounce, dropdown, and Zustand state */}
+      {/* Katalog Saham — replaces global search bar */}
       <div className="flex-1 max-w-lg">
-        <StockSearch />
+        <NavLink
+          to="/stocks"
+          className={({ isActive }) =>
+            `inline-flex items-center gap-2 font-mono text-[11px] tracking-[1.5px] uppercase transition-colors duration-200 ${
+              isActive
+                ? 'text-accent'
+                : 'text-text-muted hover:text-text-main'
+            }`
+          }
+        >
+          <LayoutGrid className="w-3.5 h-3.5" />
+          Katalog Saham
+        </NavLink>
       </div>
 
       {/* Right Actions */}

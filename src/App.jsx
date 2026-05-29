@@ -13,6 +13,7 @@ const Auth = lazy(() => import('./pages/Auth'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const MarketInsight = lazy(() => import('./pages/MarketInsight'));
 const Watchlist = lazy(() => import('./pages/Watchlist'));
+const StockCatalog = lazy(() => import('./pages/StockCatalog'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Full-screen app loader — shown on first load / lazy chunk fetch
@@ -70,6 +71,7 @@ function App() {
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/market-insight" element={<MarketInsight />} />
                   <Route path="/watchlist" element={<Watchlist />} />
+                  <Route path="/stocks" element={<StockCatalog />} />
                 </Route>
               </Route>
 

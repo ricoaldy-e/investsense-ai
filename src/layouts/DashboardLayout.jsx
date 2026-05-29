@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import AIChatPanel from '../components/AIChatPanel';
@@ -7,6 +7,10 @@ import AIChatPanel from '../components/AIChatPanel';
 const DEFAULT_PANEL_WIDTH = 380;
 
 const DashboardLayout = () => {
+  const location = useLocation();
+  // AI panel is exclusive to the /dashboard route
+  const isAIRoute = location.pathname === '/dashboard';
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [userMode, setUserMode] = useState(() => localStorage.getItem('userMode') || 'beginner');
   
@@ -72,33 +76,35 @@ const DashboardLayout = () => {
       
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top Navbar */}
+        {/* Top Navbar — pass AI panel props only when on the dashboard route */}
         <Navbar 
           onMenuClick={() => setIsSidebarOpen(true)} 
           isSidebarOpen={isSidebarOpen}
           onCloseSidebar={() => setIsSidebarOpen(false)}
           userMode={userMode}
           onModeChange={setUserMode}
-          onToggleAIPanel={handleTogglePanel}
-          isPanelOpen={isPanelOpen}
+          onToggleAIPanel={isAIRoute ? handleTogglePanel : undefined}
+          isPanelOpen={isAIRoute ? isPanelOpen : false}
           isMobile={isMobile}
         />
         
         {/* Content + AI Panel flex container */}
         <div className="flex-1 flex min-h-0">
-          {/* Scrollable Dashboard/MarketInsight Content */}
+          {/* Scrollable page content */}
           <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 min-w-0">
             <Outlet context={{ userMode }} />
           </main>
 
-          {/* AI Assistant Panel (Desktop: flex sibling, Mobile: overlay) */}
-          <AIChatPanel
-            isOpen={isPanelOpen}
-            onToggle={handleTogglePanel}
-            panelWidth={panelWidth}
-            onWidthChange={handleWidthChange}
-            isMobile={isMobile}
-          />
+          {/* AI Assistant Panel — ONLY rendered on /dashboard */}
+          {isAIRoute && (
+            <AIChatPanel
+              isOpen={isPanelOpen}
+              onToggle={handleTogglePanel}
+              panelWidth={panelWidth}
+              onWidthChange={handleWidthChange}
+              isMobile={isMobile}
+            />
+          )}
         </div>
       </div>
     </div>

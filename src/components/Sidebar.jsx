@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutDashboard as LayoutDashboardIcon, TrendingUp as TrendingUpIcon, Star as StarIcon, LogOut as LogOutIcon, Info } from 'lucide-react';
+import { LayoutDashboard as LayoutDashboardIcon, TrendingUp as TrendingUpIcon, Star as StarIcon, LogOut as LogOutIcon, Info, LayoutGrid } from 'lucide-react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ConfirmModal from './ui/ConfirmModal';
@@ -74,6 +74,11 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
               <NavLink to="/dashboard" className={navLinkClass}>
                 <LayoutDashboardIcon className="w-4 h-4 mr-3" />
                 <span className="font-mono text-[12px] tracking-[1px] uppercase">{t('nav.dashboard')}</span>
+              </NavLink>
+
+              <NavLink to="/stocks" className={navLinkClass}>
+                <LayoutGrid className="w-4 h-4 mr-3" />
+                <span className="font-mono text-[12px] tracking-[1px] uppercase">Katalog Saham</span>
               </NavLink>
 
               <NavLink to="/market-insight" className={navLinkClass}>

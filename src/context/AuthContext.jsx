@@ -115,9 +115,11 @@ export const AuthProvider = ({ children }) => {
         });
       } catch (err) {
         console.warn("[AuthContext] Background refresh failed.", err?.message);
+        clearTokens();
+        clearUsername();
         dispatch({
           type: AUTH_ACTIONS.HYDRATION_COMPLETE,
-          payload: { isAuthenticated: state.isAuthenticated, user: state.user },
+          payload: { isAuthenticated: false, user: null },
         });
       }
     };

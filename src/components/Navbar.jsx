@@ -1,4 +1,4 @@
-﻿import { User, Menu, X, BotMessageSquare, LayoutGrid } from 'lucide-react';
+import { User, Menu, X, BotMessageSquare, Search } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -47,8 +47,8 @@ const Navbar = ({ onMenuClick, isSidebarOpen, onCloseSidebar, userMode, onModeCh
             }`
           }
         >
-          <LayoutGrid className="w-3.5 h-3.5" />
-          Katalog Saham
+          <Search className="w-3.5 h-3.5" />
+          {t('nav.catalog')}
         </NavLink>
       </div>
 

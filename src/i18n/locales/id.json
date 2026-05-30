@@ -2,6 +2,7 @@
   "nav": {
     "intelligence": "Intelijen",
     "dashboard": "Dasbor",
+    "catalog": "Katalog Saham",
     "market_insight": "Wawasan Pasar",
     "watchlist": "Pantauan"
   },
@@ -46,9 +47,9 @@
     "loading": "Memuat analisis...",
     "error_title": "Analisis Tidak Tersedia",
     "search_prompt": "Cari saham di atas untuk memulai analisis.",
-    "zero_title": "Belum Ada Saham Dipilih",
-    "zero_desc": "Gunakan bilah pencarian di atas untuk menemukan dan menganalisis saham apa pun. Investasi rasional berbasis data dimulai dari sini.",
-    "search_examples": "Coba: BBCA.JK, TLKM.JK, AAPL, TSLA, NVDA"
+    "zero_title": "Pilih Saham untuk Dianalisis",
+    "zero_desc": "Cari saham langsung menggunakan menu katalog saham dan tambahkan saham ke watchlist untuk membuka analitik.",
+    "search_examples": "Contoh: BBCA.JK, TLKM.JK, AAPL, TSLA, NVDA"
   },
   "stock_chart": {
     "price_momentum": "Momentum Harga",
@@ -265,5 +266,35 @@
     "auth_invalid_creds": "Email atau kata sandi tidak valid",
     "auth_user_exists": "Pengguna dengan email atau nama pengguna ini sudah ada",
     "bad_request": "Pesan tidak dapat diproses. Pastikan pesan Anda tidak kosong."
+  },
+  "catalog": {
+    "title": "Katalog Saham",
+    "loading": "Memuat Katalog Saham…",
+    "search_placeholder": "Cari ticker atau nama perusahaan…",
+    "results_for": "hasil untuk",
+    "stocks_available": "saham IDX tersedia",
+    "loading_short": "Memuat…",
+    "info_badge": "Tambahkan ke watchlist untuk membuka Analitik Dashboard.",
+    "col_stock": "Saham",
+    "col_price": "Harga",
+    "col_change": "Perubahan",
+    "col_action": "Aksi",
+    "btn_analyze": "Analisa",
+    "btn_analyze_title": "Buka Dashboard Analitik",
+    "btn_add_title": "Tambah ke Watchlist",
+    "btn_remove_title": "Hapus dari Watchlist",
+    "btn_remove": "Hapus",
+    "btn_retry": "Coba Lagi",
+    "btn_reset": "Reset",
+    "btn_reset_search": "Reset Pencarian",
+    "no_results_search": "Tidak ada saham untuk",
+    "no_results_empty": "Tidak ada data saham.",
+    "toast_adding": "Menambahkan",
+    "toast_removing": "Menghapus",
+    "pagination_info": "Halaman",
+    "pagination_of": "dari",
+    "pagination_total": "total saham",
+    "prev_page": "Halaman sebelumnya",
+    "next_page": "Halaman berikutnya"
   }
 }

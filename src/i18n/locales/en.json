@@ -2,6 +2,7 @@
   "nav": {
     "intelligence": "Intelligence",
     "dashboard": "Dashboard",
+    "catalog": "Stock Catalog",
     "market_insight": "Market Insight",
     "watchlist": "Watchlist"
   },
@@ -46,9 +47,9 @@
     "loading": "Loading analysis...",
     "error_title": "Analysis Unavailable",
     "search_prompt": "Search for a stock above to begin analysis.",
-    "zero_title": "No Stock Selected",
-    "zero_desc": "Use the search bar above to find and analyze any stock. Rational, data-driven investing starts here.",
-    "search_examples": "Try: BBCA.JK, TLKM.JK, AAPL, TSLA, NVDA"
+    "zero_title": "Select a Stock to Analyze",
+    "zero_desc": "Browse the Stock Catalog and add a stock to your watchlist to open its analytics.",
+    "search_examples": "e.g. BBCA.JK, TLKM.JK, AAPL, TSLA, NVDA"
   },
   "stock_chart": {
     "price_momentum": "Price Momentum",
@@ -265,5 +266,35 @@
     "auth_invalid_creds": "Invalid email or password",
     "auth_user_exists": "User with this email or username already exists",
     "bad_request": "Message cannot be processed. Ensure your message is not empty."
+  },
+  "catalog": {
+    "title": "Stock Catalog",
+    "loading": "Loading Stock Catalog…",
+    "search_placeholder": "Search ticker or company name…",
+    "results_for": "results for",
+    "stocks_available": "IDX stocks available",
+    "loading_short": "Loading…",
+    "info_badge": "Add to watchlist to open the Analytics Dashboard.",
+    "col_stock": "Stock",
+    "col_price": "Price",
+    "col_change": "Change",
+    "col_action": "Action",
+    "btn_analyze": "Analyze",
+    "btn_analyze_title": "Open Analytics Dashboard",
+    "btn_add_title": "Add to Watchlist",
+    "btn_remove_title": "Remove from Watchlist",
+    "btn_remove": "Remove",
+    "btn_retry": "Try Again",
+    "btn_reset": "Reset",
+    "btn_reset_search": "Reset Search",
+    "no_results_search": "No stocks found for",
+    "no_results_empty": "No stock data available.",
+    "toast_adding": "Adding",
+    "toast_removing": "Removing",
+    "pagination_info": "Page",
+    "pagination_of": "of",
+    "pagination_total": "total stocks",
+    "prev_page": "Previous page",
+    "next_page": "Next page"
   }
 }

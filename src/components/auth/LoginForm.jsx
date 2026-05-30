@@ -1,4 +1,4 @@
-﻿import { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -16,6 +16,9 @@ const LoginForm = () => {
   const passwordRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const isExpired = searchParams.get('expired') === 'true';
+  const expiredMessage = isExpired ? 'Your session has expired due to inactivity. Please log in again.' : null;
   const successMessage = location.state?.successMessage ?? null;
 
   const handleKeyDown = (e, field) => {
@@ -117,6 +120,12 @@ const LoginForm = () => {
           <div className="bg-success/10 border border-success/30 text-success p-3 text-[13px] font-body flex items-center gap-2">
             <CheckCircle className="w-4 h-4 flex-shrink-0" />
             {successMessage}
+          </div>
+        )}
+
+        {expiredMessage && !successMessage && (
+          <div className="bg-accent/10 border border-accent/30 text-accent p-3 text-[13px] font-body rounded-sm flex items-center">
+            {expiredMessage}
           </div>
         )}
 

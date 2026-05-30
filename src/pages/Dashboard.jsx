@@ -18,16 +18,16 @@ const Dashboard = () => {
   const { userMode } = useOutletContext();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const activeTicker    = useDashboardStore((s) => s.activeTicker);
+  const activeTicker = useDashboardStore((s) => s.activeTicker);
   const setActiveTicker = useDashboardStore((s) => s.setActiveTicker);
 
   const stockFromUrl = searchParams.get('stock');
-  const lastViewed   = localStorage.getItem('lastViewedStock');
-  const hasStock     = !!(stockFromUrl || lastViewed);
-  const [stockData, setStockData]           = useState(null);
-  const [isLoading, setIsLoading]           = useState(hasStock);
-  const [error, setError]                   = useState('');
-  const [isInWatchlist, setIsInWatchlist]   = useState(false);
+  const lastViewed = localStorage.getItem('lastViewedStock');
+  const hasStock = !!(stockFromUrl || lastViewed);
+  const [stockData, setStockData] = useState(null);
+  const [isLoading, setIsLoading] = useState(hasStock);
+  const [error, setError] = useState('');
+  const [isInWatchlist, setIsInWatchlist] = useState(false);
   const [watchlistLoading, setWatchlistLoading] = useState(false);
   const notifyNavbar = useCallback((isEmpty) => {
     window.dispatchEvent(new CustomEvent('dashboardState', { detail: { isEmpty } }));
@@ -118,7 +118,7 @@ const Dashboard = () => {
   }
   if (error) {
     const cachedLastViewed = localStorage.getItem('lastViewedStock');
-    const hasValidHistory  = cachedLastViewed && cachedLastViewed !== searchParams.get('stock');
+    const hasValidHistory = cachedLastViewed && cachedLastViewed !== searchParams.get('stock');
 
     return (
       <div className="pb-24 md:pb-0 flex flex-col items-center justify-center min-h-[60vh]">
@@ -181,11 +181,10 @@ const Dashboard = () => {
           <button
             onClick={handleToggleWatchlist}
             disabled={watchlistLoading || !stockData?.ticker}
-            className={`flex items-center gap-1.5 font-mono text-[10px] tracking-[1.5px] uppercase rounded-full px-3 py-2 transition-all duration-200 ${
-              isInWatchlist
-                ? 'text-accent bg-accent/10 border border-accent/30'
-                : 'text-text-muted border border-card-border hover:text-accent hover:border-accent/40'
-            } disabled:opacity-50`}
+            className={`flex items-center gap-1.5 font-mono text-[10px] tracking-[1.5px] uppercase rounded-full px-3 py-2 transition-all duration-200 ${isInWatchlist
+              ? 'text-accent bg-accent/10 border border-accent/30'
+              : 'text-text-muted border border-card-border hover:text-accent hover:border-accent/40'
+              } disabled:opacity-50`}
             title={isInWatchlist ? t('watchlist.remove_title') : t('watchlist.add_stock')}
           >
             <Star className={`w-3 h-3 ${isInWatchlist ? 'fill-accent' : ''}`} />
@@ -194,17 +193,17 @@ const Dashboard = () => {
         </div>
       </div>
 
-      
+
       <div className="grid gap-4 md:gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))' }}>
-        
+
         <div style={{ gridColumn: '1 / -1' }}>
           <StockChartCard data={stockData} mode={userMode} />
         </div>
 
-        
+
         <MarketNewsCard mode={userMode} />
 
-        
+
         {stockData && (
           <>
             <SentimentAnalysisCard data={stockData} mode={userMode} />

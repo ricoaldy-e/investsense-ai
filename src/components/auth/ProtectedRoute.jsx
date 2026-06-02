@@ -1,11 +1,11 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { PageLoader } from '../ui/LoadingSpinner';
+import { AppLoader } from '../ui/LoadingSpinner';
 
 const ProtectedRoute = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  if (isLoading) return <PageLoader fullScreen />;
+  if (isLoading) return <AppLoader />;
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 

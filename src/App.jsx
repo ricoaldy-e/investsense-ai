@@ -13,36 +13,7 @@ const MarketInsight = lazy(() => import('./pages/MarketInsight'));
 const Watchlist = lazy(() => import('./pages/Watchlist'));
 const StockCatalog = lazy(() => import('./pages/StockCatalog'));
 const NotFound = lazy(() => import('./pages/NotFound'));
-const AppLoader = () => (
-  <div className="min-h-screen bg-bg-dark flex flex-col items-center justify-center gap-6">
-    
-    <div className="fixed top-0 left-0 right-0 h-[2px] overflow-hidden">
-      <div
-        className="h-full bg-accent"
-        style={{
-          width: '40%',
-          animation: 'appbar 1.8s ease-in-out infinite alternate',
-        }}
-      />
-    </div>
-
-    
-    <p className="font-mono text-[11px] tracking-[4px] uppercase text-text-main">
-      INVESTSENSE AI
-    </p>
-
-    
-    <div className="flex flex-col gap-2 w-36">
-      <div className="h-[1px] shimmer-bar" />
-      <div className="h-[1px] shimmer-bar w-3/4" />
-      <div className="h-[1px] shimmer-bar w-1/2" />
-    </div>
-
-    <p className="font-mono text-[9px] tracking-[3px] uppercase text-text-muted animate-pulse">
-      Loading
-    </p>
-  </div>
-);
+import { AppLoader } from './components/ui/LoadingSpinner';
 
 function App() {
   return (

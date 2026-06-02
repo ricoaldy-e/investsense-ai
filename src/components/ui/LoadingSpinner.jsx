@@ -1,7 +1,7 @@
 import { Loader2 } from 'lucide-react';
 
-export const PageLoader = ({ label = 'Loading...' }) => (
-  <div className="flex flex-col items-center justify-center min-h-[60vh] pb-24 md:pb-0 gap-5">
+export const PageLoader = ({ label = 'Loading...', fullScreen = false }) => (
+  <div className={`flex flex-col items-center justify-center gap-5 ${fullScreen ? 'min-h-screen bg-bg-dark' : 'min-h-[60vh] pb-24 md:pb-0'}`}>
     <div className="flex flex-col gap-2.5 w-40">
       <div className="h-[2px] shimmer-bar rounded-full" />
       <div className="h-[1px] shimmer-bar rounded-full w-3/4" style={{ animationDelay: '0.2s' }} />

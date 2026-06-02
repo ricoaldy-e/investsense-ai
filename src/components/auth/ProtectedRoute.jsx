@@ -5,7 +5,7 @@ import { PageLoader } from '../ui/LoadingSpinner';
 const ProtectedRoute = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  if (isLoading) return <PageLoader />;
+  if (isLoading) return <PageLoader fullScreen />;
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 

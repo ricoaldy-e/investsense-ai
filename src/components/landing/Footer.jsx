@@ -1,40 +1,10 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 
 const Footer = () => {
   const footerRef = useRef(null);
   const isInView = useInView(footerRef, { once: true, margin: '-40px' });
-  const [activeSection, setActiveSection] = useState('');
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = ['features', 'workflow', 'about'];
-      let current = '';
-
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 200 && rect.bottom >= 200) {
-            current = section;
-          }
-        }
-      }
-
-      if (window.scrollY < 100) current = '';
-
-      if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
-        current = 'about';
-      }
-
-      setActiveSection(current);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const navLinks = [
     { id: 'features', label: 'FEATURES' },
@@ -51,9 +21,9 @@ const Footer = () => {
       className="border-t border-card-border py-16 lg:py-20"
     >
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 mb-16">
           
-          <div className="max-w-sm">
+          <div className="md:col-span-6 max-w-sm">
             <Link 
               to="/" 
               className="font-mono text-[13px] text-text-main tracking-[3px] uppercase block mb-5"
@@ -66,7 +36,31 @@ const Footer = () => {
           </div>
 
           
-          <div className="md:text-right">
+          <div className="md:col-span-3">
+            <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted mb-5">
+              RESOURCES
+            </p>
+            <ul className="space-y-3">
+              <li>
+                <Link to="/guide" className="font-mono text-[12px] tracking-[1.5px] uppercase text-text-secondary hover:text-text-main transition-colors duration-300">
+                  User Guide
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" className="font-mono text-[12px] tracking-[1.5px] uppercase text-text-secondary hover:text-text-main transition-colors duration-300">
+                  Terms &amp; Conditions
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy" className="font-mono text-[12px] tracking-[1.5px] uppercase text-text-secondary hover:text-text-main transition-colors duration-300">
+                  Privacy Policy
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          
+          <div className="md:col-span-3 md:text-right">
             <p className="font-mono text-[10px] tracking-[2px] uppercase text-text-muted mb-5">
               NAVIGATION
             </p>
@@ -75,11 +69,7 @@ const Footer = () => {
                 <li key={id}>
                   <a 
                     href={`#${id}`} 
-                    className={`font-mono text-[12px] tracking-[1.5px] uppercase transition-colors duration-300 ${
-                      activeSection === id 
-                        ? 'text-text-main' 
-                        : 'text-text-secondary hover:text-text-main'
-                    }`}
+                    className="font-mono text-[12px] tracking-[1.5px] uppercase transition-colors duration-300 text-text-secondary hover:text-text-main"
                   >
                     {label}
                   </a>

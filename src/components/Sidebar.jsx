@@ -4,6 +4,7 @@ import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ConfirmModal from './ui/ConfirmModal';
 import LanguageToggle from './ui/LanguageToggle';
+import { AppLoader } from './ui/LoadingSpinner';
 import { useAuth } from '../context/AuthContext';
 
 const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
@@ -11,13 +12,15 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   
   const handleLogout = async () => {
+    setShowLogoutModal(false);
+    setIsLoggingOut(true);
     try {
       await logout();
     } catch (error) {
-
       console.error('[Sidebar] Unexpected error during logout:', error);
     } finally {
       navigate('/login');
@@ -32,6 +35,11 @@ const Sidebar = ({ isOpen, onClose, userMode, onModeChange }) => {
 
   return (
     <>
+      {isLoggingOut && (
+        <div className="fixed inset-0 z-[9999] bg-bg-dark">
+          <AppLoader />
+        </div>
+      )}
       
       {isOpen && (
         <div

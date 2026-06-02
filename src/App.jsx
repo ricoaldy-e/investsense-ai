@@ -13,6 +13,9 @@ const MarketInsight = lazy(() => import('./pages/MarketInsight'));
 const Watchlist = lazy(() => import('./pages/Watchlist'));
 const StockCatalog = lazy(() => import('./pages/StockCatalog'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const UserGuide = lazy(() => import('./pages/UserGuide'));
+const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 import { AppLoader } from './components/ui/LoadingSpinner';
 
 function App() {
@@ -40,6 +43,10 @@ function App() {
                   <Route path="/stocks" element={<StockCatalog />} />
                 </Route>
               </Route>
+
+              <Route path="/guide" element={<UserGuide />} />
+              <Route path="/terms" element={<TermsAndConditions />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
 
               
               <Route path="*" element={<NotFound />} />

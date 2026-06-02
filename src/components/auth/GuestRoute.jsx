@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from 'react-router-dom';
+﻿import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { AppLoader } from '../ui/LoadingSpinner';
 
@@ -13,4 +13,3 @@ const GuestRoute = () => {
 };
 
 export default GuestRoute;
-

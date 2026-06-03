@@ -3,6 +3,12 @@
 ## Deskripsi Singkat Proyek
 InvestSense AI adalah platform pendukung keputusan investasi saham (stock decision support) yang ditenagai oleh kecerdasan buatan (AI). Dirancang khusus untuk membantu investor pemula di pasar modal Indonesia (IHSG), platform ini menyediakan katalog saham real-time, manajemen *watchlist*, sentimen berita pasar, serta asisten AI interaktif. Tujuan utama dari InvestSense AI adalah untuk menetralkan bias psikologis (seperti FOMO) dan menyajikan wawasan pasar berbasis data agar pengguna dapat mengambil keputusan finansial yang lebih rasional dan terstruktur.
 
+## Teknologi yang Digunakan
+- **Frontend Framework:** React.js (dengan Vite untuk *build tool*)
+- **Styling:** Tailwind CSS
+- **Animasi:** Framer Motion
+- **Routing:** React Router DOM
+
 ## Petunjuk Setup Proyek
 
 Sebelum memulai, pastikan perangkat Anda telah memenuhi prasyarat berikut:
@@ -14,8 +20,9 @@ Sebelum memulai, pastikan perangkat Anda telah memenuhi prasyarat berikut:
 
 Ikuti langkah-langkah di bawah ini untuk menginstal proyek di lingkungan lokal Anda:
 
-1. **Clone repositori ini** (atau *extract* folder proyek) dan buka terminal di dalam direktori proyek:
+1. **Clone repositori ini** ke komputer Anda, lalu masuk ke direktori proyek:
    ```bash
+   git clone https://github.com/ricoaldy-e/investsense-ai.git
    cd investsense-ai
    ```
 

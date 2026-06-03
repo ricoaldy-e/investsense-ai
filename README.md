@@ -1,4 +1,4 @@
-# InvestSense AI V2
+# InvestSense AI
 
 ## Deskripsi Singkat Proyek
 InvestSense AI adalah platform pendukung keputusan investasi saham (stock decision support) yang ditenagai oleh kecerdasan buatan (AI). Dirancang khusus untuk membantu investor pemula di pasar modal Indonesia (IHSG), platform ini menyediakan katalog saham real-time, manajemen *watchlist*, sentimen berita pasar, serta asisten AI interaktif. Tujuan utama dari InvestSense AI adalah untuk menetralkan bias psikologis (seperti FOMO) dan menyajikan wawasan pasar berbasis data agar pengguna dapat mengambil keputusan finansial yang lebih rasional dan terstruktur.
@@ -16,7 +16,7 @@ Ikuti langkah-langkah di bawah ini untuk menginstal proyek di lingkungan lokal A
 
 1. **Clone repositori ini** (atau *extract* folder proyek) dan buka terminal di dalam direktori proyek:
    ```bash
-   cd "investsense-ai V2"
+   cd investsense-ai
    ```
 
 2. **Instal seluruh *dependencies*** menggunakan NPM:

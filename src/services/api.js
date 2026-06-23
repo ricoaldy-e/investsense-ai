@@ -10,6 +10,12 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+const plainAxios = axios.create({
+  baseURL: BASE_URL,
+  timeout: 30000,
+  headers: { "Content-Type": "application/json" },
+});
+
 let isRefreshing = false;
 let failedQueue = [];
 

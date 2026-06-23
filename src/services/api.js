@@ -7,14 +7,6 @@ const BASE_URL =
 const api = axios.create({
   baseURL: BASE_URL,
   timeout: 30000,
-  withCredentials: true,
-  headers: { "Content-Type": "application/json" },
-});
-
-const plainAxios = axios.create({
-  baseURL: BASE_URL,
-  timeout: 30000,
-  withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -53,7 +45,7 @@ api.interceptors.response.use(
     }
 
     if (
-      originalRequest.url.includes("/auth/login") || 
+      originalRequest.url.includes("/auth/login") ||
       originalRequest.url.includes("/auth/register")
     ) {
       return Promise.reject(error);
@@ -78,16 +70,28 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const { data } = await plainAxios.post("/auth/refresh", {});
+      const storedRefreshToken = localStorage.getItem("refreshToken");
+      const { data } = await plainAxios.post("/auth/refresh", {
+        refreshToken: storedRefreshToken,
+      });
       const newAccessToken = data.data.accessToken;
+      const newRefreshToken = data.data.refreshToken;
+
       localStorage.setItem("accessToken", newAccessToken);
+      if (newRefreshToken) {
+        localStorage.setItem("refreshToken", newRefreshToken);
+      }
+
       originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
       processQueue(null, newAccessToken);
       return api(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError, null);
       localStorage.removeItem("accessToken");
-      window.location.href = "/login?expired=true";
+      localStorage.removeItem("refreshToken");
+
+      window.location.href = "/login";
+
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;

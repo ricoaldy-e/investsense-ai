@@ -6,22 +6,25 @@ const BASE_URL =
   "https://investsense-ai-investsense-backend.hf.space/api/v1";
 
 // ─── Primary intercepted instance (used by all app services) ──────────────
+// NOTE: withCredentials is intentionally NOT set here.
+// The accessToken is managed via localStorage + Authorization header.
+// Setting withCredentials:true on every request (including /auth/login)
+// would force strict CORS credentials mode unnecessarily, causing browsers
+// to reject responses where Access-Control-Allow-Credentials is not echoed.
 const api = axios.create({
   baseURL: BASE_URL,
   timeout: 30000, // 30 seconds default timeout
-  withCredentials: true, // Include httpOnly cookies on every request
   headers: { "Content-Type": "application/json" },
 });
 
 // ─── Plain instance for token refresh (avoids infinite interceptor loop) ──
 // This must NOT use the `api` instance, otherwise a 401 on /auth/refresh
 // would trigger the interceptor again, creating an infinite loop.
-// withCredentials: true is critical — the httpOnly refreshToken cookie
-// must be sent automatically by the browser on this call.
+// No withCredentials needed — refreshToken is now sent via request body
+// from localStorage (not via httpOnly cookie).
 const plainAxios = axios.create({
   baseURL: BASE_URL,
   timeout: 30000,
-  withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -99,17 +102,24 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      // Send an empty body — the backend reads the refreshToken exclusively
-      // from the httpOnly cookie set at login. The browser includes it
-      // automatically because withCredentials: true is set on plainAxios.
-      const { data } = await plainAxios.post("/auth/refresh", {});
+      // Send refreshToken from localStorage in the request body.
+      // The backend validates it and returns a new accessToken (and optionally
+      // a new refreshToken for rotation).
+      const storedRefreshToken = localStorage.getItem("refreshToken");
+      const { data } = await plainAxios.post("/auth/refresh", {
+        refreshToken: storedRefreshToken,
+      });
 
-      // Backend response envelope: { success, data: { accessToken } }
+      // Backend response envelope: { success, data: { accessToken, refreshToken? } }
       const newAccessToken = data.data.accessToken;
+      const newRefreshToken = data.data.refreshToken;
 
-      // Only the accessToken is managed in localStorage.
-      // The backend rotates the refreshToken cookie automatically.
+      // Persist both tokens. If the backend rotates the refreshToken,
+      // the new one replaces the old one automatically.
       localStorage.setItem("accessToken", newAccessToken);
+      if (newRefreshToken) {
+        localStorage.setItem("refreshToken", newRefreshToken);
+      }
 
       // Update the Authorization header for the retried request
       originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
@@ -119,10 +129,11 @@ api.interceptors.response.use(
 
       return api(originalRequest);
     } catch (refreshError) {
-      // Refresh failed (refreshToken cookie expired or revoked).
-      // Clear only the accessToken — the httpOnly cookie is managed by the browser.
+      // Refresh failed — refreshToken is expired or revoked.
+      // Clear ALL tokens from localStorage to force a clean re-login.
       processQueue(refreshError, null);
       localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
 
       // Redirect to login (window.location is used here because we are
       // outside the React component tree and cannot call useNavigate)

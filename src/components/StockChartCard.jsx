@@ -48,7 +48,8 @@ const CHART_OPTIONS = {
     fixLeftEdge: true,
     fixRightEdge: true,
   },
-  handleScroll: true,
+  // Let vertical swipes on the chart scroll the page instead of being captured by the chart.
+  handleScroll: { vertTouchDrag: false },
   handleScale: true,
 };
 const CANDLE_OPTIONS = {

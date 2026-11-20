@@ -6,7 +6,7 @@ const AuthBranding = ({ isRegister }) => {
   return (
     <div className="relative w-full h-full bg-surface flex flex-col justify-between p-12 xl:p-16 overflow-hidden">
       
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-accent/[0.03] blur-[100px] rounded-full pointer-events-none"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] max-w-full h-[300px] bg-[radial-gradient(closest-side,rgba(168,181,200,0.03),transparent)] pointer-events-none"></div>
 
       <div className="relative z-10">
         <Link 

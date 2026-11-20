@@ -6,7 +6,9 @@ const LandingNavbar = () => {
   const [activeSection, setActiveSection] = useState('');
 
   useEffect(() => {
-    const handleScroll = () => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
       setScrolled(window.scrollY > 60);
 
       const sections = ['features', 'workflow', 'about'];
@@ -24,9 +26,17 @@ const LandingNavbar = () => {
       setActiveSection(current);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
+    // At most one layout read pass per frame, and never block scrolling.
+    const handleScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    update();
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      cancelAnimationFrame(frame);
+    };
   }, []);
 
   const navLinks = [
@@ -38,7 +48,7 @@ const LandingNavbar = () => {
   return (
     <nav className={`fixed w-full z-50 transition-all duration-500 ${
       scrolled 
-        ? 'bg-bg-dark/90 backdrop-blur-md border-b border-hairline' 
+        ? 'bg-bg-dark/90 border-b border-hairline' 
         : 'bg-transparent border-b border-transparent'
     }`}>
       <div className="max-w-6xl mx-auto px-6 lg:px-8">

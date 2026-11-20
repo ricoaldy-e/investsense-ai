@@ -3,9 +3,12 @@ import { authService } from "../services/authService";
 
 const AuthContext = createContext(null);
 
+const decodePayload = (token) =>
+  JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+
 const decodeUser = (token) => {
   try {
-    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    const payload = decodePayload(token);
     return {
       id: payload.sub,
       email: payload.email,
@@ -16,8 +19,19 @@ const decodeUser = (token) => {
   }
 };
 
-const storeTokens = (accessToken) => {
+// UX gate only (the server still verifies every request): a token with >60s left needs no
+// startup refresh. A missing/garbled `exp` yields NaN, which is treated as not fresh.
+const isTokenFresh = (token) => {
+  try {
+    return decodePayload(token).exp * 1000 - Date.now() > 60_000;
+  } catch {
+    return false;
+  }
+};
+
+const storeTokens = (accessToken, refreshToken) => {
   localStorage.setItem("accessToken", accessToken);
+  if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
 };
 
 const storeUsername = (username) => {
@@ -43,10 +57,11 @@ const getInitialState = () => {
         ...decoded,
         username: storedUsername || decoded?.username || 'Trader',
       },
-      isLoading: true,
+      // Only an expired token must wait for a refresh round trip before the UI can render.
+      isLoading: !isTokenFresh(accessToken),
     };
   }
-  return { isAuthenticated: false, user: null, isLoading: true };
+  return { isAuthenticated: false, user: null, isLoading: false };
 };
 
 const AUTH_ACTIONS = {
@@ -90,18 +105,15 @@ export const AuthProvider = ({ children }) => {
     const hydrate = async () => {
       const storedAccess = localStorage.getItem("accessToken");
 
-      if (!storedAccess) {
-        dispatch({
-          type: AUTH_ACTIONS.HYDRATION_COMPLETE,
-          payload: { isAuthenticated: false, user: null },
-        });
-        return;
-      }
+      // No token, or a still-fresh one: the initial state is already final and any later
+      // 401 is handled by the api.js interceptor. Skip the blocking network round trip.
+      if (!storedAccess || isTokenFresh(storedAccess)) return;
 
       try {
         const responseData = await authService.refresh();
         const newAccessToken = responseData.data.accessToken;
-        storeTokens(newAccessToken);
+        // Keep a rotated refresh token, same as the api.js interceptor does.
+        storeTokens(newAccessToken, responseData.data.refreshToken);
         const decoded = decodeUser(newAccessToken);
         const storedUsername = localStorage.getItem("username");
         const user = {

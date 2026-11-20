@@ -1,17 +1,28 @@
-﻿import { Link } from 'react-router-dom';
+﻿import { lazy, Suspense } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import TopographicWave from './TopographicWave';
+import useMediaQuery from '../../hooks/useMediaQuery';
+
+// Three.js is heavy: keep it out of the main bundle.
+const TopographicWave = lazy(() => import('./TopographicWave'));
 
 const HeroSection = () => {
+  // The WebGL wave is decorative (8% opacity): skip it on phones and for reduced-motion users.
+  const showWave = useMediaQuery('(min-width: 768px) and (prefers-reduced-motion: no-preference)');
+
   return (
     <section className="relative min-h-screen flex flex-col justify-center overflow-hidden">
-      
+
       <div className="absolute inset-0 z-0">
-        <TopographicWave />
+        {showWave && (
+          <Suspense fallback={null}>
+            <TopographicWave />
+          </Suspense>
+        )}
       </div>
 
-      
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-accent/[0.02] blur-[150px] rounded-full pointer-events-none z-[1]"></div>
+
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] max-w-full h-[400px] bg-[radial-gradient(closest-side,rgba(168,181,200,0.02),transparent)] pointer-events-none z-[1]"></div>
 
       
       <div className="max-w-4xl mx-auto px-6 lg:px-8 relative z-10 text-center pt-42 pb-32">

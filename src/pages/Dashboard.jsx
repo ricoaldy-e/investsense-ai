@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { Loader2, Search, ArrowLeft, RefreshCw, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -32,27 +32,50 @@ const Dashboard = () => {
   const notifyNavbar = useCallback((isEmpty) => {
     window.dispatchEvent(new CustomEvent('dashboardState', { detail: { isEmpty } }));
   }, []);
+  // Identifies the latest load so a slow, superseded response can't overwrite newer state.
+  const latestRequest = useRef(0);
+  const checkWatchlistStatus = useCallback(async (ticker, requestId) => {
+    try {
+      const items = await watchlistService.getWatchlist();
+      if (requestId !== latestRequest.current) return;
+      const found = items.some((item) => item.ticker.toUpperCase() === ticker.toUpperCase());
+      setIsInWatchlist(found);
+    } catch {
+      if (requestId === latestRequest.current) setIsInWatchlist(false);
+    }
+  }, []);
   const loadStock = useCallback(async (ticker) => {
-    setIsLoading(true);
+    const upperTicker = ticker.toUpperCase();
+    const requestId = ++latestRequest.current;
+    const previousTicker = useDashboardStore.getState().activeTicker;
+
     setError('');
+    setStockData(null);
+    setIsInWatchlist(false);
     notifyNavbar(false);
 
-    try {
-      const data = await stockService.getStockDetail(ticker);
-      setStockData(data);
-      localStorage.setItem('lastViewedStock', ticker.toUpperCase());
+    // Publish the ticker before awaiting the quote: the chart and news cards fetch on
+    // activeTicker, so they (and the watchlist check) now run in parallel with the quote
+    // instead of waiting for it.
+    setActiveTicker(upperTicker);
+    setIsLoading(false);
+    checkWatchlistStatus(upperTicker, requestId);
 
-      setActiveTicker(ticker.toUpperCase());
-      checkWatchlistStatus(ticker.toUpperCase());
+    try {
+      const data = await stockService.getStockDetail(upperTicker);
+      if (requestId !== latestRequest.current) return;
+      setStockData(data);
+      localStorage.setItem('lastViewedStock', upperTicker);
     } catch (err) {
+      if (requestId !== latestRequest.current) return;
       setError(err.message || 'Failed to load stock data.');
-      setStockData(null);
+      // Don't leave an unsupported ticker active: the chat panel would send it to the API.
+      setActiveTicker(previousTicker);
       notifyNavbar(true);
-    } finally {
-      setIsLoading(false);
     }
-  }, [notifyNavbar, setActiveTicker]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [notifyNavbar, setActiveTicker, checkWatchlistStatus]);
   const handleClearDashboard = useCallback(() => {
+    latestRequest.current++;
     localStorage.removeItem('lastViewedStock');
     navigate('/dashboard');
     setStockData(null);
@@ -61,15 +84,6 @@ const Dashboard = () => {
     notifyNavbar(true);
     setIsLoading(false);
   }, [navigate, notifyNavbar, setActiveTicker]);
-  const checkWatchlistStatus = useCallback(async (ticker) => {
-    try {
-      const items = await watchlistService.getWatchlist();
-      const found = items.some((item) => item.ticker.toUpperCase() === ticker.toUpperCase());
-      setIsInWatchlist(found);
-    } catch {
-      setIsInWatchlist(false);
-    }
-  }, []);
 
   const handleToggleWatchlist = useCallback(async () => {
     if (!stockData?.ticker || watchlistLoading) return;

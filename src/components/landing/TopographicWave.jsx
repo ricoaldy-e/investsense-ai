@@ -1,12 +1,12 @@
-﻿import { useRef, useMemo, useCallback } from 'react';
+﻿import { useRef, useMemo, useCallback, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
+import { PlaneGeometry } from 'three';
 
 const WaveMesh = () => {
   const geometryRef = useRef();
 
   const { positions, count } = useMemo(() => {
-    const geo = new THREE.PlaneGeometry(40, 20, 80, 40);
+    const geo = new PlaneGeometry(40, 20, 80, 40);
     const pos = geo.attributes.position.array.slice();
     return { positions: pos, count: geo.attributes.position.count };
   }, []);
@@ -52,12 +52,23 @@ const WaveMesh = () => {
 };
 
 const TopographicWave = () => {
+  const wrapperRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(true);
+
+  // Stop rendering frames once the hero is scrolled out of view.
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => setIsVisible(entry.isIntersecting));
+    observer.observe(wrapperRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const handleCreated = useCallback(({ gl }) => {
     gl.domElement.style.pointerEvents = 'none';
   }, []);
 
   return (
     <div
+      ref={wrapperRef}
       className="absolute inset-0 z-0 overflow-hidden"
       aria-hidden="true"
       style={{
@@ -67,6 +78,7 @@ const TopographicWave = () => {
     >
       <Canvas
         orthographic
+        frameloop={isVisible ? 'always' : 'never'}
         camera={{ position: [0, 5, 5], zoom: 50 }}
         dpr={[1, 1.5]}
         gl={{ antialias: false, alpha: true }}
